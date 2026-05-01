@@ -1,132 +1,50 @@
-# ManoMed AI - Medical Symptom Analysis Tool
+**GitHub Description:**  
+An AI-powered medical symptom analysis tool using Next.js and Google GenAI to generate interactive health questionnaires and condition assessments.
 
-ManoMed AI is an AI-powered medical symptom analysis tool that helps users understand potential medical conditions based on their symptoms and medical history. This project was developed to demonstrate the integration of AI in healthcare applications.
- 
+---
 
-## Deployments:
- 
- 🔗 https://manomedai.com
- 
-## Features
+# 🩺 ManoMed AI
 
-- 🤖 AI-powered symptom analysis
-- 📝 Interactive questionnaire generation
-- 🏥 Medical condition likelihood assessment
-- 💬 User-friendly interface
-- 🌙 Dark/Light mode support
-- �� Responsive design
-- 🎨 Custom branding and favicon
+## 📖 Overview
+ManoMed AI is a core, intelligent medical symptom analysis tool designed to help users better understand potential health conditions. By leveraging advanced artificial intelligence, the application analyzes user-provided symptoms and medical history to dynamically generate personalized, interactive questionnaires. It solves the problem of healthcare ambiguity by bridging the gap between initial symptom onset and medical consultation, providing users with preliminary condition likelihood assessments in a clean, user-friendly environment.
 
-## Tech Stack
+## ✨ Key Features
+* **AI-Powered Symptom Analysis:** Utilizes Google GenAI to intelligently evaluate complex user symptoms.
+* **Dynamic Questionnaires:** Generates contextual follow-up questions based on the user's initial health inputs.
+* **Likelihood Assessment:** Calculates and displays potential medical conditions with probability scores.
+* **Modern UI/UX:** Fully responsive, accessible design with seamless Dark/Light mode support.
+* **Stateful Flow:** Guides users through an intuitive, step-by-step process from input to final assessment.
 
-- **Frontend**: Next.js 15, React 18, TypeScript
-- **Styling**: Tailwind CSS
-- **AI Integration**: Google GenAI
-- **UI Components**: Radix UI
-- **State Management**: React Hooks
-- **Deployment**: Vercel
+## 💻 Tech Stack
+* **Frontend:** Next.js 15, React 18, TypeScript
+* **Styling & Components:** Tailwind CSS, Radix UI
+* **Artificial Intelligence:** Google GenAI API
+* **State Management:** React Hooks
+* **Deployment:** Vercel
 
-## Getting Started
+## 🚀 Getting Started
 
-### Prerequisites
+Follow these steps to set up and run ManoMed AI locally:
 
-- Node.js 18+ 
-- npm or yarn
-- Google GenAI API key
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/techwithmano/manomed-ai.git
+   cd manomed-ai
+   ```
 
-### Installation
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
 
-1. Clone the repository:
-```bash
-git clone [your-repo-url]
-cd mano-med-ai
-```
+3. **Configure Environment Variables:**
+   Create a `.env.local` file in the root directory and add your API key:
+   ```env
+   GOOGLE_GENAI_API_KEY=your_google_genai_api_key_here
+   ```
 
-2. Install dependencies:
-```bash
-npm install
-# or
-yarn install
-```
-
-3. Create a `.env` file in the root directory and add your Google GenAI API key:
-```
-GOOGLE_GENAI_API_KEY=your_api_key_here
-```
-
-4. Run the development server:
-```bash
-npm run dev
-# or
-yarn dev
-```
-
-The application will be available at `http://localhost:9002`
-
-## Project Structure
-
-```
-src/
-├── app/              # Next.js app directory
-│   ├── layout.tsx    # Root layout with favicon and metadata
-│   └── page.tsx      # Main page component
-├── components/       # React components
-├── ai/              # AI integration and flows
-├── hooks/           # Custom React hooks
-└── lib/             # Utility functions
-public/
-├── icon.ico         # Custom favicon
-└── ...              # Other static assets
-```
-
-## Usage
-
-1. Enter your symptoms in the main form
-2. Optionally provide your medical history
-3. Submit to generate a questionnaire
-4. Answer the generated questions
-5. View potential conditions with likelihood scores
-
-## Development
-
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run start` - Start production server
-- `npm run lint` - Run ESLint
-- `npm run typecheck` - Run TypeScript type checking
-
-## Deployment
-
-The application is deployed on Vercel and automatically updates when changes are pushed to the main branch. The deployment includes:
-
-- Custom favicon and branding
-- Environment variable configuration
-- Automatic HTTPS
-- Global CDN distribution
-
-## License & Usage Terms
-
-**This project is protected under the [Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License](https://creativecommons.org/licenses/by-nc-nd/4.0/).**
-
-[![License: CC BY-NC-ND 4.0](https://img.shields.io/badge/License-CC%20BY--NC--ND%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-nd/4.0/)
-
-### You are allowed to:
-- View and explore the project for personal, non-commercial, read-only purposes.
-- Share the project **as-is** with **proper credit** to the original creator.
-
-### You are **not** allowed to:
-- Copy or fork this repository.
-- Modify, reuse, or create derivatives of any part of the code.
-- Use this project (or parts of it) for academic, commercial, research, or educational purposes.
-- Rebrand, rename, or redistribute this project under any form.
-
-> **This work is the intellectual property of Abdulrahman (a.k.a. Mano), founder of Tech with Mano.**
-> Any unauthorized use, reproduction, or distribution may result in a DMCA takedown and legal consequences.
-
-For inquiries or permissions beyond this license, please contact the author directly.
-
-## Acknowledgments
-
-- University course instructors
-- Google GenAI team
-- Next.js and React communities
+4. **Run the development server:**
+   ```bash
+   npm run dev
+   ```
+   Open `http://localhost:3000` in your browser to view the application.
