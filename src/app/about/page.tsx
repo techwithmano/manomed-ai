@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
+import Link from "next/link";
 import {
   ShieldCheck,
   Stethoscope,
@@ -9,128 +9,142 @@ import {
   Lock,
   HeartPulse,
   Brain,
-  Microscope,
   ArrowRight,
-  Sparkles,
-  Users2,
   Award,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+  CheckCircle2,
+  Building2,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
 const pillars = [
   {
-    icon: <ShieldCheck className="w-8 h-8 text-blue-600 dark:text-blue-400" />,
-    title: 'Safety-First Clinical Triage',
-    desc: 'Emergency red-flag screening designed to instantly rule out acute coronary syndromes, strokes, respiratory failure, and acute abdomen crises before secondary evaluation.',
+    icon: <ShieldCheck className="w-6 h-6 text-primary" />,
+    title: "Safety-First Clinical Triage",
+    desc: "Autonomous emergency red-flag screening designed to immediately rule out acute coronary syndromes, stroke, respiratory insufficiency, and acute abdominal emergencies before secondary workup.",
   },
   {
-    icon: <Brain className="w-8 h-8 text-indigo-600 dark:text-indigo-400" />,
-    title: 'Multi-Modal GenAI Diagnostics',
-    desc: 'Powered by calibrated Google GenAI models fine-tuned on standardized clinical diagnostic protocols and ICD-10 differential taxonomy.',
+    icon: <Brain className="w-6 h-6 text-primary" />,
+    title: "Calibrated Differential Reasoning",
+    desc: "Built on rigorous clinical diagnostic taxonomies and ICD-10 codification. Incorporates patient demographics, past medical history, and follow-up clinical questions.",
   },
   {
-    icon: <FileCheck2 className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />,
-    title: 'EHR Clinical Hand-Off',
-    desc: 'Automates patient interview synthesis into standard SOAP notes (Subjective, Objective, Assessment, Plan) that physicians can import directly into EHRs.',
+    icon: <FileCheck2 className="w-6 h-6 text-primary" />,
+    title: "Structured EHR Clinical Hand-Off",
+    desc: "Transforms unstructured patient narratives into standard SOAP documentation (Subjective, Objective, Assessment, Plan) that clinicians can import directly into Electronic Health Records.",
   },
   {
-    icon: <Lock className="w-8 h-8 text-purple-600 dark:text-purple-400" />,
-    title: 'Strict Patient Privacy',
-    desc: 'Client-side ephemeral storage by default. Patient health data is processed using enterprise encryption standards with zero ad tracking or commercial data sales.',
+    icon: <Lock className="w-6 h-6 text-primary" />,
+    title: "Strict Patient Privacy & Ethics",
+    desc: "Client-side ephemeral vault storage by default. Clinical sessions are processed with strict data minimization principles with zero advertising tracking or commercial monetization.",
   },
 ];
 
 const standards = [
   {
-    number: '01',
-    title: 'Standardized Triage Hierarchy',
-    desc: 'Every assessment maps to Emergency (immediate ER), Urgent (within 24h), Routine (primary clinic), or Self-Care (supportive home monitoring).',
+    number: "01",
+    title: "Standardized Triage Hierarchy",
+    desc: "Every assessment maps strictly to Emergency (immediate ER), Urgent (within 24 hours), Routine (primary clinic consultation), or Self-Care (supportive home monitoring).",
   },
   {
-    number: '02',
-    title: 'Evidence-Based Differential Reasoning',
-    desc: 'Condition likelihoods are calibrated against reported symptoms, patient demographics, vitals, and follow-up clinical questions with explicit supporting and conflicting evidence.',
+    number: "02",
+    title: "Evidence-Based Differentiating Evidence",
+    desc: "Condition probabilities are explicitly correlated with positive supporting factors and unconfirmed counter-indicators to provide total diagnostic transparency.",
   },
   {
-    number: '03',
-    title: 'Physician Empowerment & Partnership',
-    desc: 'ManoMed AI does not replace licensed medical practitioners. It prepares patients with informed questions, recommended diagnostic tests, and structured documentation.',
+    number: "03",
+    title: "Physician Partnership & Empowerment",
+    desc: "ManoMed AI does not replace licensed medical practitioners. It prepares patients with informed consultation questions, recommended laboratory workups, and structured clinical summaries.",
   },
   {
-    number: '04',
-    title: 'Continuous Safety Auditing',
-    desc: 'Algorithms and prompts are continuously reviewed against clinical guidelines from major international health bodies to prevent hallucination and bias.',
+    number: "04",
+    title: "Continuous Clinical Safety Auditing",
+    desc: "Reasoning prompts and safety rules are continuously audited against clinical guidelines from international medical bodies to prevent bias and hallucination.",
   },
 ];
 
 export default function AboutPage() {
   return (
     <div className="bg-background text-foreground min-h-screen">
-      {/* Hero */}
-      <section className="container mx-auto px-4 pt-16 pb-20 max-w-5xl text-center space-y-6">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20">
-          <Sparkles className="w-3.5 h-3.5" />
-          The Science Behind ManoMed AI
+      {/* Editorial Hero */}
+      <section className="container mx-auto px-4 pt-16 pb-20 max-w-5xl space-y-6">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20">
+          <Stethoscope className="w-3.5 h-3.5" />
+          Clinical Intelligence Architecture
         </div>
 
-        <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight max-w-3xl mx-auto leading-tight">
-          Bridging the Critical Gap Between <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Symptom Onset</span> & Medical Care
+        <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl font-normal tracking-tight max-w-3xl leading-[1.1] text-foreground">
+          Bridging the Critical Gap Between Symptom Onset & Clinical Care
         </h1>
 
-        <p className="max-w-2xl mx-auto text-base sm:text-lg text-muted-foreground leading-relaxed">
-          ManoMed AI was engineered to eliminate healthcare ambiguity. By combining state-of-the-art medical language modeling with rigorous clinical triage protocols, we empower patients with clear guidance and provide physicians with structured, time-saving clinical notes.
+        <p className="max-w-2xl text-base sm:text-lg text-muted-foreground leading-relaxed">
+          ManoMed AI was engineered to eliminate healthcare diagnostic ambiguity. By combining state-of-the-art medical language modeling with rigorous emergency triage protocols, we empower patients with calm, reliable guidance and provide physicians with structured, time-saving clinical notes.
         </p>
 
-        <div className="pt-4 flex justify-center gap-4">
+        <div className="pt-4 flex flex-wrap gap-4">
           <Link href="/ManoMedai">
-            <Button size="lg" className="rounded-2xl px-8 h-12 font-semibold flex items-center gap-2 shadow-lg">
-              Experience the Clinical Triage
+            <Button size="lg" className="min-h-[48px] rounded-xl px-8 font-semibold flex items-center gap-2 shadow-xs bg-primary text-primary-foreground">
+              Begin Clinical Triage Session
               <ArrowRight className="w-4 h-4" />
+            </Button>
+          </Link>
+          <Link href="/contact">
+            <Button size="lg" variant="outline" className="min-h-[48px] rounded-xl px-6 font-semibold border-border">
+              Institutional Inquiries
             </Button>
           </Link>
         </div>
       </section>
 
-      {/* Mission & Vision Banner */}
+      {/* Mission & Commitments */}
       <section className="bg-muted/30 border-y border-border/60 py-16">
         <div className="container mx-auto px-4 max-w-5xl">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-            <div className="space-y-4">
-              <span className="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">Our Clinical Mission</span>
-              <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+            <div className="md:col-span-7 space-y-4">
+              <span className="text-xs font-mono font-bold uppercase tracking-wider text-primary">
+                Our Clinical Mission
+              </span>
+              <h2 className="font-serif text-2xl sm:text-3xl font-normal tracking-tight text-foreground">
                 Empowering Safe, Timely Healthcare Decisions Worldwide
               </h2>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Every year, millions of patients either delay emergency medical treatment due to diagnostic uncertainty or overwhelm emergency departments with benign complaints. ManoMed AI provides immediate, reliable preliminary triage to direct patients to the right care tier at the right time.
+                Every year, millions of individuals either delay necessary emergency medical treatment due to uncertainty or overwhelm acute emergency rooms with self-limiting conditions. ManoMed AI provides immediate, clinical-grade triage support to direct patients to the right care tier at the right time.
               </p>
               <div className="flex items-center gap-3 pt-2">
-                <div className="p-2.5 rounded-xl bg-blue-500/10 text-blue-600">
-                  <Stethoscope className="w-5 h-5" />
+                <div className="p-2 rounded-lg bg-primary/10 text-primary">
+                  <CheckCircle2 className="w-5 h-5" />
                 </div>
-                <span className="text-xs font-semibold text-foreground">
-                  Designed for patient clarity and clinical workflow integration.
+                <span className="text-xs font-medium text-foreground">
+                  Structured for patient clarity and physician workflow integration.
                 </span>
               </div>
             </div>
 
-            <div className="p-8 rounded-3xl bg-card border border-border shadow-sm space-y-4">
-              <h3 className="text-lg font-bold flex items-center gap-2">
-                <Award className="w-5 h-5 text-indigo-600" />
-                Core Institutional Commitments
-              </h3>
+            <div className="md:col-span-5 p-6 rounded-2xl bg-card border border-border shadow-xs space-y-4">
+              <div className="flex items-center gap-2">
+                <Award className="w-5 h-5 text-primary" />
+                <h3 className="text-base font-bold text-foreground">
+                  Institutional Commitments
+                </h3>
+              </div>
               <ul className="space-y-3 text-xs text-muted-foreground">
                 <li className="flex items-start gap-2.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-blue-600 mt-1.5 shrink-0" />
-                  <span><strong>Zero Commercial Bias:</strong> Diagnostic outputs are never influenced by pharmaceutical sponsors or advertorial monetization.</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
+                  <span>
+                    <strong className="text-foreground">Zero Commercial Bias:</strong> Diagnostic outputs are never influenced by pharmaceutical sponsorships or advertorial products.
+                  </span>
                 </li>
                 <li className="flex items-start gap-2.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-blue-600 mt-1.5 shrink-0" />
-                  <span><strong>Clinical Safety Interceptors:</strong> Immediate hardcoded alerts for acute cardiovascular, cerebrovascular, and respiratory red flags.</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
+                  <span>
+                    <strong className="text-foreground">Clinical Safety Interceptors:</strong> Immediate alerts for acute cardiovascular, cerebrovascular, and pulmonary red flags.
+                  </span>
                 </li>
                 <li className="flex items-start gap-2.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-blue-600 mt-1.5 shrink-0" />
-                  <span><strong>Data Minimization:</strong> Health data stays locally under patient control with end-to-end encryption during transient inference.</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
+                  <span>
+                    <strong className="text-foreground">Data Minimization:</strong> Health data remains in client storage with end-to-end encrypted transient evaluation.
+                  </span>
                 </li>
               </ul>
             </div>
@@ -140,8 +154,13 @@ export default function AboutPage() {
 
       {/* Core Architectural Pillars */}
       <section className="container mx-auto px-4 py-20 max-w-5xl space-y-12">
-        <div className="text-center space-y-3 max-w-2xl mx-auto">
-          <h2 className="text-3xl font-extrabold tracking-tight">Clinical Architecture & Standards</h2>
+        <div className="space-y-2 max-w-2xl">
+          <span className="text-xs font-mono font-bold uppercase tracking-wider text-primary">
+            ENGINEERING PRINCIPLES
+          </span>
+          <h2 className="font-serif text-3xl font-normal tracking-tight text-foreground">
+            Clinical Architecture & Rigor
+          </h2>
           <p className="text-sm text-muted-foreground">
             How our intelligence engine operates to deliver high-yield differential assessments:
           </p>
@@ -149,41 +168,47 @@ export default function AboutPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {pillars.map((p, idx) => (
-            <Card key={idx} className="border-border/70 shadow-sm hover:shadow-md transition-all">
+            <Card key={idx} className="border-border shadow-xs bg-card">
               <CardContent className="p-6 space-y-3">
-                <div className="p-3 rounded-2xl bg-muted/60 w-fit">{p.icon}</div>
-                <h3 className="text-lg font-bold">{p.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{p.desc}</p>
+                <div className="p-2.5 rounded-xl bg-primary/10 w-fit">{p.icon}</div>
+                <h3 className="text-base font-bold text-foreground">{p.title}</h3>
+                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{p.desc}</p>
               </CardContent>
             </Card>
           ))}
         </div>
       </section>
 
-      {/* Clinical Methodology Steps */}
-      <section className="bg-muted/40 border-t border-border/60 py-20">
+      {/* 4-Step Pipeline */}
+      <section className="bg-muted/30 border-t border-border/60 py-20">
         <div className="container mx-auto px-4 max-w-5xl space-y-12">
-          <div className="text-center space-y-3 max-w-2xl mx-auto">
-            <span className="text-xs font-bold uppercase tracking-wider text-primary">Standard Operating Procedure</span>
-            <h2 className="text-3xl font-extrabold tracking-tight">Our 4-Step Diagnostic Pipeline</h2>
+          <div className="space-y-2 max-w-2xl">
+            <span className="text-xs font-mono font-bold uppercase tracking-wider text-primary">
+              Standard Operating Procedure
+            </span>
+            <h2 className="font-serif text-3xl font-normal tracking-tight text-foreground">
+              Our 4-Stage Diagnostic Pipeline
+            </h2>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {standards.map((s, idx) => (
-              <div key={idx} className="p-6 rounded-2xl bg-card border border-border flex items-start gap-4">
+              <div key={idx} className="p-6 rounded-2xl bg-card border border-border flex items-start gap-4 shadow-xs">
                 <span className="text-2xl font-black text-primary/30 tracking-tight font-mono">{s.number}</span>
                 <div className="space-y-1">
-                  <h3 className="text-base font-bold">{s.title}</h3>
+                  <h3 className="text-sm font-bold text-foreground">{s.title}</h3>
                   <p className="text-xs text-muted-foreground leading-relaxed">{s.desc}</p>
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="p-6 rounded-2xl bg-primary/5 border border-primary/20 text-center space-y-4">
-            <h4 className="text-base font-bold">Important Medical Disclaimer</h4>
+          <div className="p-6 rounded-2xl bg-card border border-border text-center space-y-2 shadow-xs">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-foreground">
+              Clinical Advisory & Ethics Covenant
+            </h4>
             <p className="text-xs text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              ManoMed AI is a clinical decision support and health information tool intended to assist patient education and preliminary triage. It does not constitute formal medical diagnosis or treatment prescribing. If you are experiencing sudden, severe chest pain, shortness of breath, loss of consciousness, or signs of stroke, dial 911 or your local emergency number immediately.
+              ManoMed AI is a clinical decision support and health information tool intended to assist patient education and preliminary triage. It does not constitute formal medical diagnosis or prescription treatment. If you are experiencing sudden, severe chest pain, shortness of breath, loss of consciousness, or signs of stroke, dial <strong>911</strong> or your local emergency number immediately.
             </p>
           </div>
         </div>

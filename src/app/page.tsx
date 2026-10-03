@@ -1,141 +1,341 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
-  HeartPulse,
+  Activity,
+  ArrowRight,
   ShieldCheck,
   Stethoscope,
-  Activity,
   FileText,
-  History,
   AlertTriangle,
-  ArrowRight,
-  Sparkles,
+  History,
+  Lock,
+  Clock,
   CheckCircle2,
+  ChevronRight,
+  FileCheck2,
+  ExternalLink,
+  Info,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
-const features = [
+// Real clinical showcase specimens for the live hero demonstration widget
+const sampleSpecimens = [
   {
-    icon: <ShieldCheck className="w-6 h-6 text-blue-600 dark:text-blue-400" />,
-    title: '4-Tier Clinical Triage',
-    desc: 'Instant emergency red-flag screening categorizing symptoms into Emergency, Urgent, Routine, or Self-Care with clear guidance.',
+    id: 'specimen-cardiac',
+    tag: 'Chest & Cardiopulmonary',
+    patient: '58y Male • Non-smoker',
+    chiefComplaint: 'Substernal chest tightness with mild left shoulder radiation, onset 90 mins ago during brisk walk.',
+    triageLevel: 'EMERGENCY',
+    urgencyText: 'Immediate Emergency Evaluation (< 15 mins)',
+    colorClass: 'text-destructive bg-destructive/10 border-destructive/30',
+    borderClass: 'border-l-4 border-l-destructive',
+    topDiagnosis: 'Acute Coronary Syndrome (ACS) Rule-Out',
+    icd10: 'I21.9',
+    likelihood: 78,
+    keyRuleOut: 'Requires emergent 12-lead ECG & serial high-sensitivity Troponin assays.',
+    soapSnippet: 'S: 58yo M reports 90-min substernal pressure radiating to L shoulder. O: Distress noted. A: Suspected ACS. P: Activate emergency department cardiac pathway.',
   },
   {
-    icon: <Activity className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />,
-    title: 'Differential Diagnosis',
-    desc: 'Calibrated condition probabilities powered by Google GenAI, complete with ICD-10 codes, supporting factors, and rule-outs.',
+    id: 'specimen-abdominal',
+    tag: 'Abdomen & GI',
+    patient: '27y Female • No prior surgeries',
+    chiefComplaint: 'Periumbilical discomfort shifting to right lower quadrant over 14 hours. Mild nausea, anorexia.',
+    triageLevel: 'URGENT',
+    urgencyText: 'Clinical Assessment Within 12–24 Hours',
+    colorClass: 'text-amber-600 dark:text-amber-400 bg-amber-500/10 border-amber-500/30',
+    borderClass: 'border-l-4 border-l-amber-500',
+    topDiagnosis: 'Acute Appendicitis',
+    icd10: 'K35.80',
+    likelihood: 72,
+    keyRuleOut: 'Evaluates peritoneal signs; differential includes mesenteric adenitis and ovarian pathology.',
+    soapSnippet: 'S: 27yo F with progressive migrating RLQ pain. O: Rebound tenderness suspected. A: Likely acute appendicitis. P: Surgical consult & urgent ultrasound/CT.',
   },
   {
-    icon: <FileText className="w-6 h-6 text-purple-600 dark:text-purple-400" />,
-    title: 'EHR / SOAP Notes',
-    desc: 'Instantly generate clinical SOAP documentation (Subjective, Objective, Assessment, Plan) formatted for medical record hand-off.',
-  },
-  {
-    icon: <Stethoscope className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />,
-    title: 'Doctor Inquiries & Tests',
-    desc: 'Actionable checklists of questions to ask your physician and recommended laboratory/imaging diagnostic workups to request.',
+    id: 'specimen-neuro',
+    tag: 'Cranial & Neurologic',
+    patient: '34y Female • History of migraines',
+    chiefComplaint: 'Unilateral throbbing right temporal headache with photophobia and nausea for 6 hours.',
+    triageLevel: 'ROUTINE',
+    urgencyText: 'Outpatient Clinic Consultation (3–5 Days)',
+    colorClass: 'text-blue-600 dark:text-blue-400 bg-blue-500/10 border-blue-500/30',
+    borderClass: 'border-l-4 border-l-blue-500',
+    topDiagnosis: 'Migraine without Aura',
+    icd10: 'G43.009',
+    likelihood: 84,
+    keyRuleOut: 'Absence of thunderclap onset, meningismus, or focal neurological deficit.',
+    soapSnippet: 'S: 34yo F with recurrent pulsatile hemicrania. O: Normotensive. A: Episodic migraine flare. P: Triptan therapy review & hydration monitoring.',
   },
 ];
 
-const triageLevels = [
+const triageStandards = [
   {
     level: 'EMERGENCY',
-    badge: 'bg-red-600 text-white',
-    desc: 'Immediate 911 / Emergency Room evaluation for acute cardiac, neurologic, or respiratory crises.',
+    timeframe: 'Immediate (< 15 mins)',
+    badgeClass: 'bg-destructive text-destructive-foreground',
+    borderClass: 'border-l-4 border-l-destructive',
+    indicators: 'Severe chest discomfort, focal stroke signs, acute airway compromise, heavy hemorrhage, sudden worst-ever headache.',
+    action: 'Activate 911 / EMS dispatch or transfer directly to the nearest acute emergency resuscitation facility.',
   },
   {
     level: 'URGENT',
-    badge: 'bg-amber-500 text-white',
-    desc: 'Urgent Care or same-day medical clinic visit recommended within 12 to 24 hours.',
+    timeframe: 'Within 12–24 Hours',
+    badgeClass: 'bg-amber-500 text-white',
+    borderClass: 'border-l-4 border-l-amber-500',
+    indicators: 'High persistent pyrexia, progressive abdominal guarding, deep laceration, intractable emesis, suspected acute fractures.',
+    action: 'Present to an urgent care medical center, walk-in emergency clinic, or same-day clinical evaluation.',
   },
   {
     level: 'ROUTINE',
-    badge: 'bg-blue-600 text-white',
-    desc: 'Scheduled primary care consultation for stable, non-emergent symptoms within days.',
+    timeframe: '3 to 5 Days',
+    badgeClass: 'bg-blue-600 text-white',
+    borderClass: 'border-l-4 border-l-blue-600',
+    indicators: 'Subacute localized joint pain, chronic recurring cough, mild rashes, gradual fatigue, prescription review.',
+    action: 'Schedule an in-person or telehealth consultation with a certified primary care physician or specialist.',
   },
   {
     level: 'SELF-CARE',
-    badge: 'bg-emerald-600 text-white',
-    desc: 'Evidence-based supportive home management, hydration, rest, and monitoring criteria.',
+    timeframe: 'Supportive / 5–7 Days',
+    badgeClass: 'bg-emerald-600 text-white',
+    borderClass: 'border-l-4 border-l-emerald-600',
+    indicators: 'Uncomplicated mild coryza, minor muscular strain, superficial abrasion, self-limiting viral malaise.',
+    action: 'Restorative home protocol: hydration, rest, OTC comfort measures, and structured red-flag return precautions.',
+  },
+];
+
+const pipelineSteps = [
+  {
+    step: '01',
+    title: 'Anatomical Intake & Voice Localization',
+    desc: 'Patients describe symptoms via hands-free voice dictation or map localized complaints across 6 distinct anatomical zones with instant clinical autocomplete.',
+  },
+  {
+    step: '02',
+    title: 'Dynamic Bayesian Questionnaire',
+    desc: 'The engine formulates 5 to 7 high-yield discriminating follow-up questions tailored specifically to rule in or rule out urgent contraindications.',
+  },
+  {
+    step: '03',
+    title: 'ICD-10 Differential Synthesis',
+    desc: 'Calibrated algorithms compute probability distributions across ranked medical conditions with explicit supporting and absent indicators.',
+  },
+  {
+    step: '04',
+    title: 'EHR-Formatted Clinical Hand-Off',
+    desc: 'Outputs standardized SOAP clinical documentation and structured physician question checklists, exportable to encrypted multi-page PDF.',
   },
 ];
 
 export default function LandingPage() {
   const router = useRouter();
+  const [activeSpecimenIndex, setActiveSpecimenIndex] = useState(0);
+  const activeSpecimen = sampleSpecimens[activeSpecimenIndex];
 
   return (
     <div className="bg-background text-foreground flex flex-col">
-      {/* Hero Section */}
-      <section className="container mx-auto px-4 pt-12 pb-20 max-w-5xl flex flex-col items-center text-center">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20 mb-6">
-          <Sparkles className="w-3.5 h-3.5" />
-          Clinical-Grade AI Medical Triage & Differential Diagnosis
-        </div>
+      {/* Editorial Split Hero Section */}
+      <section className="border-b border-border/80 bg-card/30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 md:py-20">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            {/* Left Column: Authoritative Editorial Copy */}
+            <div className="lg:col-span-7 space-y-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md text-xs font-semibold bg-muted border border-border text-foreground/80">
+                <span className="w-2 h-2 rounded-full bg-primary" />
+                Evidence-Grounded Clinical Decision Support
+              </div>
 
-        <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight max-w-3xl leading-[1.15] mb-6">
-          Evidence-Grounded AI Healthcare Insights for <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Every Patient</span>
-        </h1>
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem] font-bold tracking-tight text-foreground leading-[1.15]">
+                Calibrated medical triage & differential analysis for informed care.
+              </h1>
 
-        <p className="max-w-2xl text-base sm:text-lg text-muted-foreground mb-10 leading-relaxed">
-          Move beyond generic search results. ManoMed AI combines dynamic medical intake, voice dictation, red-flag screening, and Google GenAI to synthesize structured differential diagnoses and doctor-ready clinical summaries.
-        </p>
+              <p className="text-base sm:text-lg text-muted-foreground leading-relaxed max-w-2xl font-normal">
+                ManoMed AI structures patient symptom intake, screens for critical red-flag emergencies, and synthesizes standardized EHR SOAP documentation to bridge initial onset with physician consultation.
+              </p>
 
-        <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-          <Button
-            size="lg"
-            onClick={() => router.push('/ManoMedai')}
-            className="px-8 h-12 text-base font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg rounded-2xl flex items-center justify-center gap-2"
-          >
-            Start Clinical Assessment
-            <ArrowRight className="w-4 h-4" />
-          </Button>
+              {/* Primary Actions */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
+                <Button
+                  size="lg"
+                  onClick={() => router.push('/ManoMedai')}
+                  className="h-12 px-6 rounded-lg font-semibold bg-primary text-primary-foreground hover:bg-primary/90 shadow-none flex items-center justify-center gap-2 text-sm"
+                >
+                  <Stethoscope className="w-4 h-4" />
+                  Begin Clinical Intake
+                  <ArrowRight className="w-4 h-4 ml-1" />
+                </Button>
 
-          <Link href="/history">
-            <Button
-              variant="outline"
-              size="lg"
-              className="px-6 h-12 text-base rounded-2xl flex items-center justify-center gap-2 w-full"
-            >
-              <History className="w-4 h-4 text-muted-foreground" />
-              Past Assessments
-            </Button>
-          </Link>
-        </div>
+                <Link href="/history">
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="h-12 px-5 rounded-lg border-border text-foreground hover:bg-muted font-medium flex items-center justify-center gap-2 text-sm w-full sm:w-auto"
+                  >
+                    <History className="w-4 h-4 text-muted-foreground" />
+                    Patient Records Vault
+                  </Button>
+                </Link>
+              </div>
 
-        {/* Quick Safety Callout */}
-        <div className="mt-8 flex items-center gap-2 text-xs text-muted-foreground">
-          <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-          <span>Private & Client-Side Cached • No forced sign-up • Instant PDF Export</span>
+              {/* Trust Attributes */}
+              <div className="pt-6 border-t border-border/80 grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs text-muted-foreground">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-primary shrink-0" />
+                  <span>4-Tier Triage Hierarchy</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Lock className="w-4 h-4 text-primary shrink-0" />
+                  <span>Client-Side Encrypted</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <FileCheck2 className="w-4 h-4 text-primary shrink-0" />
+                  <span>ICD-10 & SOAP Formatted</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column: Live Interactive Clinical Demonstration Specimen */}
+            <div className="lg:col-span-5">
+              <div className="clinical-card rounded-xl p-5 space-y-4">
+                <div className="flex items-center justify-between border-b border-border pb-3">
+                  <div className="flex items-center gap-2">
+                    <Activity className="w-4 h-4 text-primary" />
+                    <span className="text-xs font-bold uppercase tracking-wider text-foreground">
+                      Live Triage Specimen Engine
+                    </span>
+                  </div>
+                  <span className="text-[11px] text-muted-foreground font-mono">Interactive Demo</span>
+                </div>
+
+                {/* Case Selector Pills */}
+                <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+                  {sampleSpecimens.map((specimen, idx) => (
+                    <button
+                      key={specimen.id}
+                      onClick={() => setActiveSpecimenIndex(idx)}
+                      className={`text-xs px-2.5 py-1.5 rounded-md font-medium transition-colors shrink-0 text-left ${
+                        activeSpecimenIndex === idx
+                          ? 'bg-primary text-primary-foreground font-semibold'
+                          : 'bg-muted text-muted-foreground hover:text-foreground'
+                      }`}
+                    >
+                      {specimen.tag}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Specimen Content Card */}
+                <div className={`p-4 rounded-lg bg-card/80 border border-border/80 space-y-3.5 ${activeSpecimen.borderClass}`}>
+                  <div>
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-xs font-bold text-foreground">Chief Complaint</span>
+                      <span className="text-[11px] text-muted-foreground">{activeSpecimen.patient}</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                      "{activeSpecimen.chiefComplaint}"
+                    </p>
+                  </div>
+
+                  {/* Triage & Assessment Breakdown */}
+                  <div className="pt-2 border-t border-border/60 space-y-2">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-muted-foreground">Triage Urgency:</span>
+                      <Badge className={`text-[11px] font-bold px-2 py-0.5 ${activeSpecimen.colorClass}`}>
+                        {activeSpecimen.triageLevel}
+                      </Badge>
+                    </div>
+
+                    <div className="text-[11px] text-muted-foreground font-medium flex items-center gap-1.5">
+                      <Clock className="w-3.5 h-3.5" />
+                      <span>{activeSpecimen.urgencyText}</span>
+                    </div>
+
+                    <div className="pt-2 space-y-1">
+                      <div className="flex items-center justify-between text-xs font-semibold">
+                        <span className="text-foreground">{activeSpecimen.topDiagnosis}</span>
+                        <span className="font-mono text-primary text-[11px]">
+                          {activeSpecimen.icd10} • {activeSpecimen.likelihood}%
+                        </span>
+                      </div>
+                      <div className="w-full bg-muted rounded-full h-1.5 overflow-hidden">
+                        <div
+                          className="bg-primary h-full rounded-full transition-all duration-300"
+                          style={{ width: `${activeSpecimen.likelihood}%` }}
+                        />
+                      </div>
+                      <p className="text-[11px] text-muted-foreground/90 italic pt-1">
+                        {activeSpecimen.keyRuleOut}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Sample SOAP Hand-Off Bar */}
+                  <div className="p-2.5 rounded bg-muted/50 border border-border text-[11px] text-muted-foreground font-mono leading-relaxed">
+                    <span className="font-bold text-foreground block mb-0.5">EHR SOAP Hand-off:</span>
+                    {activeSpecimen.soapSnippet}
+                  </div>
+                </div>
+
+                <div className="pt-1 flex items-center justify-between text-xs text-muted-foreground">
+                  <span>Simulating real CDS engine logic</span>
+                  <Link href="/ManoMedai" className="text-primary font-semibold flex items-center gap-1 hover:underline">
+                    Run Custom Patient Intake
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Triage Overview Grid */}
-      <section className="bg-muted/30 border-y border-border/60 py-16">
-        <div className="container mx-auto px-4 max-w-5xl">
-          <div className="text-center mb-10">
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight mb-2">
-              Structured 4-Tier Medical Triage
+      {/* Section 2: Clinical Triage Standards Table */}
+      <section className="py-16 md:py-24 border-b border-border/80">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-12">
+          <div className="max-w-2xl space-y-3">
+            <div className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-primary">
+              Standardized Triage Protocol
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+              Calibrated urgency tiers with decisive action timeframes.
             </h2>
-            <p className="text-sm text-muted-foreground max-w-lg mx-auto">
-              Every evaluation is mapped to an actionable timeframe so patients know exactly when and where to seek professional care.
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Ambiguity during early symptom onset delays critical interventions. Every ManoMed evaluation maps to an evidence-based clinical urgency classification.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-            {triageLevels.map((t, idx) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {triageStandards.map((tier) => (
               <div
-                key={idx}
-                className="p-5 rounded-2xl bg-card border border-border shadow-sm flex flex-col justify-between space-y-3"
+                key={tier.level}
+                className={`clinical-card rounded-xl p-5 flex flex-col justify-between space-y-4 ${tier.borderClass}`}
               >
-                <div>
-                  <Badge className={`px-2.5 py-0.5 text-xs font-bold ${t.badge}`}>
-                    {t.level}
-                  </Badge>
-                  <p className="text-xs text-muted-foreground mt-3 leading-relaxed">
-                    {t.desc}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Badge className={`text-xs font-bold px-2.5 py-0.5 ${tier.badgeClass}`}>
+                      {tier.level}
+                    </Badge>
+                    <span className="text-[11px] font-mono text-muted-foreground">
+                      {tier.timeframe}
+                    </span>
+                  </div>
+
+                  <div className="space-y-1">
+                    <span className="text-xs font-bold text-foreground">Clinical Presentations:</span>
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      {tier.indicators}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="pt-3 border-t border-border space-y-1">
+                  <span className="text-[11px] font-bold text-foreground uppercase tracking-wide">
+                    Protocol Action:
+                  </span>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    {tier.action}
                   </p>
                 </div>
               </div>
@@ -144,55 +344,93 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Feature Capabilities Grid */}
-      <section className="container mx-auto px-4 py-20 max-w-5xl">
-        <div className="text-center mb-12">
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight mb-3">
-            Built for True Medical Utility
-          </h2>
-          <p className="text-sm text-muted-foreground max-w-xl mx-auto">
-            Engineered with clinical rigor to provide actionable insights for patients and clear, standard documentation for treating physicians.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {features.map((feat, idx) => (
-            <div
-              key={idx}
-              className="p-6 rounded-2xl border border-border/80 bg-card shadow-sm hover:shadow-md transition-all flex items-start gap-4"
-            >
-              <div className="p-3 rounded-xl bg-muted/60 shrink-0">
-                {feat.icon}
+      {/* Section 3: Diagnostic Pipeline Architecture */}
+      <section className="py-16 md:py-24 bg-card/20 border-b border-border/80">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-12">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div className="max-w-2xl space-y-3">
+              <div className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-primary">
+                System Architecture
               </div>
-              <div className="space-y-1">
-                <h3 className="text-lg font-bold">{feat.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  {feat.desc}
+              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+                How ManoMed AI structures clinical intelligence.
+              </h2>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                From chief complaint narrative to physician consultation, every step is optimized for clinical signal extraction and patient safety.
+              </p>
+            </div>
+
+            <Link href="/about">
+              <Button variant="outline" className="border-border text-xs font-semibold gap-1.5">
+                Read Clinical Methodology
+                <ExternalLink className="w-3.5 h-3.5" />
+              </Button>
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {pipelineSteps.map((step) => (
+              <div key={step.step} className="clinical-card rounded-xl p-6 space-y-3">
+                <span className="text-3xl font-extrabold text-primary font-mono block">
+                  {step.step}
+                </span>
+                <h3 className="text-base font-bold text-foreground">
+                  {step.title}
+                </h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  {step.desc}
                 </p>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* Bottom CTA */}
-      <section className="bg-gradient-to-br from-blue-900 to-indigo-950 text-white py-16">
-        <div className="container mx-auto px-4 text-center max-w-3xl space-y-6">
-          <HeartPulse className="w-12 h-12 text-blue-300 mx-auto" />
-          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
-            Ready to Analyze Your Symptoms?
-          </h2>
-          <p className="text-blue-100 text-sm sm:text-base leading-relaxed max-w-xl mx-auto">
-            Begin your intake questionnaire in seconds. Get evidence-based differential likelihoods and a downloadable clinical consultation summary.
-          </p>
-          <div className="pt-2">
-            <Button
-              size="lg"
-              onClick={() => router.push('/ManoMedai')}
-              className="px-8 h-12 text-base font-semibold bg-white text-blue-900 hover:bg-blue-50 shadow-xl rounded-2xl"
-            >
-              Start Free Assessment Now →
-            </Button>
+      {/* Section 4: Physician Hand-Off & Safety Covenant */}
+      <section className="py-16 md:py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="clinical-card rounded-2xl p-8 md:p-12 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-card">
+            <div className="lg:col-span-8 space-y-4">
+              <div className="inline-flex items-center gap-2 text-xs font-bold text-primary uppercase tracking-wider">
+                <ShieldCheck className="w-4 h-4" />
+                Medical Ethics & Privacy Covenant
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+                Engineered to assist physicians, not replace direct examination.
+              </h2>
+              <p className="text-sm text-muted-foreground leading-relaxed max-w-2xl">
+                ManoMed AI does not collect biometric trackers, does not monetize patient records, and operates under strict client-side encryption. Every evaluation provides patients with informed questions and structured SOAP documentation for treating physicians.
+              </p>
+
+              <div className="flex flex-wrap gap-4 text-xs text-muted-foreground pt-2">
+                <span className="flex items-center gap-1.5 font-medium">
+                  <CheckCircle2 className="w-4 h-4 text-primary" />
+                  Client-side ephemeral vault
+                </span>
+                <span className="flex items-center gap-1.5 font-medium">
+                  <CheckCircle2 className="w-4 h-4 text-primary" />
+                  Standardized ICD-10 cross-references
+                </span>
+                <span className="flex items-center gap-1.5 font-medium">
+                  <CheckCircle2 className="w-4 h-4 text-primary" />
+                  Zero advertising or tracking
+                </span>
+              </div>
+            </div>
+
+            <div className="lg:col-span-4 flex flex-col gap-3">
+              <Link href="/ManoMedai" className="w-full">
+                <Button className="w-full h-12 text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg">
+                  Launch Clinical Intake
+                  <ArrowRight className="w-4 h-4 ml-1.5" />
+                </Button>
+              </Link>
+              <Link href="/privacy" className="w-full">
+                <Button variant="outline" className="w-full h-11 text-xs font-semibold border-border">
+                  Review Privacy Architecture
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </section>

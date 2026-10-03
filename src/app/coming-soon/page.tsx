@@ -1,173 +1,79 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import Link from "next/link";
+import { Activity, ShieldCheck, ArrowLeft, RefreshCw, CheckCircle2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 export default function UnderMaintenance() {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    const width = canvas.width;
-    const height = canvas.height;
-    const particles: any[] = [];
-
-    for (let i = 0; i < 50; i++) {
-      particles.push({
-        x: Math.random() * width,
-        y: Math.random() * height,
-        size: Math.random() * 3 + 1,
-        speedX: (Math.random() - 0.5) * 0.3,
-        speedY: (Math.random() - 0.5) * 0.3,
-      });
-    }
-
-    function animate() {
-      if (!ctx || !canvas) return;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      particles.forEach((p) => {
-        p.x += p.speedX;
-        p.y += p.speedY;
-
-        if (p.x < 0 || p.x > canvas.width) p.speedX *= -1;
-        if (p.y < 0 || p.y > canvas.height) p.speedY *= -1;
-
-        ctx.fillStyle = "rgba(0, 255, 255, 0.7)";
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fill();
-      });
-
-      requestAnimationFrame(animate);
-    }
-
-    animate();
-  }, []);
-
   return (
-    <main
-      style={{
-        height: "100vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        background:
-          "linear-gradient(135deg, #000014, #001722, #002b36, #001722, #000014)",
-        color: "#fff",
-        fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-        padding: "1rem",
-        textAlign: "center",
-        position: "relative",
-        overflow: "hidden",
-      }}
-    >
-      <canvas
-        ref={canvasRef}
-        style={{
-          position: "absolute",
-          width: "100%",
-          height: "100%",
-          opacity: 0.3,
-          top: 0,
-          left: 0,
-        }}
-      />
-
-      <div
-        style={{
-          backdropFilter: "blur(12px)",
-          background: "rgba(255, 255, 255, 0.08)",
-          borderRadius: "20px",
-          padding: "2rem 3rem",
-          boxShadow: "0 0 25px rgba(0, 255, 255, 0.3)",
-          animation: "pulseGlow 3s infinite ease-in-out",
-          maxWidth: "420px",
-          border: "1px solid rgba(0, 255, 255, 0.2)",
-          position: "relative",
-          zIndex: 2,
-        }}
-      >
-        <div
-          style={{
-            fontSize: "3rem",
-            animation: "floatWrench 3s ease-in-out infinite",
-            marginBottom: "1rem",
-            display: "inline-block",
-          }}
-        >
-          🔧
+    <main className="min-h-[calc(100vh-5rem)] flex items-center justify-center p-6 bg-background text-foreground">
+      <div className="max-w-md w-full p-8 rounded-3xl bg-card border border-border shadow-md text-center space-y-6">
+        {/* Precision Clinical Status Ring */}
+        <div className="relative w-16 h-16 mx-auto flex items-center justify-center">
+          <div className="absolute inset-0 rounded-full border-2 border-primary/20 animate-ping opacity-30" />
+          <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center shadow-xs">
+            <Activity className="w-6 h-6 text-primary" />
+          </div>
         </div>
 
-        <h1
-          style={{
-            fontSize: "clamp(2rem, 8vw, 3.5rem)",
-            marginBottom: "1rem",
-            textShadow: "0 0 15px #00eaff",
-            fontWeight: "700",
-          }}
-        >
-          Under Maintenance
-        </h1>
+        <div className="space-y-2">
+          <Badge variant="outline" className="text-[10px] font-mono uppercase tracking-wider border-border">
+            SCHEDULED CLINICAL MAINTENANCE
+          </Badge>
+          <h1 className="font-serif text-3xl font-normal tracking-tight text-foreground">
+            Platform Upgrade in Progress
+          </h1>
+          <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+            Our clinical engineering division is deploying updated diagnostic taxonomies and algorithmic safety rules. Service continuity will be restored momentarily.
+          </p>
+        </div>
 
-        <div
-          style={{
-            border: "4px solid rgba(0, 255, 255, 0.4)",
-            borderTop: "4px solid transparent",
-            borderRadius: "50%",
-            width: "60px",
-            height: "60px",
-            margin: "1rem auto",
-            animation: "spinLoader 1.2s linear infinite",
-          }}
-        />
+        {/* Operational Status Checklist */}
+        <div className="p-4 rounded-2xl bg-muted/30 border border-border/80 text-left text-xs space-y-2 font-mono">
+          <div className="flex items-center justify-between text-[11px] pb-1 border-b border-border/60 font-sans font-semibold text-muted-foreground">
+            <span>Subsystem</span>
+            <span>Status</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-foreground">Triage Inference Models</span>
+            <span className="text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
+              <CheckCircle2 className="w-3 h-3" /> Online
+            </span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-foreground">ICD-10 Taxonomy Index</span>
+            <span className="text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
+              <CheckCircle2 className="w-3 h-3" /> Calibrated
+            </span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-foreground">EHR FHIR Export Pipeline</span>
+            <span className="text-amber-600 dark:text-amber-400 font-semibold flex items-center gap-1">
+              <RefreshCw className="w-3 h-3 animate-spin" /> Upgrading
+            </span>
+          </div>
+        </div>
 
-        <p
-          style={{
-            fontSize: "1.2rem",
-            color: "#a0f8ff",
-            textShadow: "0 0 8px #00eaff",
-          }}
-        >
-          We’re upgrading your experience.
-          <br />
-          Please come back soon.
-        </p>
+        <div className="pt-2 flex flex-col sm:flex-row gap-2 justify-center">
+          <Link href="/" className="w-full">
+            <Button variant="outline" className="w-full min-h-[44px] text-xs font-semibold border-border">
+              <ArrowLeft className="w-3.5 h-3.5 mr-1.5" />
+              Return to Clinical Portal
+            </Button>
+          </Link>
+          <Link href="/ManoMedai" className="w-full">
+            <Button className="w-full min-h-[44px] text-xs font-bold bg-primary text-primary-foreground shadow-xs">
+              Access Triage
+            </Button>
+          </Link>
+        </div>
 
-        <p
-          style={{
-            marginTop: "1.5rem",
-            fontSize: "1rem",
-            opacity: 0.8,
-          }}
-        >
-          — ManoMed AI
-        </p>
+        <div className="text-[11px] text-muted-foreground flex items-center justify-center gap-1.5 pt-2 border-t border-border/60">
+          <ShieldCheck className="w-3.5 h-3.5 text-primary" />
+          <span>Patient audit vault and local data remain secure</span>
+        </div>
       </div>
-
-      <style>{`
-        @keyframes pulseGlow {
-          0% { box-shadow: 0 0 20px rgba(0, 255, 255, 0.25); }
-          50% { box-shadow: 0 0 40px rgba(0, 255, 255, 0.6); }
-          100% { box-shadow: 0 0 20px rgba(0, 255, 255, 0.25); }
-        }
-
-        @keyframes floatWrench {
-          0% { transform: translateY(0); }
-          50% { transform: translateY(-12px); }
-          100% { transform: translateY(0); }
-        }
-
-        @keyframes spinLoader {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-      `}</style>
     </main>
   );
 }

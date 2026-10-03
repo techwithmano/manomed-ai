@@ -4,59 +4,85 @@
 
 @layer base {
   :root {
-    --background: 210 40% 98%;
-    --foreground: 222 47% 11%;
-    --card: 0 0% 100%;
+    /* Human & Clinical Palette: Trustworthy Deep Slate + Healing Clinical Teal */
+    --background: 210 24% 98%;      /* #F8FAFC porcelain */
+    --foreground: 222 47% 11%;      /* #0F172A deep surgical slate */
+    --card: 0 0% 100%;              /* #FFFFFF crisp white */
     --card-foreground: 222 47% 11%;
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
-    --primary: 221 83% 53%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222 47% 11%;
-    --muted: 210 40% 95%;
-    --muted-foreground: 215 16% 47%;
-    --accent: 210 40% 96%;
-    --accent-foreground: 222 47% 11%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 221 83% 53%;
+
+    /* Clinical Primary: Deep Mediterranean Teal */
+    --primary: 174 78% 30%;         /* #0E877A */
+    --primary-foreground: 0 0% 100%;
+
+    /* Neutral Secondary */
+    --secondary: 210 20% 93%;       /* #E2E8F0 */
+    --secondary-foreground: 222 47% 15%;
+
+    --muted: 210 20% 94%;
+    --muted-foreground: 215 16% 40%; /* #475569 - high contrast readable text */
+
+    --accent: 174 45% 94%;          /* Subtle mint wash */
+    --accent-foreground: 174 85% 22%;
+
+    /* Clinical Triage & Semantic */
+    --destructive: 0 72% 51%;        /* #DC2626 - Emergency Red */
+    --destructive-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;           /* Urgent Amber */
+    --warning-foreground: 38 92% 15%;
+    --success: 160 84% 39%;          /* Self-care / Routine Emerald */
+    --success-foreground: 0 0% 100%;
+
+    --border: 214 20% 88%;           /* #DDE3EA */
+    --input: 214 20% 88%;
+    --ring: 174 78% 30%;
     --radius: 0.75rem;
 
-    --chart-1: 221 83% 53%;
-    --chart-2: 160 84% 39%;
+    --chart-1: 174 78% 30%;
+    --chart-2: 217 91% 60%;
     --chart-3: 38 92% 50%;
-    --chart-4: 0 84% 60%;
+    --chart-4: 0 72% 51%;
     --chart-5: 262 83% 58%;
   }
 
   .dark {
-    --background: 224 71% 4%;
-    --foreground: 213 31% 91%;
-    --card: 224 71% 7%;
-    --card-foreground: 213 31% 91%;
-    --popover: 224 71% 7%;
-    --popover-foreground: 213 31% 91%;
-    --primary: 217 91% 60%;
-    --primary-foreground: 222 47% 11%;
-    --secondary: 217 33% 17%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 223 47% 11%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217 33% 17%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 63% 31%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 216 34% 17%;
-    --input: 216 34% 17%;
-    --ring: 224 76% 48%;
+    /* Dark Mode: Deep Obsidian Hospital Slate */
+    --background: 222 47% 6%;       /* #0B0F17 */
+    --foreground: 210 20% 96%;      /* #F1F5F9 */
+    --card: 222 40% 10%;            /* #101725 elevated card */
+    --card-foreground: 210 20% 96%;
+    --popover: 222 40% 10%;
+    --popover-foreground: 210 20% 96%;
 
-    --chart-1: 217 91% 60%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 38 92% 50%;
-    --chart-4: 0 84% 60%;
+    /* Dark Mode Primary: Vibrant Clinical Mint */
+    --primary: 174 72% 44%;         /* #20BEAA */
+    --primary-foreground: 222 47% 7%;
+
+    --secondary: 222 30% 16%;
+    --secondary-foreground: 210 20% 96%;
+
+    --muted: 222 30% 13%;
+    --muted-foreground: 215 16% 68%; /* #94A3B8 */
+
+    --accent: 174 40% 15%;
+    --accent-foreground: 174 70% 75%;
+
+    --destructive: 0 72% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --warning: 38 92% 55%;
+    --warning-foreground: 222 47% 7%;
+    --success: 160 70% 45%;
+    --success-foreground: 0 0% 100%;
+
+    --border: 222 25% 18%;           /* #1C2433 */
+    --input: 222 25% 18%;
+    --ring: 174 72% 44%;
+
+    --chart-1: 174 72% 44%;
+    --chart-2: 217 91% 60%;
+    --chart-3: 38 92% 55%;
+    --chart-4: 0 72% 55%;
     --chart-5: 262 83% 58%;
   }
 
@@ -65,15 +91,73 @@
   }
 
   body {
-    @apply bg-background text-foreground antialiased selection:bg-primary/20 selection:text-primary;
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    @apply bg-background text-foreground antialiased selection:bg-primary/20 selection:text-primary font-sans;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11", "tnum";
+    text-rendering: optimizeLegibility;
   }
+
+  /* Accessible Focus Rings */
+  *:focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+}
+
+/* Accessible Skip Link */
+.skip-to-content {
+  position: absolute;
+  top: -100px;
+  left: 1rem;
+  z-index: 100;
+  padding: 0.5rem 1rem;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  font-weight: 600;
+  border-radius: var(--radius);
+  transition: top 0.2s ease;
+}
+.skip-to-content:focus {
+  top: 1rem;
+}
+
+/* Refined Medical Navbar */
+.clinical-navbar {
+  background: hsl(var(--background) / 0.94);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+/* Subtle, Controlled Card Elevations (No Neon Blobs) */
+.clinical-card {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05), 0 1px 2px -1px rgb(0 0 0 / 0.05);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.clinical-card:hover {
+  border-color: hsl(var(--primary) / 0.4);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+}
+
+/* Clinical Triage Indicators */
+.triage-emergency {
+  border-left: 4px solid hsl(var(--destructive));
+}
+.triage-urgent {
+  border-left: 4px solid hsl(38 92% 50%);
+}
+.triage-routine {
+  border-left: 4px solid hsl(217 91% 60%);
+}
+.triage-self-care {
+  border-left: 4px solid hsl(160 84% 39%);
 }
 
 /* Custom Scrollbars */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
@@ -86,61 +170,12 @@
   background: hsl(var(--muted-foreground) / 0.45);
 }
 
-/* Glassmorphism & Visual Effects */
-.glass-navbar {
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  background: hsl(var(--background) / 0.82);
-  border-bottom: 1px solid hsl(var(--border) / 0.6);
-}
-
-.glass-card {
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  background: hsl(var(--card) / 0.75);
-  border: 1px solid hsl(var(--border) / 0.7);
-}
-
-/* Micro-animations */
-@keyframes pulseGlow {
-  0%, 100% {
-    opacity: 0.4;
-    transform: scale(1);
+/* Purposeful, subtle motion (Respects prefers-reduced-motion) */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
-  50% {
-    opacity: 0.8;
-    transform: scale(1.05);
-  }
-}
-
-.animate-pulseGlow {
-  animation: pulseGlow 4s infinite ease-in-out;
-}
-
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-slideDown {
-  animation: slideDown 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-.animate-fadeIn {
-  animation: fadeIn 0.3s ease-out forwards;
 }

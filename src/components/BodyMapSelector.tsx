@@ -4,20 +4,33 @@ import React, { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  HeartPulse,
   Brain,
+  HeartPulse,
   Stethoscope,
   Activity,
+  Bone,
   Layers,
-  Sparkles,
-  Info,
+  ShieldCheck,
+  Check,
+  Plus,
+  Crosshair,
 } from "lucide-react";
+
+export type ZoneIconName =
+  | "brain"
+  | "heart"
+  | "stethoscope"
+  | "activity"
+  | "bone"
+  | "layers"
+  | "shield";
 
 export interface AnatomicalZone {
   id: string;
   name: string;
   subTitle: string;
-  icon: string;
+  iconName: ZoneIconName;
+  icon?: string; // backwards compatibility
   view: "front" | "back" | "both";
   svgPathCoords: { x: number; y: number; r?: number; w?: number; h?: number };
   commonSymptoms: string[];
@@ -26,11 +39,11 @@ export interface AnatomicalZone {
 export const ANATOMICAL_ZONES: AnatomicalZone[] = [
   {
     id: "head",
-    name: "Head, Brain & Sensory",
-    subTitle: "Cranial, Ophthalmic & Neurological",
-    icon: "🧠",
+    name: "Head, Cranial & Sensory",
+    subTitle: "Neurological & Ophthalmic",
+    iconName: "brain",
     view: "front",
-    svgPathCoords: { x: 100, y: 35, r: 24 },
+    svgPathCoords: { x: 100, y: 35, r: 22 },
     commonSymptoms: [
       "Throbbing Unilateral Headache",
       "Bilateral Tension Headache",
@@ -45,9 +58,9 @@ export const ANATOMICAL_ZONES: AnatomicalZone[] = [
     id: "chest",
     name: "Chest, Heart & Lungs",
     subTitle: "Cardiopulmonary & Thoracic",
-    icon: "🫀",
+    iconName: "heart",
     view: "front",
-    svgPathCoords: { x: 100, y: 100, w: 46, h: 42 },
+    svgPathCoords: { x: 100, y: 98, w: 46, h: 42 },
     commonSymptoms: [
       "Substernal Chest Tightness",
       "Shortness of Breath (Dyspnea)",
@@ -60,11 +73,11 @@ export const ANATOMICAL_ZONES: AnatomicalZone[] = [
   },
   {
     id: "abdomen",
-    name: "Abdomen & Digestive",
+    name: "Abdomen & Digestive Tract",
     subTitle: "Gastrointestinal & Hepatic",
-    icon: "🩺",
+    iconName: "stethoscope",
     view: "front",
-    svgPathCoords: { x: 100, y: 155, w: 40, h: 45 },
+    svgPathCoords: { x: 100, y: 154, w: 42, h: 44 },
     commonSymptoms: [
       "Epigastric Burning / Acid Reflux",
       "Right Lower Quadrant Pain",
@@ -77,11 +90,11 @@ export const ANATOMICAL_ZONES: AnatomicalZone[] = [
   },
   {
     id: "pelvis",
-    name: "Pelvis & Urinary",
+    name: "Pelvis & Urinary Tract",
     subTitle: "Genitourinary & Lower Abdominal",
-    icon: "🚻",
+    iconName: "activity",
     view: "front",
-    svgPathCoords: { x: 100, y: 205, w: 44, h: 28 },
+    svgPathCoords: { x: 100, y: 206, w: 44, h: 28 },
     commonSymptoms: [
       "Dysuria (Burning Urination)",
       "Urinary Frequency / Urgency",
@@ -94,7 +107,7 @@ export const ANATOMICAL_ZONES: AnatomicalZone[] = [
     id: "spine",
     name: "Spine & Posterior Back",
     subTitle: "Cervical, Thoracic & Lumbar Spine",
-    icon: "🦴",
+    iconName: "bone",
     view: "back",
     svgPathCoords: { x: 100, y: 125, w: 26, h: 80 },
     commonSymptoms: [
@@ -109,7 +122,7 @@ export const ANATOMICAL_ZONES: AnatomicalZone[] = [
     id: "upper_limbs",
     name: "Arms, Shoulders & Hands",
     subTitle: "Upper Extremity Musculoskeletal",
-    icon: "💪",
+    iconName: "layers",
     view: "both",
     svgPathCoords: { x: 45, y: 120, w: 22, h: 70 },
     commonSymptoms: [
@@ -124,9 +137,9 @@ export const ANATOMICAL_ZONES: AnatomicalZone[] = [
     id: "lower_limbs",
     name: "Hips, Legs & Feet",
     subTitle: "Lower Extremity & Joints",
-    icon: "🦵",
+    iconName: "activity",
     view: "both",
-    svgPathCoords: { x: 85, y: 260, w: 30, h: 90 },
+    svgPathCoords: { x: 85, y: 265, w: 30, h: 90 },
     commonSymptoms: [
       "Knee Swelling & Crepitus",
       "Calf Tenderness / Unilateral Edema",
@@ -139,7 +152,7 @@ export const ANATOMICAL_ZONES: AnatomicalZone[] = [
     id: "skin",
     name: "Skin & Dermatologic",
     subTitle: "Integumentary & Cutaneous",
-    icon: "🩹",
+    iconName: "shield",
     view: "both",
     svgPathCoords: { x: 155, y: 120, w: 20, h: 20 },
     commonSymptoms: [
@@ -151,6 +164,27 @@ export const ANATOMICAL_ZONES: AnatomicalZone[] = [
     ],
   },
 ];
+
+export function renderZoneIcon(iconName: ZoneIconName, className = "w-4 h-4") {
+  switch (iconName) {
+    case "brain":
+      return <Brain className={className} />;
+    case "heart":
+      return <HeartPulse className={className} />;
+    case "stethoscope":
+      return <Stethoscope className={className} />;
+    case "activity":
+      return <Activity className={className} />;
+    case "bone":
+      return <Bone className={className} />;
+    case "layers":
+      return <Layers className={className} />;
+    case "shield":
+      return <ShieldCheck className={className} />;
+    default:
+      return <Activity className={className} />;
+  }
+}
 
 interface BodyMapSelectorProps {
   selectedZoneId: string | null;
@@ -170,72 +204,90 @@ export const BodyMapSelector: React.FC<BodyMapSelectorProps> = ({
   const currentZone = ANATOMICAL_ZONES.find((z) => z.id === selectedZoneId) || ANATOMICAL_ZONES[0];
 
   return (
-    <div className="p-5 rounded-2xl bg-card border border-border shadow-sm space-y-5">
+    <div className="p-4 sm:p-5 rounded-2xl bg-card border border-border shadow-xs space-y-5">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-border/70">
         <div>
-          <h4 className="font-bold text-sm flex items-center gap-2">
-            <Layers className="w-4 h-4 text-primary" />
-            Interactive Anatomical Locator
-          </h4>
+          <div className="flex items-center gap-2">
+            <Crosshair className="w-4 h-4 text-primary" />
+            <h4 className="font-bold text-sm text-foreground tracking-tight">
+              Anatomical Localization Locator
+            </h4>
+          </div>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Click on any anatomical region to isolate corresponding clinical symptoms.
+            Select a target anatomical region on the medical wireframe to isolate corresponding clinical indicators.
           </p>
         </div>
 
-        {/* Front / Back Perspective Toggle */}
-        <div className="flex items-center gap-1.5 p-1 rounded-xl bg-muted/60 self-start sm:self-auto">
-          <Button
+        {/* Anterior / Posterior Projection Toggle */}
+        <div className="flex items-center gap-1 p-1 rounded-xl bg-muted/60 self-start sm:self-auto border border-border/40">
+          <button
             type="button"
-            variant={viewOrientation === "front" ? "default" : "ghost"}
-            size="sm"
             onClick={() => setViewOrientation("front")}
-            className="h-7 px-3 text-xs font-semibold rounded-lg"
+            className={`min-h-[34px] px-3 text-xs font-semibold rounded-lg transition-all ${
+              viewOrientation === "front"
+                ? "bg-card text-foreground shadow-xs border border-border/80"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
           >
             Anterior (Front)
-          </Button>
-          <Button
+          </button>
+          <button
             type="button"
-            variant={viewOrientation === "back" ? "default" : "ghost"}
-            size="sm"
             onClick={() => setViewOrientation("back")}
-            className="h-7 px-3 text-xs font-semibold rounded-lg"
+            className={`min-h-[34px] px-3 text-xs font-semibold rounded-lg transition-all ${
+              viewOrientation === "back"
+                ? "bg-card text-foreground shadow-xs border border-border/80"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
           >
             Posterior (Back)
-          </Button>
+          </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
-        {/* Interactive Stylized Anatomical SVG Model */}
-        <div className="md:col-span-5 flex flex-col items-center justify-center p-4 rounded-xl bg-muted/20 border border-border/50 relative">
-          <div className="text-[11px] font-semibold text-muted-foreground mb-2 flex items-center gap-1.5">
-            <Activity className="w-3.5 h-3.5 text-primary" />
-            <span>Interactive {viewOrientation === "front" ? "Anterior" : "Posterior"} Projection</span>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Precision Medical Vector Locator */}
+        <div className="lg:col-span-5 flex flex-col items-center justify-center p-5 rounded-xl bg-muted/20 border border-border/60 relative">
+          <div className="w-full flex items-center justify-between text-[11px] font-mono text-muted-foreground mb-3 pb-2 border-b border-border/40">
+            <span className="flex items-center gap-1.5 font-sans font-medium text-foreground">
+              <span className="w-2 h-2 rounded-full bg-primary" />
+              {viewOrientation === "front" ? "Anterior Projection" : "Posterior Projection"}
+            </span>
+            <span className="text-[10px] text-muted-foreground/80">SCALE 1:100</span>
           </div>
 
           <svg
             viewBox="0 0 200 370"
-            className="w-48 h-80 filter drop-shadow-sm select-none"
-            aria-label="Interactive Human Body Anatomy"
+            className="w-48 h-80 filter drop-shadow-xs select-none"
+            aria-label="Interactive Clinical Anatomical Locator"
           >
-            {/* Base Body Silhouette */}
-            <g className="fill-muted/70 stroke-border/80" strokeWidth="1.5">
-              {/* Head */}
-              <circle cx="100" cy="35" r="22" />
-              {/* Neck */}
-              <rect x="94" y="57" width="12" height="12" rx="3" />
-              {/* Torso */}
-              <path d="M 70 70 L 130 70 L 122 195 L 78 195 Z" />
-              {/* Pelvis */}
-              <path d="M 78 195 L 122 195 L 115 225 L 85 225 Z" />
-              {/* Left Arm */}
-              <path d="M 68 72 L 52 145 L 44 200 L 52 205 L 62 150 L 72 85 Z" />
-              {/* Right Arm */}
-              <path d="M 132 72 L 148 145 L 156 200 L 148 205 L 138 150 L 128 85 Z" />
-              {/* Left Leg */}
-              <path d="M 85 225 L 75 300 L 72 355 L 84 358 L 94 300 L 98 225 Z" />
-              {/* Right Leg */}
-              <path d="M 115 225 L 125 300 L 128 355 L 116 358 L 106 300 L 102 225 Z" />
+            {/* Background Medical Coordinate Grid */}
+            <g className="stroke-border/40" strokeWidth="0.5" strokeDasharray="2 3">
+              <line x1="100" y1="10" x2="100" y2="360" />
+              <line x1="20" y1="70" x2="180" y2="70" />
+              <line x1="20" y1="140" x2="180" y2="140" />
+              <line x1="20" y1="210" x2="180" y2="210" />
+              <line x1="20" y1="280" x2="180" y2="280" />
+            </g>
+
+            {/* Surgical Silhouette (Clean, Neutral Anatomy Wireframe) */}
+            <g className="fill-muted/40 stroke-border" strokeWidth="1.2">
+              {/* Cranium */}
+              <circle cx="100" cy="35" r="21" />
+              {/* Cervical Spine / Neck */}
+              <rect x="94" y="56" width="12" height="12" rx="2" />
+              {/* Thorax & Trunk */}
+              <path d="M 68 68 L 132 68 L 124 195 L 76 195 Z" />
+              {/* Pelvic girdle */}
+              <path d="M 76 195 L 124 195 L 116 226 L 84 226 Z" />
+              {/* Left Upper Extremity */}
+              <path d="M 68 70 L 50 145 L 42 205 L 50 208 L 60 152 L 72 82 Z" />
+              {/* Right Upper Extremity */}
+              <path d="M 132 70 L 150 145 L 158 205 L 150 208 L 140 152 L 128 82 Z" />
+              {/* Left Lower Extremity */}
+              <path d="M 84 226 L 74 300 L 70 355 L 82 358 L 92 300 L 96 226 Z" />
+              {/* Right Lower Extremity */}
+              <path d="M 116 226 L 126 300 L 130 355 L 118 358 L 108 300 L 104 226 Z" />
             </g>
 
             {/* Clickable Overlay Hotspots */}
@@ -249,7 +301,16 @@ export const BodyMapSelector: React.FC<BodyMapSelectorProps> = ({
                 <g
                   key={zone.id}
                   onClick={() => onSelectZone(zone)}
-                  className="cursor-pointer transition-all group"
+                  className="cursor-pointer group transition-all"
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`Select ${zone.name}`}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      onSelectZone(zone);
+                    }
+                  }}
                 >
                   {r ? (
                     <circle
@@ -258,8 +319,8 @@ export const BodyMapSelector: React.FC<BodyMapSelectorProps> = ({
                       r={r}
                       className={`transition-all ${
                         isSelected
-                          ? "fill-primary/45 stroke-primary stroke-2"
-                          : "fill-blue-500/10 hover:fill-primary/25 stroke-blue-500/40 stroke-1"
+                          ? "fill-primary/30 stroke-primary stroke-2 ring-2"
+                          : "fill-primary/5 hover:fill-primary/15 stroke-primary/30 group-hover:stroke-primary stroke-1"
                       }`}
                     />
                   ) : (
@@ -268,56 +329,64 @@ export const BodyMapSelector: React.FC<BodyMapSelectorProps> = ({
                       y={y}
                       width={w || 20}
                       height={h || 20}
-                      rx={8}
+                      rx={6}
                       className={`transition-all ${
                         isSelected
-                          ? "fill-primary/45 stroke-primary stroke-2"
-                          : "fill-blue-500/10 hover:fill-primary/25 stroke-blue-500/40 stroke-1"
+                          ? "fill-primary/30 stroke-primary stroke-2 ring-2"
+                          : "fill-primary/5 hover:fill-primary/15 stroke-primary/30 group-hover:stroke-primary stroke-1"
                       }`}
                     />
                   )}
-                  {/* Subtle label icon in center */}
-                  <text
-                    x={x}
-                    y={r ? y + 4 : y + (h || 20) / 2 + 4}
-                    textAnchor="middle"
-                    className="text-[10px] pointer-events-none fill-foreground/75 font-bold"
-                  >
-                    {zone.icon}
-                  </text>
+
+                  {/* Clean Crosshair Point Marker */}
+                  <circle
+                    cx={x}
+                    cy={r ? y : y + (h || 20) / 2}
+                    r={isSelected ? 4 : 2.5}
+                    className={`transition-all ${
+                      isSelected ? "fill-primary" : "fill-primary/70 group-hover:fill-primary"
+                    }`}
+                  />
                 </g>
               );
             })}
           </svg>
 
-          <span className="text-[10px] text-muted-foreground/80 mt-1">
-            Tap on any glowing body zone above
+          <span className="text-[10px] text-muted-foreground mt-3 font-mono">
+            CLICK ON ANY ANATOMICAL ZONE TO TARGET
           </span>
         </div>
 
-        {/* Zone Details & Symptoms List */}
-        <div className="md:col-span-7 space-y-4">
-          <div className="p-4 rounded-xl bg-primary/5 border border-primary/20 space-y-1">
-            <div className="flex items-center justify-between">
-              <span className="text-base font-bold text-foreground flex items-center gap-2">
-                <span className="text-2xl">{currentZone.icon}</span>
-                {currentZone.name}
-              </span>
-              <Badge variant="outline" className="text-xs bg-background">
-                {currentZone.subTitle}
+        {/* Zone Details & High-Yield Symptoms */}
+        <div className="lg:col-span-7 space-y-4">
+          <div className="p-4 rounded-xl bg-card border border-border shadow-xs space-y-2">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-lg bg-primary/10 text-primary">
+                  {renderZoneIcon(currentZone.iconName, "w-4 h-4")}
+                </div>
+                <div>
+                  <h5 className="text-sm font-bold text-foreground">
+                    {currentZone.name}
+                  </h5>
+                  <span className="text-xs text-muted-foreground block">
+                    {currentZone.subTitle}
+                  </span>
+                </div>
+              </div>
+
+              <Badge variant="outline" className="text-[11px] font-mono border-border">
+                {currentZone.commonSymptoms.filter((s) => selectedSymptoms.includes(s)).length} Active
               </Badge>
             </div>
-            <p className="text-xs text-muted-foreground">
-              Select specific symptoms observed in this anatomical area to incorporate into the clinical evaluation:
-            </p>
           </div>
 
-          <div className="space-y-2">
-            <div className="text-xs font-semibold text-muted-foreground flex items-center justify-between">
-              <span>High-Yield Symptoms for this Region</span>
-              <span className="text-[11px] text-primary">
-                {currentZone.commonSymptoms.filter((s) => selectedSymptoms.includes(s)).length} Selected
+          <div className="space-y-2.5">
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <span className="font-semibold text-foreground">
+                High-Yield Diagnostic Symptoms
               </span>
+              <span className="text-[11px]">Tap to incorporate into clinical record</span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -329,21 +398,21 @@ export const BodyMapSelector: React.FC<BodyMapSelectorProps> = ({
                     key={symptom}
                     type="button"
                     onClick={() => onToggleSymptom(symptom)}
-                    className={`p-3 rounded-xl border text-left text-xs transition-all flex items-start justify-between gap-2 ${
+                    className={`min-h-[44px] p-3 rounded-xl border text-left text-xs transition-all flex items-center justify-between gap-2.5 ${
                       isSelected
-                        ? "border-primary bg-primary/15 text-primary font-bold shadow-sm ring-1 ring-primary/40"
-                        : "border-border hover:border-primary/50 hover:bg-muted/40 text-foreground"
+                        ? "border-primary bg-primary/10 text-foreground font-semibold shadow-xs ring-1 ring-primary/40"
+                        : "border-border hover:border-primary/50 hover:bg-muted/40 text-foreground/90"
                     }`}
                   >
-                    <span className="leading-snug">{symptom}</span>
+                    <span className="leading-snug flex-1">{symptom}</span>
                     <span
-                      className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 mt-0.5 text-[10px] ${
+                      className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 text-xs transition-all ${
                         isSelected
-                          ? "bg-primary text-primary-foreground border-primary"
-                          : "border-muted-foreground/50"
+                          ? "bg-primary text-primary-foreground"
+                          : "border border-border text-muted-foreground bg-background"
                       }`}
                     >
-                      {isSelected ? "✓" : "+"}
+                      {isSelected ? <Check className="w-3 h-3" /> : <Plus className="w-3 h-3" />}
                     </span>
                   </button>
                 );

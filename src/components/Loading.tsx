@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { Loader2 } from 'lucide-react';
+import React from "react";
+import { Activity, ShieldCheck } from "lucide-react";
 
 interface LoadingProps {
   title: string;
@@ -9,28 +9,35 @@ interface LoadingProps {
 }
 
 const Loading: React.FC<LoadingProps> = ({ title, description }) => (
-  <div className="flex items-center justify-center min-h-screen bg-gradient-to-tr from-background to-secondary/10 p-6">
-    <div className="flex flex-col items-center bg-card shadow-xl rounded-2xl p-8 max-w-sm w-full animate-fadeIn">
-      <div className="relative w-24 h-24 sm:w-32 sm:h-32">
-        <div className="absolute inset-0 rounded-full border-2 border-primary/20 animate-pulse"></div>
-        <div className="absolute inset-0 rounded-full border-4 border-primary animate-spin border-t-transparent"></div>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <Loader2 className="w-12 h-12 sm:w-16 sm:h-16 text-primary animate-spin-slow" />
+  <div className="flex items-center justify-center min-h-[calc(100vh-5rem)] bg-background p-6">
+    <div className="flex flex-col items-center bg-card border border-border shadow-md rounded-2xl p-8 max-w-md w-full text-center space-y-5">
+      {/* Precision Clinical Pulse Ring */}
+      <div className="relative w-20 h-20 flex items-center justify-center">
+        <div className="absolute inset-0 rounded-full border-2 border-primary/20 animate-ping opacity-40" />
+        <div className="absolute inset-0 rounded-full border-2 border-primary/30" />
+        <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center shadow-xs">
+          <Activity className="w-6 h-6 animate-spin text-primary" />
         </div>
       </div>
-      <h2 className="mt-6 text-xl sm:text-2xl font-semibold text-foreground text-center">
-        {title}
-      </h2>
-      <p className="mt-2 text-sm sm:text-base text-muted-foreground text-center italic">
-        {description}
-      </p>
-      <div className="flex mt-6 space-x-2">
-        <span className="w-2 h-2 bg-primary/60 rounded-full animate-bounce delay-150"></span>
-        <span className="w-2 h-2 bg-primary/60 rounded-full animate-bounce delay-300"></span>
-        <span className="w-2 h-2 bg-primary/60 rounded-full animate-bounce"></span>
+
+      <div className="space-y-1.5">
+        <span className="text-[11px] font-mono uppercase tracking-wider text-primary font-bold">
+          CLINICAL PROCESSING
+        </span>
+        <h2 className="font-serif text-2xl font-normal text-foreground">
+          {title}
+        </h2>
+        <p className="text-xs text-muted-foreground leading-relaxed">
+          {description}
+        </p>
+      </div>
+
+      <div className="pt-2 border-t border-border/60 w-full flex items-center justify-center gap-2 text-[11px] text-muted-foreground">
+        <ShieldCheck className="w-3.5 h-3.5 text-primary" />
+        <span>End-to-end encrypted clinical inference session</span>
       </div>
     </div>
   </div>
 );
 
-export default Loading; 
+export default Loading;

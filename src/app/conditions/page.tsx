@@ -13,7 +13,8 @@ import {
   ClinicalAnalysisResult,
   saveAssessmentToHistory,
 } from "@/lib/assessment-store";
-import { AlertCircle, RefreshCw, ArrowLeft } from "lucide-react";
+import { AlertCircle, RefreshCw, ArrowLeft, ChevronRight, ShieldCheck } from "lucide-react";
+import Link from "next/link";
 
 function ConditionsContent() {
   const router = useRouter();
@@ -43,7 +44,6 @@ function ConditionsContent() {
       setIsLoading(true);
       setError(null);
       try {
-        // Format questionnaire Q&A for prompt
         const qaFormatted = assessment.structuredQuestions
           .map((q, idx) => {
             const answer = assessment.answers[q.id] || "No response provided";
@@ -76,7 +76,6 @@ function ConditionsContent() {
 
         setResult(clinicalResult);
 
-        // Update assessment in local storage and save to history
         const updatedAssessment = {
           ...assessment,
           result: clinicalResult,
@@ -105,23 +104,23 @@ function ConditionsContent() {
     return (
       <Loading
         title="Synthesizing Clinical Differential"
-        description="Our AI is formulating evidence-grounded condition probabilities, triage levels, and actionable care recommendations..."
+        description="Our AI engine is formulating condition probabilities, stratified triage levels, and EHR documentation..."
       />
     );
   }
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-5rem)] px-6 py-12">
+      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-5rem)] px-6 py-12 bg-background">
         <div className="max-w-md w-full space-y-4">
           <Alert variant="destructive">
             <AlertCircle className="w-5 h-5" />
-            <AlertTitle>Evaluation Encountered an Error</AlertTitle>
+            <AlertTitle>Clinical Evaluation Error</AlertTitle>
             <AlertDescription className="text-xs mt-1">{error}</AlertDescription>
           </Alert>
 
-          <div className="flex justify-between">
-            <Button variant="outline" onClick={() => router.push("/questionnaire")} className="text-xs">
+          <div className="flex justify-between items-center pt-2">
+            <Button variant="outline" onClick={() => router.push("/questionnaire")} className="text-xs min-h-[40px]">
               <ArrowLeft className="w-3.5 h-3.5 mr-1" />
               Back to Questions
             </Button>
@@ -131,7 +130,7 @@ function ConditionsContent() {
                 setError(null);
                 window.location.reload();
               }}
-              className="text-xs flex items-center gap-1.5"
+              className="text-xs flex items-center gap-1.5 min-h-[40px]"
             >
               <RefreshCw className="w-3.5 h-3.5" />
               Retry Analysis
@@ -144,20 +143,42 @@ function ConditionsContent() {
 
   if (!result) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-5rem)] px-6 py-12 text-center">
-        <h2 className="text-2xl font-bold mb-2">No Active Assessment Found</h2>
-        <p className="text-muted-foreground text-sm max-w-md mb-6">
-          To receive a clinical evaluation, please enter your symptoms and complete the health questionnaire.
-        </p>
-        <Button onClick={() => router.push("/ManoMedai")} className="px-6">
-          Start Health Assessment
-        </Button>
+      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-5rem)] px-6 py-12 text-center bg-background">
+        <div className="max-w-md space-y-4">
+          <h2 className="font-serif text-2xl font-normal text-foreground">No Active Assessment Found</h2>
+          <p className="text-muted-foreground text-sm leading-relaxed">
+            To view calibrated condition differentials and generated clinical documentation, please complete the intake and diagnostic inquiry.
+          </p>
+          <Button onClick={() => router.push("/ManoMedai")} className="min-h-[44px] px-6">
+            Begin Clinical Assessment
+          </Button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-[calc(100vh-5rem)] px-4 py-8 bg-background">
+    <div className="min-h-[calc(100vh-5rem)] px-4 py-8 bg-background text-foreground">
+      {/* Navigation Breadcrumb */}
+      <div className="max-w-5xl mx-auto flex items-center justify-between text-xs text-muted-foreground pb-6 mb-6 border-b border-border/60">
+        <div className="flex items-center gap-2">
+          <Link href="/ManoMedai" className="hover:text-foreground transition-colors">
+            Intake
+          </Link>
+          <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/60" />
+          <Link href="/questionnaire" className="hover:text-foreground transition-colors">
+            Inquiry
+          </Link>
+          <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/60" />
+          <span className="font-semibold text-foreground">Stage 03 / Clinical Evaluation & EHR Hand-Off</span>
+        </div>
+
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20">
+          <ShieldCheck className="w-3.5 h-3.5" />
+          <span>Case Evaluated</span>
+        </div>
+      </div>
+
       <ConditionDisplay
         result={result}
         assessment={assessment}
@@ -176,7 +197,7 @@ export default function ConditionsPage() {
       fallback={
         <Loading
           title="Loading Clinical Analysis"
-          description="Preparing your personalized health insights..."
+          description="Preparing clinical decision report..."
         />
       }
     >
