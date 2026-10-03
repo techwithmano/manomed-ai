@@ -1,102 +1,201 @@
 'use client';
 
 import Link from 'next/link';
-import { FaHeartbeat } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
+import {
+  HeartPulse,
+  ShieldCheck,
+  Stethoscope,
+  Activity,
+  FileText,
+  History,
+  AlertTriangle,
+  ArrowRight,
+  Sparkles,
+  CheckCircle2,
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
-const steps = [
-  { icon: '🔍', title: 'Analyze Symptoms', desc: 'Enter symptoms and medical history to begin the analysis.' },
-  { icon: '⚡', title: 'Get Insights', desc: 'Receive AI-driven, actionable recommendations quickly.' },
-  { icon: '❤️', title: 'Track Wellness', desc: 'Monitor health trends over time with personalized dashboards.' },
+const features = [
+  {
+    icon: <ShieldCheck className="w-6 h-6 text-blue-600 dark:text-blue-400" />,
+    title: '4-Tier Clinical Triage',
+    desc: 'Instant emergency red-flag screening categorizing symptoms into Emergency, Urgent, Routine, or Self-Care with clear guidance.',
+  },
+  {
+    icon: <Activity className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />,
+    title: 'Differential Diagnosis',
+    desc: 'Calibrated condition probabilities powered by Google GenAI, complete with ICD-10 codes, supporting factors, and rule-outs.',
+  },
+  {
+    icon: <FileText className="w-6 h-6 text-purple-600 dark:text-purple-400" />,
+    title: 'EHR / SOAP Notes',
+    desc: 'Instantly generate clinical SOAP documentation (Subjective, Objective, Assessment, Plan) formatted for medical record hand-off.',
+  },
+  {
+    icon: <Stethoscope className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />,
+    title: 'Doctor Inquiries & Tests',
+    desc: 'Actionable checklists of questions to ask your physician and recommended laboratory/imaging diagnostic workups to request.',
+  },
 ];
 
-const LandingPage = () => {
+const triageLevels = [
+  {
+    level: 'EMERGENCY',
+    badge: 'bg-red-600 text-white',
+    desc: 'Immediate 911 / Emergency Room evaluation for acute cardiac, neurologic, or respiratory crises.',
+  },
+  {
+    level: 'URGENT',
+    badge: 'bg-amber-500 text-white',
+    desc: 'Urgent Care or same-day medical clinic visit recommended within 12 to 24 hours.',
+  },
+  {
+    level: 'ROUTINE',
+    badge: 'bg-blue-600 text-white',
+    desc: 'Scheduled primary care consultation for stable, non-emergent symptoms within days.',
+  },
+  {
+    level: 'SELF-CARE',
+    badge: 'bg-emerald-600 text-white',
+    desc: 'Evidence-based supportive home management, hydration, rest, and monitoring criteria.',
+  },
+];
+
+export default function LandingPage() {
   const router = useRouter();
 
   return (
     <div className="bg-background text-foreground flex flex-col">
-      {/* Hero */}
-      <section className="container mx-auto flex-1 flex flex-col items-center justify-center text-center px-4 py-16">
-        <FaHeartbeat className="text-blue-600 text-5xl mb-4" aria-hidden="true" />
-        <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-4 text-gray-900 dark:text-white">
-          Unlock AI-Powered Healthcare Insights
+      {/* Hero Section */}
+      <section className="container mx-auto px-4 pt-12 pb-20 max-w-5xl flex flex-col items-center text-center">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20 mb-6">
+          <Sparkles className="w-3.5 h-3.5" />
+          Clinical-Grade AI Medical Triage & Differential Diagnosis
+        </div>
+
+        <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight max-w-3xl leading-[1.15] mb-6">
+          Evidence-Grounded AI Healthcare Insights for <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Every Patient</span>
         </h1>
-        <p className="max-w-2xl text-base sm:text-lg text-gray-700 dark:text-gray-300 mb-8">
-          ManoMed AI analyzes your symptoms and history with advanced models to deliver expert-level guidance—anytime, anywhere.
+
+        <p className="max-w-2xl text-base sm:text-lg text-muted-foreground mb-10 leading-relaxed">
+          Move beyond generic search results. ManoMed AI combines dynamic medical intake, voice dictation, red-flag screening, and Google GenAI to synthesize structured differential diagnoses and doctor-ready clinical summaries.
         </p>
-        <div className="flex flex-col sm:flex-row gap-4">
-          <button
+
+        <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+          <Button
+            size="lg"
             onClick={() => router.push('/ManoMedai')}
-            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full text-lg font-medium shadow hover:opacity-90 transition"
+            className="px-8 h-12 text-base font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg rounded-2xl flex items-center justify-center gap-2"
           >
-            Start Analysis
-          </button>
-          <Link
-            href="/about"
-            className="px-6 py-3 border-2 border-gray-800 dark:border-gray-200 text-gray-800 dark:text-gray-200 rounded-full text-lg font-medium hover:bg-gray-800 dark:hover:bg-gray-200 hover:text-white dark:hover:text-black transition"
-          >
-            Learn More
+            Start Clinical Assessment
+            <ArrowRight className="w-4 h-4" />
+          </Button>
+
+          <Link href="/history">
+            <Button
+              variant="outline"
+              size="lg"
+              className="px-6 h-12 text-base rounded-2xl flex items-center justify-center gap-2 w-full"
+            >
+              <History className="w-4 h-4 text-muted-foreground" />
+              Past Assessments
+            </Button>
           </Link>
+        </div>
+
+        {/* Quick Safety Callout */}
+        <div className="mt-8 flex items-center gap-2 text-xs text-muted-foreground">
+          <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+          <span>Private & Client-Side Cached • No forced sign-up • Instant PDF Export</span>
         </div>
       </section>
 
-      {/* How It Works */}
-      <section className="bg-card dark:bg-card py-16">
-        <div className="container mx-auto px-4">
-          <h2 className="text-2xl sm:text-3xl font-semibold text-center mb-8 text-gray-900 dark:text-white">
-            How It Works
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {steps.map((step, idx) => (
+      {/* Triage Overview Grid */}
+      <section className="bg-muted/30 border-y border-border/60 py-16">
+        <div className="container mx-auto px-4 max-w-5xl">
+          <div className="text-center mb-10">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight mb-2">
+              Structured 4-Tier Medical Triage
+            </h2>
+            <p className="text-sm text-muted-foreground max-w-lg mx-auto">
+              Every evaluation is mapped to an actionable timeframe so patients know exactly when and where to seek professional care.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+            {triageLevels.map((t, idx) => (
               <div
                 key={idx}
-                className="
-                  p-6
-                  bg-card dark:bg-card
-                  rounded-xl
-                  shadow-md
-                  transform transition
-                  hover:shadow-xl
-                  hover:-translate-y-1
-                  duration-300
-                "
+                className="p-5 rounded-2xl bg-card border border-border shadow-sm flex flex-col justify-between space-y-3"
               >
-                <div className="text-4xl mb-3">{step.icon}</div>
-                <h3 className="text-xl font-semibold mb-1 text-gray-900 dark:text-white">
-                  {step.title}
-                </h3>
-                <p className="text-gray-700 dark:text-gray-300 text-sm">
-                  {step.desc}
-                </p>
+                <div>
+                  <Badge className={`px-2.5 py-0.5 text-xs font-bold ${t.badge}`}>
+                    {t.level}
+                  </Badge>
+                  <p className="text-xs text-muted-foreground mt-3 leading-relaxed">
+                    {t.desc}
+                  </p>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Testimonial */}
-      <section className="py-16">
-        <div className="container mx-auto px-4 text-center text-gray-800 dark:text-gray-200">
-          <blockquote className="italic mb-4">
-            "ManoMed AI streamlined our patient assessment process, delivering timely insights that improved care delivery."
-          </blockquote>
-          <p className="font-medium">— Eng. Abdulrahman Haramain, CS </p>
+      {/* Feature Capabilities Grid */}
+      <section className="container mx-auto px-4 py-20 max-w-5xl">
+        <div className="text-center mb-12">
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight mb-3">
+            Built for True Medical Utility
+          </h2>
+          <p className="text-sm text-muted-foreground max-w-xl mx-auto">
+            Engineered with clinical rigor to provide actionable insights for patients and clear, standard documentation for treating physicians.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {features.map((feat, idx) => (
+            <div
+              key={idx}
+              className="p-6 rounded-2xl border border-border/80 bg-card shadow-sm hover:shadow-md transition-all flex items-start gap-4"
+            >
+              <div className="p-3 rounded-xl bg-muted/60 shrink-0">
+                {feat.icon}
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-lg font-bold">{feat.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  {feat.desc}
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 
-      {/* Footer CTA */}
-      <section className="py-8">
-        <div className="container mx-auto px-4 text-center">
-          <Link
-            href="/ManoMedai"
-            className="inline-block px-8 py-3 bg-purple-600 text-white rounded-full font-semibold hover:opacity-90 transition"
-          >
-            Get Started Now
-          </Link>
+      {/* Bottom CTA */}
+      <section className="bg-gradient-to-br from-blue-900 to-indigo-950 text-white py-16">
+        <div className="container mx-auto px-4 text-center max-w-3xl space-y-6">
+          <HeartPulse className="w-12 h-12 text-blue-300 mx-auto" />
+          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
+            Ready to Analyze Your Symptoms?
+          </h2>
+          <p className="text-blue-100 text-sm sm:text-base leading-relaxed max-w-xl mx-auto">
+            Begin your intake questionnaire in seconds. Get evidence-based differential likelihoods and a downloadable clinical consultation summary.
+          </p>
+          <div className="pt-2">
+            <Button
+              size="lg"
+              onClick={() => router.push('/ManoMedai')}
+              className="px-8 h-12 text-base font-semibold bg-white text-blue-900 hover:bg-blue-50 shadow-xl rounded-2xl"
+            >
+              Start Free Assessment Now →
+            </Button>
+          </div>
         </div>
       </section>
     </div>
   );
-};
-
-export default LandingPage;
+}

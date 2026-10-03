@@ -8,12 +8,18 @@ An AI-powered medical symptom analysis tool using Next.js and Google GenAI to ge
 ## 📖 Overview
 ManoMed AI is a core, intelligent medical symptom analysis tool designed to help users better understand potential health conditions. By leveraging advanced artificial intelligence, the application analyzes user-provided symptoms and medical history to dynamically generate personalized, interactive questionnaires. It solves the problem of healthcare ambiguity by bridging the gap between initial symptom onset and medical consultation, providing users with preliminary condition likelihood assessments in a clean, user-friendly environment.
 
-## ✨ Key Features
-* **AI-Powered Symptom Analysis:** Utilizes Google GenAI to intelligently evaluate complex user symptoms.
-* **Dynamic Questionnaires:** Generates contextual follow-up questions based on the user's initial health inputs.
-* **Likelihood Assessment:** Calculates and displays potential medical conditions with probability scores.
-* **Modern UI/UX:** Fully responsive, accessible design with seamless Dark/Light mode support.
-* **Stateful Flow:** Guides users through an intuitive, step-by-step process from input to final assessment.
+## ✨ Key Clinical & Technical Features
+* **4-Tier Clinical Triage:** Evaluates symptoms into EMERGENCY, URGENT, ROUTINE, or SELF-CARE with clear action timeframes.
+* **Real-Time Emergency Red-Flag Interceptor:** Automatically detects life-threatening keywords (cardiac distress, stroke, anaphylaxis) and surfaces instant emergency call actions.
+* **Speech-to-Text Voice Dictation:** Integrated Web Speech API allows patients to speak their symptoms hands-free.
+* **Interactive Body Systems & Symptom Chips:** Visual anatomical system selector and one-click high-yield symptom tags.
+* **Dynamic Multi-Type Questionnaire:** Generates structured Yes/No toggles, 1–10 pain/severity sliders, qualitative choice buttons, and clinical rationale explanations.
+* **Differential Diagnosis with Evidence Breakdown:** Ranked conditions with ICD-10 hints, supporting indicators, and unconfirmed factors.
+* **Interactive Probability Visualizations:** Responsive Recharts bar charts comparing diagnostic likelihoods.
+* **1-Click Clinical SOAP Note:** Formatted in standard EHR documentation syntax (Subjective, Objective, Assessment, Plan) for doctor hand-off.
+* **Doctor Checklist & Diagnostic Workup:** Recommended laboratory/imaging tests and interactive questions checklist for medical appointments.
+* **Persistent Assessment History:** LocalStorage-backed session management and historical records tracker ("Past Assessments").
+* **Doctor-Ready PDF Export & Email:** Comprehensive multi-page report generator powered by jsPDF and AutoTable with SendGrid email integration.
 
 ## 💻 Tech Stack
 * **Frontend:** Next.js 15, React 18, TypeScript
@@ -28,7 +34,7 @@ Follow these steps to set up and run ManoMed AI locally:
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/techwithmano/manomed-ai.git
+   git clone https://github.com/manomed-ai/manomed-ai.git
    cd manomed-ai
    ```
 

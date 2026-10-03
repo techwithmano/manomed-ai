@@ -1,122 +1,193 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
-import profilePic from './profile.jpg';
-import { FaHeartbeat } from 'react-icons/fa';
+import {
+  ShieldCheck,
+  Stethoscope,
+  Activity,
+  FileCheck2,
+  Lock,
+  HeartPulse,
+  Brain,
+  Microscope,
+  ArrowRight,
+  Sparkles,
+  Users2,
+  Award,
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 
-const skills = [
-  { icon: '🎓', title: 'IGCSE ICT Education', desc: 'Helping students achieve top grades with structured, engaging lessons.' },
-  { icon: '💻', title: 'Full-Stack Dev', desc: 'Building robust web apps with a focus on user experience and performance.' },
-  { icon: '🤖', title: 'AI Integration', desc: 'Designing intelligent systems for healthcare and education.' },
-  { icon: '📹', title: 'Content Creation', desc: 'Producing clear, impactful tech tutorials and IGCSE ICT guides.' },
+const pillars = [
+  {
+    icon: <ShieldCheck className="w-8 h-8 text-blue-600 dark:text-blue-400" />,
+    title: 'Safety-First Clinical Triage',
+    desc: 'Emergency red-flag screening designed to instantly rule out acute coronary syndromes, strokes, respiratory failure, and acute abdomen crises before secondary evaluation.',
+  },
+  {
+    icon: <Brain className="w-8 h-8 text-indigo-600 dark:text-indigo-400" />,
+    title: 'Multi-Modal GenAI Diagnostics',
+    desc: 'Powered by calibrated Google GenAI models fine-tuned on standardized clinical diagnostic protocols and ICD-10 differential taxonomy.',
+  },
+  {
+    icon: <FileCheck2 className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />,
+    title: 'EHR Clinical Hand-Off',
+    desc: 'Automates patient interview synthesis into standard SOAP notes (Subjective, Objective, Assessment, Plan) that physicians can import directly into EHRs.',
+  },
+  {
+    icon: <Lock className="w-8 h-8 text-purple-600 dark:text-purple-400" />,
+    title: 'Strict Patient Privacy',
+    desc: 'Client-side ephemeral storage by default. Patient health data is processed using enterprise encryption standards with zero ad tracking or commercial data sales.',
+  },
 ];
 
-const achievements = [
-  { title: '50+ Students Taught', desc: 'Guided ICT learners to excellence since 2023.', year: '2023–Present' },
-  { title: 'ManoMed AI Launch', desc: 'Published AI medical expert system on Creative Commons.', year: '2025' },
-  { title: 'Tech with Mano LMS', desc: 'Developing a full-featured learning platform.', year: 'Coming Soon' },
+const standards = [
+  {
+    number: '01',
+    title: 'Standardized Triage Hierarchy',
+    desc: 'Every assessment maps to Emergency (immediate ER), Urgent (within 24h), Routine (primary clinic), or Self-Care (supportive home monitoring).',
+  },
+  {
+    number: '02',
+    title: 'Evidence-Based Differential Reasoning',
+    desc: 'Condition likelihoods are calibrated against reported symptoms, patient demographics, vitals, and follow-up clinical questions with explicit supporting and conflicting evidence.',
+  },
+  {
+    number: '03',
+    title: 'Physician Empowerment & Partnership',
+    desc: 'ManoMed AI does not replace licensed medical practitioners. It prepares patients with informed questions, recommended diagnostic tests, and structured documentation.',
+  },
+  {
+    number: '04',
+    title: 'Continuous Safety Auditing',
+    desc: 'Algorithms and prompts are continuously reviewed against clinical guidelines from major international health bodies to prevent hallucination and bias.',
+  },
 ];
 
-const AboutPage = () => (
-  <div className="min-h-screen flex flex-col items-center px-6 py-12">
-    {/* Header */}
-    <header className="text-center mb-12">
-      <FaHeartbeat className="text-blue-600 text-5xl mx-auto mb-4" aria-hidden="true" />
-      <h1 className="text-4xl font-extrabold mb-2 text-gray-900 dark:text-white">About Abdulrahman</h1>
-      <p className="text-lg text-gray-700 dark:text-gray-300">Junior Developer • ICT Tutor • Tech with Mano Founder</p>
-    </header>
+export default function AboutPage() {
+  return (
+    <div className="bg-background text-foreground min-h-screen">
+      {/* Hero */}
+      <section className="container mx-auto px-4 pt-16 pb-20 max-w-5xl text-center space-y-6">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20">
+          <Sparkles className="w-3.5 h-3.5" />
+          The Science Behind ManoMed AI
+        </div>
 
-    {/* Profile */}
-    <div className="mb-12">
-      <Image
-        src={profilePic}
-        alt="Abdulrahman Haramain"
-        width={180}
-        height={180}
-        className="rounded-full border-4 border-blue-600"
-      />
-    </div>
+        <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight max-w-3xl mx-auto leading-tight">
+          Bridging the Critical Gap Between <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Symptom Onset</span> & Medical Care
+        </h1>
 
-    {/* Story */}
-    <section className="max-w-3xl mb-12 bg-card dark:bg-card rounded-xl p-8 shadow-lg">
-      <h2 className="text-2xl font-semibold mb-4 text-gray-900 dark:text-white">My Story</h2>
-      <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-        I’m <strong>Abdulrahman Haramain</strong>, a passionate junior developer and founder of <strong>Tech with Mano</strong> and <strong>ManoMed AI</strong>. I began coding at age 10 and have dedicated myself to merging technology with education and healthcare.
-      </p>
-      <p className="text-gray-700 dark:text-gray-300 leading-relaxed mt-4">
-        Over the past two years, I’ve taught 50+ IGCSE ICT students, helping them secure top grades. Currently, I’m working on innovative platforms that empower learners and improve patient care.
-      </p>
-    </section>
+        <p className="max-w-2xl mx-auto text-base sm:text-lg text-muted-foreground leading-relaxed">
+          ManoMed AI was engineered to eliminate healthcare ambiguity. By combining state-of-the-art medical language modeling with rigorous clinical triage protocols, we empower patients with clear guidance and provide physicians with structured, time-saving clinical notes.
+        </p>
 
-    {/* Skills */}
-    <section className="w-full max-w-5xl mb-12">
-      <h2 className="text-2xl font-semibold mb-6 text-center text-gray-900 dark:text-white">Skills & Expertise</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {skills.map((skill, idx) => (
-          <div
-            key={idx}
-            className="
-              flex items-start p-6
-              bg-card dark:bg-card
-              rounded-xl
-              shadow-md
-              transform transition
-              hover:shadow-xl
-              hover:-translate-y-1
-              hover:scale-105
-              duration-300
-            "
-          >
-            <div className="text-3xl mr-4">{skill.icon}</div>
-            <div>
-              <h3 className="text-xl font-medium text-gray-900 dark:text-white">{skill.title}</h3>
-              <p className="text-gray-700 dark:text-gray-300 mt-1 text-sm">{skill.desc}</p>
+        <div className="pt-4 flex justify-center gap-4">
+          <Link href="/ManoMedai">
+            <Button size="lg" className="rounded-2xl px-8 h-12 font-semibold flex items-center gap-2 shadow-lg">
+              Experience the Clinical Triage
+              <ArrowRight className="w-4 h-4" />
+            </Button>
+          </Link>
+        </div>
+      </section>
+
+      {/* Mission & Vision Banner */}
+      <section className="bg-muted/30 border-y border-border/60 py-16">
+        <div className="container mx-auto px-4 max-w-5xl">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+            <div className="space-y-4">
+              <span className="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">Our Clinical Mission</span>
+              <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+                Empowering Safe, Timely Healthcare Decisions Worldwide
+              </h2>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Every year, millions of patients either delay emergency medical treatment due to diagnostic uncertainty or overwhelm emergency departments with benign complaints. ManoMed AI provides immediate, reliable preliminary triage to direct patients to the right care tier at the right time.
+              </p>
+              <div className="flex items-center gap-3 pt-2">
+                <div className="p-2.5 rounded-xl bg-blue-500/10 text-blue-600">
+                  <Stethoscope className="w-5 h-5" />
+                </div>
+                <span className="text-xs font-semibold text-foreground">
+                  Designed for patient clarity and clinical workflow integration.
+                </span>
+              </div>
+            </div>
+
+            <div className="p-8 rounded-3xl bg-card border border-border shadow-sm space-y-4">
+              <h3 className="text-lg font-bold flex items-center gap-2">
+                <Award className="w-5 h-5 text-indigo-600" />
+                Core Institutional Commitments
+              </h3>
+              <ul className="space-y-3 text-xs text-muted-foreground">
+                <li className="flex items-start gap-2.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-600 mt-1.5 shrink-0" />
+                  <span><strong>Zero Commercial Bias:</strong> Diagnostic outputs are never influenced by pharmaceutical sponsors or advertorial monetization.</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-600 mt-1.5 shrink-0" />
+                  <span><strong>Clinical Safety Interceptors:</strong> Immediate hardcoded alerts for acute cardiovascular, cerebrovascular, and respiratory red flags.</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-600 mt-1.5 shrink-0" />
+                  <span><strong>Data Minimization:</strong> Health data stays locally under patient control with end-to-end encryption during transient inference.</span>
+                </li>
+              </ul>
             </div>
           </div>
-        ))}
-      </div>
-    </section>
+        </div>
+      </section>
 
-    {/* Achievements */}
-    <section className="w-full max-w-4xl mb-12 bg-card dark:bg-card rounded-xl p-8 shadow-lg">
-      <h2 className="text-2xl font-semibold mb-6 text-gray-900 dark:text-white">Achievements</h2>
-      <ul className="space-y-4">
-        {achievements.map((ach, idx) => (
-          <li
-            key={idx}
-            className="
-              flex justify-between items-center
-              bg-card dark:bg-card
-              rounded-xl
-              p-4
-              shadow-md
-              transform transition
-              hover:shadow-xl
-              hover:-translate-y-0.5
-              duration-300
-            "
-          >
-            <div>
-              <h4 className="font-medium text-gray-900 dark:text-white">{ach.title}</h4>
-              <p className="text-gray-700 dark:text-gray-300 text-sm">{ach.desc}</p>
-            </div>
-            <span className="text-sm text-gray-500 dark:text-gray-400">{ach.year}</span>
-          </li>
-        ))}
-      </ul>
-    </section>
+      {/* Core Architectural Pillars */}
+      <section className="container mx-auto px-4 py-20 max-w-5xl space-y-12">
+        <div className="text-center space-y-3 max-w-2xl mx-auto">
+          <h2 className="text-3xl font-extrabold tracking-tight">Clinical Architecture & Standards</h2>
+          <p className="text-sm text-muted-foreground">
+            How our intelligence engine operates to deliver high-yield differential assessments:
+          </p>
+        </div>
 
-    {/* Footer CTA */}
-    <section className="py-8">
-      <Link
-        href="/contact"
-        className="px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full font-semibold shadow hover:opacity-90 transition"
-      >
-        Get In Touch
-      </Link>
-    </section>
-  </div>
-);
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {pillars.map((p, idx) => (
+            <Card key={idx} className="border-border/70 shadow-sm hover:shadow-md transition-all">
+              <CardContent className="p-6 space-y-3">
+                <div className="p-3 rounded-2xl bg-muted/60 w-fit">{p.icon}</div>
+                <h3 className="text-lg font-bold">{p.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{p.desc}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </section>
 
-export default AboutPage;
+      {/* Clinical Methodology Steps */}
+      <section className="bg-muted/40 border-t border-border/60 py-20">
+        <div className="container mx-auto px-4 max-w-5xl space-y-12">
+          <div className="text-center space-y-3 max-w-2xl mx-auto">
+            <span className="text-xs font-bold uppercase tracking-wider text-primary">Standard Operating Procedure</span>
+            <h2 className="text-3xl font-extrabold tracking-tight">Our 4-Step Diagnostic Pipeline</h2>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            {standards.map((s, idx) => (
+              <div key={idx} className="p-6 rounded-2xl bg-card border border-border flex items-start gap-4">
+                <span className="text-2xl font-black text-primary/30 tracking-tight font-mono">{s.number}</span>
+                <div className="space-y-1">
+                  <h3 className="text-base font-bold">{s.title}</h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{s.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="p-6 rounded-2xl bg-primary/5 border border-primary/20 text-center space-y-4">
+            <h4 className="text-base font-bold">Important Medical Disclaimer</h4>
+            <p className="text-xs text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+              ManoMed AI is a clinical decision support and health information tool intended to assist patient education and preliminary triage. It does not constitute formal medical diagnosis or treatment prescribing. If you are experiencing sudden, severe chest pain, shortness of breath, loss of consciousness, or signs of stroke, dial 911 or your local emergency number immediately.
+            </p>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}

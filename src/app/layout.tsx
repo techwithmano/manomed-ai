@@ -1,142 +1,109 @@
-// src/app/layout.tsx (or wherever RootLayout lives)
-'use client';
-
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { ThemeProvider } from '@/components/theme-provider';
-import ThemeSwitcher from '@/components/ThemeSwitcher';
 import { Inter } from 'next/font/google';
 import Link from 'next/link';
 import { ClerkProvider } from '@clerk/nextjs';
 import { dark } from '@clerk/themes';
 import { Analytics } from '@vercel/analytics/next';
 import {
-  FaHeartbeat,
-  FaBars,
-  FaTimes,
-  FaHome,
-  FaInfoCircle,
-  FaEnvelope,
-  FaStethoscope,
-} from 'react-icons/fa';
-import { useState } from 'react';
-
-// Toggle this flag to hide/show navigation
-const COMING_SOON_MODE = false;
+  ShieldAlert,
+  Sparkles,
+  Lock,
+  HeartPulse,
+} from 'lucide-react';
+import SiteHeader from '@/components/SiteHeader';
+import type { Metadata } from 'next';
 
 const inter = Inter({ subsets: ['latin'] });
 
-const navItems = [
-  { href: '/', icon: <FaHome />, label: 'Home' },
-  { href: '/about', icon: <FaInfoCircle />, label: 'About' },
-  { href: '/contact', icon: <FaEnvelope />, label: 'Contact' },
-];
+export const metadata: Metadata = {
+  title: 'ManoMed AI | Clinical Decision Support & Symptom Triage',
+  description: 'Evidence-grounded medical AI triage, dynamic clinical questionnaire assessment, and automated EHR documentation generator.',
+};
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  const toggleMenu = () => setIsMenuOpen((s) => !s);
-  const closeMenu = () => setIsMenuOpen(false);
-
   return (
     <ClerkProvider appearance={{ baseTheme: dark }}>
-      <html lang="en" className="scroll-smooth">
-        <body className={`${inter.className} bg-background text-foreground`}>
+      <html lang="en" className="scroll-smooth" suppressHydrationWarning>
+        <body className={`${inter.className} bg-background text-foreground min-h-screen flex flex-col`}>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            {/* Modular Client Header */}
+            <SiteHeader />
 
-            {/* Header (hidden in Coming Soon mode) */}
-            {!COMING_SOON_MODE && (
-              <header className="fixed top-0 w-full z-50 bg-white/80 dark:bg-black/80 backdrop-blur-md shadow-md">
-                <div className="max-w-6xl mx-auto flex items-center justify-between px-6 py-4">
-                  <Link href="/" className="flex items-center space-x-2" aria-label="ManoMed AI Home">
-                    <FaHeartbeat className="text-blue-600 text-2xl" />
-                    <span className="text-2xl font-bold text-gray-900 dark:text-white">
-                      ManoMed AI
-                    </span>
-                  </Link>
-
-                  {/* Desktop Nav */}
-                  <nav className="hidden sm:flex items-center space-x-6">
-                    {navItems.map((item) => (
-                      <Link
-                        key={item.label}
-                        href={item.href}
-                        className="flex items-center space-x-1 text-gray-800 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition"
-                      >
-                        {item.icon}
-                        <span>{item.label}</span>
-                      </Link>
-                    ))}
-                    <Link
-                      href="/ManoMedai"
-                      className="ml-4 px-4 py-2 bg-blue-600 text-white rounded-full font-medium shadow hover:bg-blue-700 transition"
-                    >
-                      ManoMed-AI
-                    </Link>
-                    <ThemeSwitcher />
-                  </nav>
-
-                  {/* Mobile Toggle */}
-                  <div className="sm:hidden flex items-center space-x-3">
-                    <ThemeSwitcher />
-                    <button
-                      aria-label="Toggle menu"
-                      onClick={toggleMenu}
-                      className="p-2 text-gray-800 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition"
-                    >
-                      {isMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
-                    </button>
-                  </div>
-                </div>
-
-                {/* Mobile Menu */}
-                {isMenuOpen && (
-                  <>
-                    <div
-                      className="fixed inset-0 bg-black/30 z-40"
-                      onClick={closeMenu}
-                      aria-hidden="true"
-                    />
-                    <div className="absolute top-full left-0 w-full bg-white dark:bg-black shadow-md animate-slideDown z-50">
-                      <div className="flex flex-col space-y-4 p-6">
-                        {navItems.map((item) => (
-                          <Link
-                            key={item.label}
-                            href={item.href}
-                            onClick={closeMenu}
-                            className="flex items-center space-x-3 text-gray-800 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition"
-                          >
-                            {item.icon}
-                            <span>{item.label}</span>
-                          </Link>
-                        ))}
-                        <Link
-                          href="/ManoMedai"
-                          onClick={closeMenu}
-                          className="flex items-center space-x-3 px-4 py-2 bg-blue-600 text-white rounded-full transition"
-                        >
-                          <FaStethoscope />
-                          <span>ManoMed-AI</span>
-                        </Link>
-                      </div>
-                    </div>
-                  </>
-                )}
-              </header>
-            )}
-
-            {/* Main Content */}
-            <main className="pt-20">
+            {/* Main Content Area */}
+            <main className="pt-20 flex-1">
               {children}
             </main>
 
-            {/* Footer */}
-            <footer className="mt-12 py-6 bg-gray-100 dark:bg-gray-900 text-center text-sm text-gray-600 dark:text-gray-400">
-              © 2025 ManoMed AI. All rights reserved.
+            {/* Institutional Healthcare Footer */}
+            <footer className="border-t border-border bg-card/60 backdrop-blur-sm">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 space-y-8">
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+                  {/* Brand & Mission */}
+                  <div className="md:col-span-5 space-y-3">
+                    <div className="flex items-center space-x-2">
+                      <HeartPulse className="w-5 h-5 text-blue-600" />
+                      <span className="font-extrabold text-lg tracking-tight">ManoMed AI</span>
+                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-600 border border-blue-500/20">
+                        CDS
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground leading-relaxed max-w-sm">
+                      ManoMed AI is an evidence-grounded clinical decision support tool designed to streamline patient symptom intake, provide structured differential likelihoods, and generate standardized EHR documentation.
+                    </p>
+                    <div className="flex items-center gap-3 text-xs text-muted-foreground pt-1">
+                      <span className="flex items-center gap-1">
+                        <Lock className="w-3.5 h-3.5 text-emerald-500" />
+                        Client-Side Cached
+                      </span>
+                      <span>•</span>
+                      <span className="flex items-center gap-1">
+                        <Sparkles className="w-3.5 h-3.5 text-blue-500" />
+                        Google GenAI Core
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Navigation Links */}
+                  <div className="md:col-span-3 space-y-2.5 text-xs">
+                    <h4 className="font-bold uppercase tracking-wider text-foreground">Platform</h4>
+                    <ul className="space-y-1.5 text-muted-foreground">
+                      <li><Link href="/ManoMedai" className="hover:text-primary transition">Symptom Triage Intake</Link></li>
+                      <li><Link href="/history" className="hover:text-primary transition">Past Assessment Records</Link></li>
+                      <li><Link href="/about" className="hover:text-primary transition">Clinical Methodology</Link></li>
+                      <li><Link href="/contact" className="hover:text-primary transition">Institutional Inquiries</Link></li>
+                      <li><Link href="/privacy" className="hover:text-primary transition">Privacy & Data Governance</Link></li>
+                    </ul>
+                  </div>
+
+                  {/* Emergency Helpline Box */}
+                  <div className="md:col-span-4 p-4 rounded-2xl bg-destructive/5 border border-destructive/20 space-y-2 text-xs">
+                    <div className="flex items-center gap-1.5 font-bold text-destructive">
+                      <ShieldAlert className="w-4 h-4" />
+                      <span>Emergency Care Notice</span>
+                    </div>
+                    <p className="text-muted-foreground text-[11px] leading-relaxed">
+                      ManoMed AI does not provide emergency medical services or replace direct physical diagnosis by a licensed physician. If you are in immediate danger:
+                    </p>
+                    <div className="flex flex-wrap gap-2 pt-1 font-mono font-bold text-[11px]">
+                      <span className="px-2 py-0.5 rounded bg-card border">US/CA: 911</span>
+                      <span className="px-2 py-0.5 rounded bg-card border">UK: 999</span>
+                      <span className="px-2 py-0.5 rounded bg-card border">EU: 112</span>
+                      <span className="px-2 py-0.5 rounded bg-card border">Crisis: 988</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
+                  <p>© 2026 ManoMed AI Clinical Intelligence Systems. All rights reserved.</p>
+                  <p className="text-[11px]">Designed for clinical accuracy, patient safety, and seamless physician hand-off.</p>
+                </div>
+              </div>
             </footer>
 
             <Toaster />

@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { SymptomAnalysisOutput } from "@/ai/flows/symptom-analysis";
+import React, { useState } from "react";
 import {
   Card,
   CardContent,
@@ -9,495 +9,686 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, AlertTriangle, Info, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  AlertTriangle,
+  ShieldAlert,
+  CheckCircle2,
+  HelpCircle,
+  Download,
+  Copy,
+  Check,
+  FileText,
+  Stethoscope,
+  PhoneCall,
+  Activity,
+  ExternalLink,
+  RotateCcw,
+  Sparkles,
+  ClipboardList,
+  Flame,
+  Gauge,
+  Share2,
+} from "lucide-react";
+import { exportClinicalReportPDF } from "@/lib/pdf-export";
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Cell,
+} from "recharts";
+import { ClinicalAnalysisResult, CurrentAssessment } from "@/lib/assessment-store";
+import Link from "next/link";
 
 interface ConditionDisplayProps {
-  conditions: SymptomAnalysisOutput;
-  name: string;
-  age: string;
-  gender: string;
-  email: string;
-  symptoms: string;
-  medicalHistory: string;
-  questions: string[];
-  answers: string[];
+  result: ClinicalAnalysisResult;
+  assessment: CurrentAssessment;
+  onStartNew?: () => void;
 }
 
 export const ConditionDisplay: React.FC<ConditionDisplayProps> = ({
-  conditions,
-  name,
-  age,
-  gender,
-  email,
-  symptoms,
-  medicalHistory,
-  questions,
-  answers,
+  result,
+  assessment,
+  onStartNew,
 }) => {
-  // Add debugging logs
-  console.log('ConditionDisplay received Q&A data:', {
-    questionsLength: questions?.length,
-    answersLength: answers?.length,
-    questions,
-    answers
-  });
+  const [copiedSOAP, setCopiedSOAP] = useState(false);
+  const [copiedQuestions, setCopiedQuestions] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+  const [checkedQuestions, setCheckedQuestions] = useState<Record<number, boolean>>({});
 
-  const getIcon = (likelihood: number) => {
-    if (likelihood > 0.75) {
-      return <CheckCircle className="w-4 h-4 text-green-500 mr-1" />;
-    } else if (likelihood > 0.5) {
-      return <AlertTriangle className="w-4 h-4 text-yellow-500 mr-1" />;
-    } else {
-      return <Info className="w-4 h-4 text-gray-500 mr-1" />;
+  const toggleQuestionCheck = (idx: number) => {
+    setCheckedQuestions((prev) => ({ ...prev, [idx]: !prev[idx] }));
+  };
+
+  const copySOAPNote = () => {
+    const text = `=== CLINICAL SOAP NOTE (ManoMed AI) ===
+PATIENT: ${assessment.patient.name || "Anonymous"} | Age: ${assessment.patient.age || "N/A"} | Sex: ${assessment.patient.gender || "N/A"}
+DATE: ${new Date(result.timestamp).toLocaleString()}
+TRIAGE LEVEL: ${result.triage.level} (${result.triage.timeframe})
+
+[SUBJECTIVE]
+${result.soapNote.subjective}
+
+[OBJECTIVE]
+${result.soapNote.objective}
+
+[ASSESSMENT]
+${result.soapNote.assessment}
+
+[PLAN]
+${result.soapNote.plan}
+
+=== END OF NOTE ===`;
+
+    navigator.clipboard.writeText(text);
+    setCopiedSOAP(true);
+    setTimeout(() => setCopiedSOAP(false), 2500);
+  };
+
+  const copyDoctorQuestions = () => {
+    const text = `Questions for My Healthcare Provider (ManoMed AI):
+${result.questionsForDoctor.map((q, i) => `${i + 1}. ${q}`).join("\n")}`;
+
+    navigator.clipboard.writeText(text);
+    setCopiedQuestions(true);
+    setTimeout(() => setCopiedQuestions(false), 2500);
+  };
+
+  // Recharts probability comparison data
+  const chartData = result.conditions.map((c) => ({
+    name: c.condition.length > 20 ? c.condition.substring(0, 18) + "..." : c.condition,
+    fullName: c.condition,
+    likelihood: Math.round(c.likelihood * 100),
+    riskLevel: c.riskLevel,
+  }));
+
+  const getTriageTheme = (level: string) => {
+    switch (level) {
+      case "EMERGENCY":
+        return {
+          bg: "bg-red-500/10 border-red-500 text-red-700 dark:text-red-400",
+          badge: "bg-red-600 text-white",
+          icon: <AlertTriangle className="w-6 h-6 text-red-600 animate-bounce" />,
+          title: "EMERGENCY: Immediate Medical Care Required",
+          gaugeIndex: 3,
+        };
+      case "URGENT":
+        return {
+          bg: "bg-amber-500/10 border-amber-500 text-amber-800 dark:text-amber-300",
+          badge: "bg-amber-500 text-white",
+          icon: <ShieldAlert className="w-6 h-6 text-amber-500" />,
+          title: "URGENT: Evaluation Recommended within 24 Hours",
+          gaugeIndex: 2,
+        };
+      case "ROUTINE":
+        return {
+          bg: "bg-blue-500/10 border-blue-500 text-blue-800 dark:text-blue-300",
+          badge: "bg-blue-600 text-white",
+          icon: <Stethoscope className="w-6 h-6 text-blue-600" />,
+          title: "ROUTINE: Schedule Clinic Consultation",
+          gaugeIndex: 1,
+        };
+      default:
+        return {
+          bg: "bg-emerald-500/10 border-emerald-500 text-emerald-800 dark:text-emerald-300",
+          badge: "bg-emerald-600 text-white",
+          icon: <CheckCircle2 className="w-6 h-6 text-emerald-600" />,
+          title: "SELF-CARE: Supportive Home Management",
+          gaugeIndex: 0,
+        };
     }
   };
 
+  const triageTheme = getTriageTheme(result.triage.level);
+
   const generatePDF = async () => {
-    // Add debugging logs at start of PDF generation
-    console.log('Starting PDF generation with Q&A data:', {
-      questionsLength: questions?.length,
-      answersLength: answers?.length,
-      questions,
-      answers
-    });
-
-    const doc = new jsPDF("portrait", "pt", "a4");
-    const width = doc.internal.pageSize.getWidth();
-    const height = doc.internal.pageSize.getHeight();
-    const margin = 50; // Increased margin
-    const bleed = 10; // Added bleed area
-    const contentWidth = width - (margin * 2);
-    let cursorY = margin;
-
-    // Typography and color definitions
-    const fonts = {
-      heading: 'helvetica',
-      body: 'helvetica',
-      monospace: 'courier'
-    };
-
-    const weights = {
-      regular: 'normal',
-      medium: 'bold',
-      bold: 'bold'
-    };
-
-    const colors = {
-      primary: '#1a365d',    // Darker blue for headers
-      secondary: '#2d3748',  // Dark gray for body text
-      accent: '#3182ce',     // Bright blue for links
-      warning: '#c53030',    // Red for disclaimer
-      background: '#f7fafc', // Lighter background
-      border: '#e2e8f0'      // Border color
-    };
-
-    const spacing = {
-      section: 35,    // Reduced from 40
-      paragraph: 15,  // Reduced from 20
-      line: 16,       // Reduced from 18
-      element: 8      // Reduced from 10
-    };
-
-    // Font sizes (adjusted for medical report)
-    const fontSizes = {
-      coverTitle: 37,     // was 35
-      coverSubtitle: 21,  // was 19
-      coverInfo: 13,      // was 11
-      sectionTitle: 21,   // was 19
-      bodyText: 11,       // was 9
-      footer: 9,          // was 6 - increased for better readability
-    };
-
-    // --- Header / Footer setup ---
-    const footer = (page: number, totalPages: number) => {
-      // Add separator line
-      doc.setDrawColor(colors.border);
-      doc.setLineWidth(0.5);
-      doc.line(margin, height - 35, width - margin, height - 35);
-      
-      doc.setFontSize(fontSizes.footer);
-      doc.setTextColor(colors.secondary);
-      const footerText = `Page ${page} of ${totalPages} | ManoMed AI Report | Generated: ${new Date().toLocaleString()}`;
-      doc.text(footerText, width / 2, height - 20, { align: 'center' });
-    };
-
-    // Cover Page ---
-    doc.setFillColor(colors.background);
-    doc.rect(0, 0, width, height, 'F');
-    
-    // Add logo or icon
-    doc.setFont(fonts.heading, weights.bold);
-    doc.setFontSize(fontSizes.coverTitle);
-    doc.setTextColor(colors.primary);
-    doc.text('ManoMed AI', width/2, height/2 - 60, { align: 'center' });
-    
-    doc.setFontSize(fontSizes.coverSubtitle);
-    doc.text('Comprehensive Medical Analysis Report', width/2, height/2 - 20, { align: 'center' });
-    
-    doc.setFontSize(fontSizes.coverInfo);
-    doc.text(`Patient: ${name}`, width/2, height/2 + 20, { align: 'center' });
-    doc.text(`Date: ${new Date().toLocaleDateString()}`, width/2, height/2 + 50, { align: 'center' });
-    
-    // Add a decorative line
-    doc.setDrawColor(colors.accent);
-    doc.setLineWidth(2);
-    doc.line(margin, height/2 + 80, width - margin, height/2 + 80);
-    
-    doc.addPage();
-
-    // Table of Contents ---
-    doc.setFont(fonts.heading, weights.bold);
-    doc.setFontSize(fontSizes.sectionTitle);
-    doc.setTextColor(colors.primary);
-    doc.text('Table of Contents', margin, cursorY);
-    cursorY += spacing.section;
-    
-    const toc = [
-      { title: 'Patient Information', page: 3 },
-      { title: 'Symptoms & History', page: 3 },
-      { title: 'Q&A Session', page: 4 },
-      { title: 'Analysis Results', page: 5 },
-      { title: 'Recommendations', page: 6 },
-      { title: 'Disclaimer', page: 7 },
-    ];
-    
-    doc.setFont(fonts.body, weights.regular);
-    doc.setFontSize(fontSizes.bodyText);
-    doc.setTextColor(colors.secondary);
-    toc.forEach((item, idx) => {
-      const pageNumWidth = 30;
-      const titleWidth = width - margin * 2 - pageNumWidth;
-      
-      // Title
-      doc.text(`${idx + 1}. ${item.title}`, margin, cursorY);
-      
-      // Page number
-      doc.text(item.page.toString(), width - margin - pageNumWidth, cursorY);
-      
-      // Dots
-      const dots = '.'.repeat(Math.floor((titleWidth - doc.getTextWidth(item.title)) / 5));
-      doc.text(dots, margin + doc.getTextWidth(`${idx + 1}. ${item.title}`), cursorY);
-      
-      cursorY += spacing.line;
-    });
-    doc.addPage();
-    cursorY = margin;
-
-    // Patient Information ---
-    doc.setFont(fonts.heading, weights.bold);
-    doc.setFontSize(fontSizes.sectionTitle);
-    doc.setTextColor(colors.primary);
-    doc.text('1. Patient Information', margin, cursorY);
-    cursorY += spacing.section;
-    
-    const info = [
-      ['Name', name],
-      ['Age', age],
-      ['Gender', gender],
-      ['Email', email],
-      ['Report Date', new Date().toLocaleDateString()],
-    ];
-    
-    autoTable(doc, {
-      startY: cursorY,
-      margin: { left: margin, right: margin },
-      theme: 'grid',
-      body: info,
-      styles: { 
-        cellPadding: 8,
-        fontSize: fontSizes.bodyText,
-        textColor: colors.secondary,
-        lineColor: colors.border,
-        lineWidth: 0.5,
-        font: fonts.body,
-        fontStyle: weights.regular
-      },
-      columnStyles: { 
-        0: { fontStyle: weights.bold, cellWidth: 150, textColor: colors.primary }, 
-        1: { cellWidth: width - margin*2 - 150 } 
-      }
-    });
-    cursorY = (doc as any).lastAutoTable.finalY + spacing.section;
-
-    // Symptoms & Medical History ---
-    doc.setFont(fonts.heading, weights.bold);
-    doc.setFontSize(fontSizes.sectionTitle);
-    doc.setTextColor(colors.primary);
-    doc.text('2. Symptoms & History', margin, cursorY);
-    cursorY += spacing.section;
-    
-    autoTable(doc, {
-      startY: cursorY,
-      margin: { left: margin, right: margin },
-      theme: 'grid',
-      body: [
-        ['Reported Symptoms', symptoms],
-        ['Medical History', medicalHistory || 'None provided'],
-      ],
-      styles: { 
-        cellPadding: 8,
-        fontSize: fontSizes.bodyText,
-        textColor: colors.secondary,
-        lineColor: colors.border,
-        lineWidth: 0.5,
-        font: fonts.body,
-        fontStyle: weights.regular
-      },
-      columnStyles: { 
-        0: { fontStyle: weights.bold, cellWidth: 150, textColor: colors.primary }, 
-        1: { cellWidth: width - margin*2 - 150 } 
-      }
-    });
-    cursorY = (doc as any).lastAutoTable.finalY + spacing.section;
-
-    // Q&A Session ---
-    doc.addPage();
-    cursorY = margin;
-    doc.setFont(fonts.heading, weights.bold);
-    doc.setFontSize(fontSizes.sectionTitle);
-    doc.setTextColor(colors.primary);
-    doc.text('3. Q&A Session', margin, cursorY);
-    cursorY += spacing.section;
-
-    if (Array.isArray(questions) && Array.isArray(answers) && questions.length > 0 && answers.length > 0) {
-      questions.forEach((question, index) => {
-        const answer = answers[index] || 'No answer provided';
-        
-        // Question box
-        doc.setFillColor(colors.background);
-        doc.roundedRect(margin, cursorY - 8, width - margin * 2, 35, 3, 3, 'F');
-        
-        // Question
-        doc.setTextColor(colors.primary);
-        doc.setFont(fonts.body, weights.bold);
-        doc.setFontSize(fontSizes.bodyText);
-        const questionLines = doc.splitTextToSize(`Q${index + 1}: ${question}`, width - margin * 2 - 20);
-        doc.text(questionLines, margin + 10, cursorY + 5);
-        cursorY += (questionLines.length * spacing.line) + spacing.paragraph;
-        
-        // Answer
-        doc.setTextColor(colors.secondary);
-        doc.setFont(fonts.body, weights.regular);
-        const answerLines = doc.splitTextToSize(answer, width - margin * 2 - 40);
-        doc.text(answerLines, margin + 30, cursorY);
-        cursorY += (answerLines.length * spacing.line) + spacing.paragraph;
-        
-        if (cursorY > height - margin) {
-          doc.addPage();
-          cursorY = margin;
-        }
-      });
-    } else {
-      doc.setTextColor(colors.secondary);
-      doc.text('No Q&A session data available', margin, cursorY);
-      cursorY += spacing.section;
-    }
-
-    // Analysis Results ---
-    doc.addPage();
-    cursorY = margin;
-    doc.setFont(fonts.heading, weights.bold);
-    doc.setFontSize(fontSizes.sectionTitle);
-    doc.setTextColor(colors.primary);
-    doc.text('4. Analysis Results', margin, cursorY);
-    cursorY += spacing.section;
-
-    conditions.forEach((condition, index) => {
-      const descriptionLines = doc.splitTextToSize(condition.description || '', width - margin * 2 - 40);
-      const boxHeight = Math.max(35, descriptionLines.length * spacing.line + 15);
-      
-      // Condition box
-      doc.setFillColor(colors.background);
-      doc.roundedRect(margin, cursorY - 8, width - margin * 2, boxHeight, 3, 3, 'F');
-      
-      // Condition name
-      doc.setTextColor(colors.primary);
-      doc.setFont(fonts.body, weights.bold);
-      doc.setFontSize(fontSizes.bodyText);
-      doc.text(`Condition ${index + 1}: ${condition.condition}`, margin + 10, cursorY + 5);
-      cursorY += spacing.line;
-
-      // Likelihood
-      doc.setTextColor(colors.secondary);
-      doc.setFont(fonts.body, weights.regular);
-      const likelihoodText = `Likelihood: ${(condition.likelihood * 100).toFixed(2)}%`;
-      doc.text(likelihoodText, margin + 30, cursorY);
-      cursorY += spacing.line;
-
-      // Description
-      if (condition.description) {
-        doc.text(descriptionLines, margin + 30, cursorY);
-        cursorY += (descriptionLines.length * spacing.line) + spacing.paragraph;
-      }
-
-      if (cursorY > height - margin) {
-        doc.addPage();
-        cursorY = margin;
-      }
-    });
-
-    // Recommendations ---
-    doc.addPage();
-    cursorY = margin;
-    doc.setFont(fonts.heading, weights.bold);
-    doc.setFontSize(fontSizes.sectionTitle);
-    doc.setTextColor(colors.primary);
-    doc.text('5. Recommendations', margin, cursorY);
-    cursorY += spacing.section;
-    
-    const recommendations = [
-      'Consult with a healthcare provider for professional medical advice',
-      'Keep track of any changes in symptoms',
-      'Follow up with recommended specialists if needed',
-      'Maintain a record of medications and treatments',
-      'Schedule regular check-ups as advised'
-    ];
-    
-    doc.setFont(fonts.body, weights.regular);
-    doc.setFontSize(fontSizes.bodyText);
-    doc.setTextColor(colors.secondary);
-    recommendations.forEach((rec, index) => {
-      doc.text(`• ${rec}`, margin + 20, cursorY);
-      cursorY += spacing.line;
-    });
-
-    // Disclaimer ---
-    doc.addPage();
-    cursorY = margin;
-    doc.setFont(fonts.heading, weights.bold);
-    doc.setFontSize(fontSizes.sectionTitle);
-    doc.setTextColor(colors.warning);
-    doc.text('6. Disclaimer', margin, cursorY);
-    cursorY += spacing.section;
-    
-    doc.setFont(fonts.body, weights.regular);
-    doc.setFontSize(fontSizes.bodyText);
-    doc.setTextColor(colors.secondary);
-    const disclaimer = [
-      'This report is generated by ManoMed AI and is not a substitute for professional medical advice.',
-      'Always consult a qualified healthcare provider for proper diagnosis and treatment.',
-      'The information provided in this report is based on the symptoms and information provided by the patient.',
-      'ManoMed AI is not responsible for any decisions made based on this report.'
-    ];
-    
-    disclaimer.forEach((text, index) => {
-      const lines = doc.splitTextToSize(text, width - margin * 2);
-      doc.text(lines, margin, cursorY);
-      cursorY += (lines.length * spacing.line) + spacing.paragraph;
-    });
-
-    // Add page numbers to all pages
-    const pages = doc.getNumberOfPages();
-    for (let i = 1; i <= pages; i++) {
-      doc.setPage(i);
-      footer(i, pages);
-    }
-
-    // Save the PDF
-    const pdfOutput = doc.output('datauristring');
-    const pdfData = pdfOutput.split(',')[1]; // Get the base64 data
-
+    setIsExporting(true);
     try {
-      // Send PDF to email API
-      const response = await fetch('/api/send-report', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          pdfData,
-          patientName: name
-        }),
-      });
-
-      const result = await response.json();
-      
-      if (!response.ok) {
-        console.error('Server error:', result);
-        throw new Error(result.message || 'Failed to send report');
-      }
-      
-      if (result.success) {
-        // Save PDF locally as well
-        doc.save(`ManoMed-AI-Report-${name}-${new Date().toISOString().split('T')[0]}.pdf`);
-      } else {
-        console.error('Failed to send report:', result.message, result.error, result.details);
-        throw new Error(result.message || 'Failed to send report');
-      }
-    } catch (error) {
-      console.error('Error sending report:', error);
-      if (error instanceof Error) {
-        console.error('Error details:', {
-          name: error.name,
-          message: error.message,
-          stack: error.stack
-        });
-      }
-      // Save PDF locally if there's an error
-      doc.save(`ManoMed-AI-Report-${name}-${new Date().toISOString().split('T')[0]}.pdf`);
+      await exportClinicalReportPDF(assessment);
+    } catch (err) {
+      console.error("PDF generation failed:", err);
+    } finally {
+      setIsExporting(false);
     }
   };
 
   return (
-    <div className="w-4/5 mx-auto">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold text-primary">Potential Conditions</h2>
-        {conditions.length > 0 && (
-          <Button
-            onClick={generatePDF}
-            className="flex items-center gap-2"
-          >
-            <Download className="w-4 h-4" />
-            Download Report
-          </Button>
+    <div className="w-full max-w-5xl mx-auto space-y-8 pb-16">
+      {/* Visual Triage Urgency Hero & Gauge */}
+      <div className={`p-6 sm:p-8 rounded-3xl border-2 shadow-xl transition-all ${triageTheme.bg}`}>
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+          <div className="flex items-start gap-4">
+            <div className="p-3.5 rounded-2xl bg-background/90 shadow-md shrink-0">
+              {triageTheme.icon}
+            </div>
+            <div>
+              <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                <Badge className={`px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider ${triageTheme.badge}`}>
+                  {result.triage.level}
+                </Badge>
+                <span className="text-xs font-semibold text-muted-foreground">
+                  Timeframe: <strong className="text-foreground">{result.triage.timeframe}</strong>
+                </span>
+              </div>
+              <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight">
+                {triageTheme.title}
+              </h2>
+              <p className="text-sm mt-1 max-w-2xl leading-relaxed text-foreground/90">
+                {result.triage.recommendedAction}
+              </p>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full lg:w-auto shrink-0">
+            {result.triage.level === "EMERGENCY" && (
+              <Button
+                variant="destructive"
+                className="flex items-center justify-center gap-2 shadow-lg h-11 px-5 font-bold"
+                onClick={() => {
+                  if (typeof window !== "undefined") window.location.href = "tel:911";
+                }}
+              >
+                <PhoneCall className="w-4 h-4 animate-pulse" />
+                Call 911 Now
+              </Button>
+            )}
+            <Button
+              onClick={generatePDF}
+              disabled={isExporting}
+              className="flex items-center justify-center gap-2 bg-primary text-primary-foreground font-semibold shadow-md h-11 px-5"
+            >
+              <Download className="w-4 h-4" />
+              {isExporting ? "Generating PDF..." : "Export Medical Report"}
+            </Button>
+          </div>
+        </div>
+
+        {/* 4-Tier Visual Triage Severity Gauge Meter */}
+        <div className="mt-8 pt-6 border-t border-border/60">
+          <div className="flex items-center justify-between text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2">
+            <span>Clinical Triage Severity Meter</span>
+            <span>Target Level: {result.triage.level}</span>
+          </div>
+
+          <div className="grid grid-cols-4 gap-2">
+            {[
+              { label: "Self-Care", color: "bg-emerald-500", desc: "Home Monitoring" },
+              { label: "Routine", color: "bg-blue-500", desc: "Primary Care" },
+              { label: "Urgent", color: "bg-amber-500", desc: "Urgent Clinic 24h" },
+              { label: "Emergency", color: "bg-red-500", desc: "Immediate 911 / ER" },
+            ].map((tier, idx) => {
+              const isCurrent = idx === triageTheme.gaugeIndex;
+              return (
+                <div key={tier.label} className="space-y-1.5 text-center">
+                  <div
+                    className={`h-3 rounded-full transition-all ${
+                      isCurrent
+                        ? `${tier.color} ring-4 ring-primary/30 shadow-md scale-y-125`
+                        : "bg-muted/70 opacity-40"
+                    }`}
+                  />
+                  <span
+                    className={`text-[11px] block leading-tight ${
+                      isCurrent ? "font-bold text-foreground" : "text-muted-foreground"
+                    }`}
+                  >
+                    {tier.label}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Red Flags Banner if any */}
+        {result.redFlags && result.redFlags.length > 0 && (
+          <div className="mt-6 p-4 rounded-2xl bg-red-600 text-white flex items-start gap-3 shadow-md">
+            <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
+            <div>
+              <div className="font-bold text-sm tracking-wide uppercase">
+                Critical Red Flag Symptoms Detected
+              </div>
+              <ul className="text-xs mt-1 list-disc pl-4 space-y-0.5">
+                {result.redFlags.map((flag, idx) => (
+                  <li key={idx}>{flag}</li>
+                ))}
+              </ul>
+              {result.emergencyGuidance && (
+                <p className="text-xs mt-2 font-medium opacity-90">
+                  {result.emergencyGuidance}
+                </p>
+              )}
+            </div>
+          </div>
         )}
       </div>
-      {conditions.length > 0 ? (
-        <>
-          <div className="grid gap-6">
-            {conditions.map((condition, index) => (
-              <Card key={index} className="shadow-md rounded-2xl">
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    {condition.condition}
+
+      {/* Main Content Tabs */}
+      <Tabs defaultValue="differential" className="w-full">
+        <TabsList className="grid grid-cols-4 w-full h-12 p-1 bg-muted/80 rounded-2xl border border-border/60">
+          <TabsTrigger value="differential" className="rounded-xl text-xs sm:text-sm font-semibold">
+            Differential Diagnosis
+          </TabsTrigger>
+          <TabsTrigger value="doctor" className="rounded-xl text-xs sm:text-sm font-semibold">
+            Workup & Inquiries
+          </TabsTrigger>
+          <TabsTrigger value="soap" className="rounded-xl text-xs sm:text-sm font-semibold">
+            EHR SOAP Note
+          </TabsTrigger>
+          <TabsTrigger value="selfcare" className="rounded-xl text-xs sm:text-sm font-semibold">
+            Self-Care & Warnings
+          </TabsTrigger>
+        </TabsList>
+
+        {/* TAB 1: DIFFERENTIAL DIAGNOSIS */}
+        <TabsContent value="differential" className="space-y-6 pt-6">
+          {/* Probability Comparison Chart */}
+          <Card className="border-border shadow-md">
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-lg font-bold flex items-center gap-2">
+                    <Activity className="w-5 h-5 text-primary" />
+                    Diagnostic Likelihood Comparison
                   </CardTitle>
-                  <CardDescription>
-                    Likelihood:
-                    <Badge variant="secondary" className="ml-1">
-                      {(condition.likelihood * 100).toFixed(2)}%
-                    </Badge>
+                  <CardDescription className="text-xs">
+                    Calibrated condition probabilities based on reported symptoms, demographics, and clinical questionnaire
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-2">
+              <div className="h-56 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={chartData}
+                    layout="vertical"
+                    margin={{ top: 10, right: 30, left: 10, bottom: 5 }}
+                  >
+                    <XAxis type="number" domain={[0, 100]} unit="%" tick={{ fontSize: 11 }} />
+                    <YAxis dataKey="name" type="category" width={140} tick={{ fontSize: 11 }} />
+                    <Tooltip
+                      formatter={(val: any) => [`${val}%`, "Likelihood"]}
+                      labelFormatter={(label: string, payload: any) =>
+                        payload?.[0]?.payload?.fullName || label
+                      }
+                    />
+                    <Bar dataKey="likelihood" radius={[0, 8, 8, 0]}>
+                      {chartData.map((entry, index) => (
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={
+                            index === 0
+                              ? "#2563eb"
+                              : entry.riskLevel === "High"
+                              ? "#ef4444"
+                              : entry.riskLevel === "Moderate"
+                              ? "#f59e0b"
+                              : "#10b981"
+                          }
+                        />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Condition Cards */}
+          <div className="grid gap-4">
+            {result.conditions.map((item, idx) => (
+              <Card
+                key={idx}
+                className={`border transition-all shadow-sm ${
+                  idx === 0
+                    ? "border-primary/50 bg-primary/[0.02] ring-1 ring-primary/20"
+                    : "border-border/80"
+                }`}
+              >
+                <CardHeader className="pb-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div className="flex items-center gap-2.5">
+                      <span className="w-7 h-7 rounded-full bg-primary/10 text-primary font-bold text-xs flex items-center justify-center shrink-0">
+                        #{idx + 1}
+                      </span>
+                      <CardTitle className="text-xl font-bold flex items-center gap-2">
+                        {item.condition}
+                        {item.icd10Hint && (
+                          <Badge variant="outline" className="text-[11px] font-mono font-normal">
+                            ICD-10: {item.icd10Hint}
+                          </Badge>
+                        )}
+                      </CardTitle>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <Badge
+                        variant={item.riskLevel === "High" ? "destructive" : "secondary"}
+                        className="text-xs"
+                      >
+                        {item.riskLevel} Risk
+                      </Badge>
+                      <Badge className="bg-primary text-primary-foreground font-bold text-sm px-3 py-1">
+                        {Math.round(item.likelihood * 100)}% Match
+                      </Badge>
+                    </div>
+                  </div>
+                  <CardDescription className="text-sm pt-1 text-foreground/80 leading-relaxed">
+                    {item.description}
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="flex items-center mb-2">
-                    {getIcon(condition.likelihood)}
-                    <span className="ml-1">
-                      {condition.description || "No description available."}
-                    </span>
+
+                <CardContent className="pt-0 space-y-3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-3.5 rounded-xl bg-muted/40 border border-border/50 text-xs">
+                    <div>
+                      <span className="font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5 mb-1.5">
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        Supporting Factors:
+                      </span>
+                      <ul className="list-disc pl-4 space-y-0.5 text-muted-foreground">
+                        {item.supportingEvidence.map((ev, i) => (
+                          <li key={i}>{ev}</li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    {item.contradictingEvidence && item.contradictingEvidence.length > 0 && (
+                      <div>
+                        <span className="font-semibold text-muted-foreground flex items-center gap-1.5 mb-1.5">
+                          <HelpCircle className="w-3.5 h-3.5 text-amber-500" />
+                          Unconfirmed / Contradicting:
+                        </span>
+                        <ul className="list-disc pl-4 space-y-0.5 text-muted-foreground">
+                          {item.contradictingEvidence.map((ev, i) => (
+                            <li key={i}>{ev}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
                   </div>
-                  <Button
-                    variant="link"
-                    className="text-sm p-0 mt-2"
-                    onClick={() =>
-                      window.open(
-                        `https://www.webmd.com/search/search_results/default.aspx?query=${encodeURIComponent(condition.condition)}`,
-                        "_blank"
-                      )
-                    }
-                  >
-                    Learn more on WebMD →
-                  </Button>
+
+                  <div className="flex justify-end pt-1">
+                    <Button
+                      variant="link"
+                      size="sm"
+                      className="text-xs p-0 h-auto text-primary flex items-center gap-1 font-medium"
+                      onClick={() =>
+                        window.open(
+                          `https://medlineplus.gov/search.html?query=${encodeURIComponent(
+                            item.condition
+                          )}`,
+                          "_blank"
+                        )
+                      }
+                    >
+                      Research on MedlinePlus
+                      <ExternalLink className="w-3 h-3" />
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             ))}
           </div>
-        </>
-      ) : (
-        <p>No potential conditions found.</p>
-      )}
+        </TabsContent>
+
+        {/* TAB 2: WORKUP & DOCTOR INQUIRIES */}
+        <TabsContent value="doctor" className="space-y-6 pt-6">
+          <Card className="border-border">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base font-bold flex items-center gap-2">
+                <Stethoscope className="w-4 h-4 text-primary" />
+                Recommended Medical Specialties
+              </CardTitle>
+              <CardDescription className="text-xs">
+                Physicians specializing in these fields are best equipped to manage this presentation:
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap gap-2">
+                {result.recommendedSpecialties.map((spec, i) => (
+                  <Badge key={i} variant="secondary" className="px-3 py-1.5 text-xs font-semibold">
+                    {spec}
+                  </Badge>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-border">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base font-bold flex items-center gap-2">
+                <Activity className="w-4 h-4 text-primary" />
+                Standard Diagnostic Workup to Request
+              </CardTitle>
+              <CardDescription className="text-xs">
+                Common clinical laboratory, imaging, and functional tests indicated:
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {result.recommendedTests.map((test, i) => (
+                  <div
+                    key={i}
+                    className="p-3 rounded-xl border border-border bg-card text-xs flex items-center gap-2.5 shadow-sm"
+                  >
+                    <span className="w-5 h-5 rounded-full bg-blue-500/10 text-blue-600 font-bold flex items-center justify-center shrink-0">
+                      {i + 1}
+                    </span>
+                    <span className="font-medium text-foreground">{test}</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-border">
+            <CardHeader className="pb-3 flex flex-row items-center justify-between">
+              <div>
+                <CardTitle className="text-base font-bold flex items-center gap-2">
+                  <ClipboardList className="w-4 h-4 text-primary" />
+                  Questions Checklist for Your Consultation
+                </CardTitle>
+                <CardDescription className="text-xs">
+                  Check off questions as you discuss them with your physician:
+                </CardDescription>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={copyDoctorQuestions}
+                className="flex items-center gap-1.5 text-xs font-semibold"
+              >
+                {copiedQuestions ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-emerald-500" />
+                    Copied
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3.5 h-3.5" />
+                    Copy Checklist
+                  </>
+                )}
+              </Button>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {result.questionsForDoctor.map((q, idx) => {
+                const isChecked = !!checkedQuestions[idx];
+                return (
+                  <div
+                    key={idx}
+                    onClick={() => toggleQuestionCheck(idx)}
+                    className={`p-3.5 rounded-xl border text-xs flex items-start gap-3 cursor-pointer transition-all ${
+                      isChecked
+                        ? "bg-muted/50 border-border line-through text-muted-foreground opacity-75"
+                        : "bg-card border-border hover:border-primary/50 text-foreground"
+                    }`}
+                  >
+                    <div
+                      className={`w-4 h-4 rounded border mt-0.5 flex items-center justify-center shrink-0 ${
+                        isChecked
+                          ? "bg-primary border-primary text-primary-foreground"
+                          : "border-muted-foreground"
+                      }`}
+                    >
+                      {isChecked && <Check className="w-3 h-3" />}
+                    </div>
+                    <span className="leading-relaxed font-medium">{q}</span>
+                  </div>
+                );
+              })}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* TAB 3: EHR SOAP NOTE */}
+        <TabsContent value="soap" className="space-y-6 pt-6">
+          <Card className="border-border shadow-md">
+            <CardHeader className="flex flex-row items-center justify-between pb-3">
+              <div>
+                <CardTitle className="text-base font-bold flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-primary" />
+                  Clinical SOAP Note (EHR Ready)
+                </CardTitle>
+                <CardDescription className="text-xs">
+                  Formatted in standard clinical documentation syntax for immediate transfer into Electronic Health Records.
+                </CardDescription>
+              </div>
+              <Button
+                onClick={copySOAPNote}
+                size="sm"
+                className="flex items-center gap-1.5 text-xs shadow-sm font-semibold"
+              >
+                {copiedSOAP ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-emerald-300" />
+                    Copied to Clipboard!
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3.5 h-3.5" />
+                    Copy SOAP Note
+                  </>
+                )}
+              </Button>
+            </CardHeader>
+
+            <CardContent className="space-y-4 font-mono text-xs">
+              <div className="p-4 rounded-xl bg-muted/40 border border-border/60 space-y-3 leading-relaxed">
+                <div>
+                  <span className="font-bold text-primary block mb-0.5">[SUBJECTIVE]</span>
+                  <p className="text-muted-foreground whitespace-pre-wrap">{result.soapNote.subjective}</p>
+                </div>
+
+                <div className="border-t border-border/40 pt-2">
+                  <span className="font-bold text-primary block mb-0.5">[OBJECTIVE]</span>
+                  <p className="text-muted-foreground whitespace-pre-wrap">{result.soapNote.objective}</p>
+                </div>
+
+                <div className="border-t border-border/40 pt-2">
+                  <span className="font-bold text-primary block mb-0.5">[ASSESSMENT]</span>
+                  <p className="text-muted-foreground whitespace-pre-wrap">{result.soapNote.assessment}</p>
+                </div>
+
+                <div className="border-t border-border/40 pt-2">
+                  <span className="font-bold text-primary block mb-0.5">[PLAN]</span>
+                  <p className="text-muted-foreground whitespace-pre-wrap">{result.soapNote.plan}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* TAB 4: SELF-CARE & WARNINGS */}
+        <TabsContent value="selfcare" className="space-y-6 pt-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card className="border-emerald-500/30 bg-emerald-50/20 dark:bg-emerald-950/10">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base font-bold text-emerald-700 dark:text-emerald-400 flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4" />
+                  Supportive Home Measures
+                </CardTitle>
+                <CardDescription className="text-xs">
+                  Evidence-based self-care while monitoring your recovery:
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2 text-xs text-foreground/90">
+                  {result.safeSelfCare.map((item, idx) => (
+                    <li key={idx} className="flex items-start gap-2">
+                      <span className="text-emerald-600 font-bold">•</span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card className="border-red-500/30 bg-red-50/20 dark:bg-red-950/10">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base font-bold text-red-700 dark:text-red-400 flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4" />
+                  When to Escalate to Emergency Care
+                </CardTitle>
+                <CardDescription className="text-xs">
+                  Go to the nearest emergency department if you experience any of these worsening signs:
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2 text-xs text-foreground/90">
+                  {result.whenToSeekEmergencyCare.map((item, idx) => (
+                    <li key={idx} className="flex items-start gap-2">
+                      <span className="text-red-600 font-bold">!</span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+      </Tabs>
+
+      {/* Action Footer */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-border">
+        <div className="flex items-center gap-2">
+          {onStartNew ? (
+            <Button variant="outline" onClick={onStartNew} className="flex items-center gap-2 text-xs font-semibold">
+              <RotateCcw className="w-3.5 h-3.5" />
+              Start New Evaluation
+            </Button>
+          ) : (
+            <Link href="/ManoMedai">
+              <Button variant="outline" className="flex items-center gap-2 text-xs font-semibold">
+                <RotateCcw className="w-3.5 h-3.5" />
+                Start New Evaluation
+              </Button>
+            </Link>
+          )}
+          <Link href="/history">
+            <Button variant="ghost" className="text-xs font-medium">
+              View Assessment History
+            </Button>
+          </Link>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={generatePDF}
+            disabled={isExporting}
+            className="flex items-center gap-2 bg-primary text-primary-foreground font-semibold shadow-md"
+          >
+            <Download className="w-4 h-4" />
+            {isExporting ? "Exporting PDF..." : "Download Full PDF Report"}
+          </Button>
+        </div>
+      </div>
     </div>
   );
 };

@@ -12,18 +12,20 @@ const nextConfig: NextConfig = {
   },
 
   // Conditionally include redirects if feature flag is true
-  ...(enableComingSoonRedirect && {
-    async redirects() {
-      return [
-        {
-          // Match everything except /coming-soon, _next, and favicon.ico
-          source: '/:path((?!coming-soon|_next|favicon\.ico).*)',
-          destination: '/coming-soon',
-          permanent: false,
+  ...(enableComingSoonRedirect
+    ? {
+        async redirects() {
+          return [
+            {
+              // Match everything except /coming-soon, _next, and favicon.ico
+              source: '/:path((?!coming-soon|_next|favicon\.ico).*)',
+              destination: '/coming-soon',
+              permanent: false,
+            },
+          ];
         },
-      ];
-    },
-  }),
+      }
+    : {}),
 };
 
 export default nextConfig;

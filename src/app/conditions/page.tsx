@@ -1,135 +1,181 @@
-'use client';
+"use client";
 
-import { useEffect, useState, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { symptomAnalysis, SymptomAnalysisOutput } from '@/ai/flows/symptom-analysis';
-import { ConditionDisplay } from '@/components/ConditionDisplay';
-import { Disclaimer } from '@/components/Disclaimer';
-import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
-import Loading from '@/components/Loading';
+import { useEffect, useState, Suspense } from "react";
+import { useRouter } from "next/navigation";
+import { symptomAnalysis } from "@/ai/flows/symptom-analysis";
+import { ConditionDisplay } from "@/components/ConditionDisplay";
+import { Disclaimer } from "@/components/Disclaimer";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import Loading from "@/components/Loading";
+import {
+  useAssessmentStore,
+  ClinicalAnalysisResult,
+  saveAssessmentToHistory,
+} from "@/lib/assessment-store";
+import { AlertCircle, RefreshCw, ArrowLeft } from "lucide-react";
 
 function ConditionsContent() {
-  const searchParams = useSearchParams();
-  const name = searchParams.get('name') || '';
-  const age = searchParams.get('age') || '';
-  const gender = searchParams.get('gender') || '';
-  const email = searchParams.get('email') || '';
-  const symptoms = searchParams.get('symptoms') || '';
-  const medicalHistory = searchParams.get('medicalHistory') || '';
-  const answersRaw = searchParams.get('answers') || '[]';
-  const questionsRaw = searchParams.get('questions') || '[]';
+  const router = useRouter();
+  const { assessment, updateAssessment, resetAssessment, isLoaded } = useAssessmentStore();
 
-  const [conditions, setConditions] = useState<SymptomAnalysisOutput | null>(null);
+  const [result, setResult] = useState<ClinicalAnalysisResult | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [parsedQuestions, setParsedQuestions] = useState<string[]>([]);
-  const [parsedAnswers, setParsedAnswers] = useState<string[]>([]);
 
   useEffect(() => {
-    const fetchConditions = async () => {
-      try {
-        // Safely parse questions and answers
-        let questions: string[] = [];
-        let answers: string[] = [];
-        
-        try {
-          const decodedQuestions = decodeURIComponent(questionsRaw);
-          const decodedAnswers = decodeURIComponent(answersRaw);
-          questions = JSON.parse(decodedQuestions);
-          answers = JSON.parse(decodedAnswers);
-          
-          // Validate arrays
-          if (!Array.isArray(questions) || !Array.isArray(answers)) {
-            console.error('Invalid questions or answers format:', { questions, answers });
-            questions = [];
-            answers = [];
-          }
-          
-          // Ensure both arrays have the same length
-          const minLength = Math.min(questions.length, answers.length);
-          questions = questions.slice(0, minLength);
-          answers = answers.slice(0, minLength);
-          
-          setParsedQuestions(questions);
-          setParsedAnswers(answers);
-        } catch (parseError) {
-          console.error('Error parsing questions/answers:', parseError);
-          setParsedQuestions([]);
-          setParsedAnswers([]);
-        }
+    if (!isLoaded) return;
 
-        const result = await symptomAnalysis({
-          symptoms,
-          medicalHistory,
-          questionnaireAnswers: answers.join(','),
+    // Check if symptoms exist
+    if (!assessment.symptoms.primaryDescription && assessment.symptoms.symptomTags.length === 0) {
+      setIsLoading(false);
+      return;
+    }
+
+    // If an analysis result is already cached in store, display it immediately
+    if (assessment.result) {
+      setResult(assessment.result);
+      setIsLoading(false);
+      return;
+    }
+
+    const runAnalysis = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        // Format questionnaire Q&A for prompt
+        const qaFormatted = assessment.structuredQuestions
+          .map((q, idx) => {
+            const answer = assessment.answers[q.id] || "No response provided";
+            return `Q${idx + 1} (${q.question}): ${answer}`;
+          })
+          .join("\n");
+
+        const vitalsFormatted = Object.entries(assessment.vitals || {})
+          .filter(([_, v]) => Boolean(v))
+          .map(([k, v]) => `${k}: ${v}`)
+          .join(", ");
+
+        const analysisOutput = await symptomAnalysis({
+          name: assessment.patient.name,
+          age: assessment.patient.age,
+          gender: assessment.patient.gender,
+          symptoms: assessment.symptoms.primaryDescription,
+          medicalHistory: assessment.medicalHistory || undefined,
+          medications: assessment.medications?.length ? assessment.medications.join(", ") : undefined,
+          allergies: assessment.allergies?.length ? assessment.allergies.join(", ") : undefined,
+          vitals: vitalsFormatted || undefined,
+          questionnaireAnswers: qaFormatted || undefined,
         });
 
-        setConditions(result);
+        const clinicalResult: ClinicalAnalysisResult = {
+          ...analysisOutput,
+          id: analysisOutput.id || `eval_${Date.now()}`,
+          timestamp: analysisOutput.timestamp || new Date().toISOString(),
+        };
+
+        setResult(clinicalResult);
+
+        // Update assessment in local storage and save to history
+        const updatedAssessment = {
+          ...assessment,
+          result: clinicalResult,
+        };
+        updateAssessment({ result: clinicalResult });
+        saveAssessmentToHistory(updatedAssessment);
+      } catch (err: any) {
+        console.error("Clinical symptom analysis failed:", err);
+        setError(
+          err.message || "Unable to complete clinical evaluation. Please check your connection and try again."
+        );
+      } finally {
         setIsLoading(false);
-      } catch (err) {
-        console.error("Symptom analysis failed:", err);
-        setError("Unable to analyze symptoms. Please try again.");
-        setConditions(null);
       }
     };
 
-    fetchConditions();
-  }, [symptoms, medicalHistory, answersRaw, questionsRaw]);
+    runAnalysis();
+  }, [isLoaded, assessment.symptoms.primaryDescription]);
 
-  // Error state
-  if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen px-6 py-12">
-        <Alert variant="destructive">
-          <AlertTitle>Error</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      </div>
-    );
-  }
+  const handleStartNew = () => {
+    resetAssessment();
+    router.push("/ManoMedai");
+  };
 
-  // Loading state
-  if (isLoading) {
+  if (!isLoaded || isLoading) {
     return (
       <Loading
-        title="Analyzing Your Health Profile"
-        description="Our AI is processing your responses and medical history to provide personalized insights..."
+        title="Synthesizing Clinical Differential"
+        description="Our AI is formulating evidence-grounded condition probabilities, triage levels, and actionable care recommendations..."
       />
     );
   }
 
-  // Results state
-  return (
-    <div className="flex flex-col items-center justify-center min-h-screen px-6 py-12">
-      {conditions ? (
-        <>
-          <ConditionDisplay
-            conditions={conditions}
-            name={name}
-            age={age}
-            gender={gender}
-            email={email}
-            symptoms={symptoms}
-            medicalHistory={medicalHistory}
-            questions={parsedQuestions}
-            answers={parsedAnswers}
-          />
-          <div className="mt-6">
-            <Disclaimer />
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-5rem)] px-6 py-12">
+        <div className="max-w-md w-full space-y-4">
+          <Alert variant="destructive">
+            <AlertCircle className="w-5 h-5" />
+            <AlertTitle>Evaluation Encountered an Error</AlertTitle>
+            <AlertDescription className="text-xs mt-1">{error}</AlertDescription>
+          </Alert>
+
+          <div className="flex justify-between">
+            <Button variant="outline" onClick={() => router.push("/questionnaire")} className="text-xs">
+              <ArrowLeft className="w-3.5 h-3.5 mr-1" />
+              Back to Questions
+            </Button>
+            <Button
+              onClick={() => {
+                setIsLoading(true);
+                setError(null);
+                window.location.reload();
+              }}
+              className="text-xs flex items-center gap-1.5"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              Retry Analysis
+            </Button>
           </div>
-        </>
-      ) : null}
+        </div>
+      </div>
+    );
+  }
+
+  if (!result) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-5rem)] px-6 py-12 text-center">
+        <h2 className="text-2xl font-bold mb-2">No Active Assessment Found</h2>
+        <p className="text-muted-foreground text-sm max-w-md mb-6">
+          To receive a clinical evaluation, please enter your symptoms and complete the health questionnaire.
+        </p>
+        <Button onClick={() => router.push("/ManoMedai")} className="px-6">
+          Start Health Assessment
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-[calc(100vh-5rem)] px-4 py-8 bg-background">
+      <ConditionDisplay
+        result={result}
+        assessment={assessment}
+        onStartNew={handleStartNew}
+      />
+      <div className="max-w-5xl mx-auto mt-6">
+        <Disclaimer />
+      </div>
     </div>
   );
 }
 
-// Main Page with Suspense fallback
 export default function ConditionsPage() {
   return (
     <Suspense
       fallback={
         <Loading
-          title="Loading Analysis"
+          title="Loading Clinical Analysis"
           description="Preparing your personalized health insights..."
         />
       }

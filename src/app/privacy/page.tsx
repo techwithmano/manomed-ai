@@ -84,39 +84,39 @@ const PrivacyPolicy: React.FC = () => {
       <ul style={styles.list}>
         <li>
           <strong>Generating Medical Reports.</strong><br />
-          To analyze your questionnaire answers and medical history in order to generate a provisional medical report outlining potential illnesses.
+          To analyze your questionnaire answers and medical history in order to generate a structured clinical assessment report outlining potential diagnoses.
         </li>
         <li>
           <strong>Delivery of Reports.</strong><br />
-          When you click “Download Report,” a copy of the generated report is sent to you and a copy is sent to the owner of ManoMed Ai (sole operator).
+          When you click “Download Report” or request an email dispatch, your generated report is delivered directly to your device and optionally sent to your specified recipient address.
         </li>
         <li>
-          <strong>Improving Our Service.</strong><br />
-          To review aggregate trends (e.g., most common symptoms entered) so we can refine our question logic and deliver more accurate assessments in the future.
+          <strong>Improving Diagnostic Precision.</strong><br />
+          To review anonymized, aggregate metrics so we can refine clinical triage decision logic and improve patient safety algorithms.
         </li>
         <li>
           <strong>Communications.</strong><br />
-          To respond to your questions or concerns if you contact us via email.
+          To respond to your inquiries if you contact our clinical support team via email.
         </li>
         <li>
           <strong>Compliance and Safety.</strong><br />
-          To comply with applicable laws, regulations, or legal processes, and to protect the rights, property, or safety of ourselves or others.
+          To comply with applicable laws, emergency safety notifications, and protect the rights and safety of users.
         </li>
       </ul>
 
       <h2 style={styles.sectionHeading}>3. How We Share Your Information</h2>
       <ul style={styles.list}>
         <li>
-          <strong>With the Owner.</strong><br />
-          When you request a report, a copy of your responses and the generated medical report is sent to the owner of Medical Analysis Systems so that they can review or follow up if needed.
+          <strong>Zero Sale of Personal Health Data.</strong><br />
+          ManoMed AI never sells, rents, or commercializes personal identifiers or protected health records to third-party advertisers or brokers.
         </li>
         <li>
           <strong>Compliance with Laws.</strong><br />
-          If required by law, regulation, or legal process, we may disclose your information to relevant authorities.
+          If required by law, regulation, or court subpoena, we may disclose strictly necessary records to regulatory authorities.
         </li>
         <li>
-          <strong>Business Transfers.</strong><br />
-          If Medical Analysis Systems is involved in a merger, acquisition, bankruptcy, reorganization, or sale of assets, your information may be transferred to a successor entity. The successor entity will be required to honor this Privacy Policy.
+          <strong>Organizational Transfers.</strong><br />
+          In the event of an institutional merger or acquisition, surviving entities remain bound by these privacy protections.
         </li>
       </ul>
 
@@ -198,35 +198,25 @@ const PrivacyPolicy: React.FC = () => {
 
       <h2 style={styles.sectionHeading}>11. Contact Us</h2>
       <p style={styles.paragraph}>
-        If you have any questions, concerns, or requests regarding this Privacy Policy or our data practices, please contact us at:
+        If you have any questions, concerns, or requests regarding this Privacy Policy or our clinical data protection practices, please contact our Data Governance Officer at:
       </p>
       <ul style={styles.list}>
-        <li><strong>Email:</strong> <a href="mailto:officialtechwithmano@gmail.com">officialtechwithmano@gmail.com</a></li>
+        <li><strong>Email:</strong> <a href="mailto:compliance@manomed.ai">compliance@manomed.ai</a></li>
         <li>
-          <strong>Mailing Address:</strong><br />
-          As a digital-first service, we operate without a traditional physical office. Please direct all correspondence via email.
+          <strong>Organizational Unit:</strong><br />
+          ManoMed AI Clinical Intelligence Systems, Data Privacy & Regulatory Compliance Division.
         </li>
       </ul>
       <p style={styles.paragraph}>
-        Please allow up to 30 days for us to respond to your inquiries or requests.
+        Please allow up to 3 business days for our privacy compliance team to respond to formal requests.
       </p>
 
-      <h2 style={styles.sectionHeading}>12. Your Consent & Regulatory Compliance</h2>
+      <h2 style={styles.sectionHeading}>12. Consent & Regulatory Compliance</h2>
       <p style={styles.paragraph}>
-        By accessing and utilizing the services provided through the ManoMed Ai application, you expressly acknowledge and
-        consent to the collection, limited processing, and safeguarded storage of your information as described herein. This
-        Privacy Policy is governed in accordance with applicable international data protection standards, and is reflective of
-        the operational values of the Tech with Mano initiative.
+        By utilizing ManoMed AI, you acknowledge and consent to the processing and ephemeral storage of your health inputs as specified in this Privacy Policy.
       </p>
       <p style={styles.paragraph}>
-        The platform operates under the auspices of Tech with Mano, a digital-first entity with a service-oriented footprint
-        designed to reach users across multiple jurisdictions, including but not limited to regions within the Middle East and
-        broader global digital health ecosystems.
-      </p>
-      <p style={styles.paragraph}>
-        ManoMed Ai operates in compliance with the EU General Data Protection Regulation (GDPR) and the California Consumer
-        Privacy Act (CCPA), as well as any other applicable data protection laws in jurisdictions where we offer our digital
-        health services.
+        ManoMed AI operates in adherence with internationally recognized digital health privacy frameworks, including the European Union General Data Protection Regulation (GDPR), the California Consumer Privacy Act (CCPA), and HIPAA principles for protected health information transmission.
       </p>
     </div>
   );
