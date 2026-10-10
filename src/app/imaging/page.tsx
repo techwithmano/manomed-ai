@@ -67,6 +67,33 @@ const SAMPLE_XRAYS = [
     patientGender: 'Female',
     svgData: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600"><rect width="600" height="600" fill="%23050508"/><rect x="220" y="100" width="70" height="240" rx="15" fill="%23404055" stroke="%2360607a" stroke-width="2"/><rect x="310" y="100" width="50" height="245" rx="10" fill="%2338384a" stroke="%2355556e" stroke-width="2"/><line x1="210" y1="310" x2="300" y2="330" stroke="%23ffffff" stroke-width="3" stroke-dasharray="4 2"/><circle cx="255" cy="320" r="30" fill="none" stroke="%23ef4444" stroke-width="2" stroke-dasharray="5 3"/><rect x="210" y="360" width="160" height="180" rx="20" fill="%23222230" stroke="%2344445c" stroke-width="2"/><text x="20" y="40" fill="%23f59e0b" font-family="monospace" font-size="14">ManoMed PACS • Distal Radius Cortical Breach</text></svg>`,
   },
+  {
+    id: 'ortho-knee',
+    title: 'Bilateral Knee Osteoarthritis',
+    region: 'musculoskeletal' as const,
+    indication: 'Chronic medial knee pain and stiffness, crepitus on joint flexion, difficulty with stairs.',
+    patientAge: '64',
+    patientGender: 'Male',
+    svgData: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600"><rect width="600" height="600" fill="%23050508"/><path d="M220 80 L380 80 L360 250 C350 280, 250 280, 240 250 Z" fill="%233a3a4e" stroke="%2355556e" stroke-width="2"/><path d="M230 320 C240 290, 360 290, 370 320 L350 520 L250 520 Z" fill="%23303042" stroke="%2348485e" stroke-width="2"/><line x1="240" y1="260" x2="280" y2="305" stroke="%23ef4444" stroke-width="2" stroke-dasharray="4 2"/><circle cx="260" cy="285" r="22" fill="none" stroke="%23f59e0b" stroke-width="2"/><text x="20" y="40" fill="%2338bdf8" font-family="monospace" font-size="14">ManoMed PACS • Medial Compartment Narrowing</text></svg>`,
+  },
+  {
+    id: 'spine-compression',
+    title: 'Lumbar Spine (L2 Compression)',
+    region: 'spine' as const,
+    indication: 'Sudden severe midline lower back pain after lifting. Known history of osteopenia.',
+    patientAge: '73',
+    patientGender: 'Female',
+    svgData: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600"><rect width="600" height="600" fill="%23050508"/><rect x="230" y="90" width="140" height="65" rx="8" fill="%233a3a4c" stroke="%23585870" stroke-width="2"/><rect x="230" y="170" width="140" height="65" rx="8" fill="%233a3a4c" stroke="%23585870" stroke-width="2"/><path d="M230 250 L370 250 L365 305 L230 285 Z" fill="%234d3d42" stroke="%23ef4444" stroke-width="2.5"/><circle cx="300" cy="275" r="30" fill="none" stroke="%23ef4444" stroke-width="2" stroke-dasharray="4 2"/><rect x="230" y="330" width="140" height="65" rx="8" fill="%233a3a4c" stroke="%23585870" stroke-width="2"/><rect x="230" y="410" width="140" height="65" rx="8" fill="%233a3a4c" stroke="%23585870" stroke-width="2"/><text x="20" y="40" fill="%23ef4444" font-family="monospace" font-size="14">ManoMed PACS • L2 Anterior Wedge Deformity</text></svg>`,
+  },
+  {
+    id: 'dental-abscess',
+    title: 'Dental Panoramic (Tooth #30)',
+    region: 'dental' as const,
+    indication: 'Persistent throbbing pain in lower right first molar (#30), extreme sensitivity to percussion.',
+    patientAge: '38',
+    patientGender: 'Male',
+    svgData: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600"><rect width="600" height="600" fill="%23050508"/><path d="M200 150 C220 120, 380 120, 400 150 L380 260 C370 290, 230 290, 220 260 Z" fill="%23ffffff" stroke="%23cbd5e1" stroke-width="2"/><path d="M240 280 L225 440 C225 460, 260 460, 265 440 L285 285 Z" fill="%23e2e8f0" stroke="%2394a3b8" stroke-width="1.5"/><path d="M315 285 L335 440 C340 460, 375 460, 375 440 L360 280 Z" fill="%23e2e8f0" stroke="%2394a3b8" stroke-width="1.5"/><circle cx="240" cy="460" r="28" fill="%23181822" stroke="%23ef4444" stroke-width="2.5"/><text x="20" y="40" fill="%23ef4444" font-family="monospace" font-size="14">ManoMed PACS • Tooth #30 Apical Radiolucency</text></svg>`,
+  },
 ];
 
 export default function ImagingPage() {
@@ -101,14 +128,53 @@ export default function ImagingPage() {
     }
   };
 
-  // Handle file upload
+  // Handle file upload with client-side canvas downsampling for fast, error-free transfers
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-        setResult(null);
+        const rawDataUrl = reader.result as string;
+        if (!rawDataUrl.startsWith('data:image/')) {
+          setImagePreview(rawDataUrl);
+          setResult(null);
+          return;
+        }
+
+        const img = new Image();
+        img.onload = () => {
+          const MAX_DIM = 1280;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > MAX_DIM || height > MAX_DIM) {
+            if (width > height) {
+              height = Math.round((height * MAX_DIM) / width);
+              width = MAX_DIM;
+            } else {
+              width = Math.round((width * MAX_DIM) / height);
+              height = MAX_DIM;
+            }
+          }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            const optimized = canvas.toDataURL('image/jpeg', 0.85);
+            setImagePreview(optimized);
+          } else {
+            setImagePreview(rawDataUrl);
+          }
+          setResult(null);
+        };
+        img.onerror = () => {
+          setImagePreview(rawDataUrl);
+          setResult(null);
+        };
+        img.src = rawDataUrl;
       };
       reader.readAsDataURL(file);
     }
@@ -225,21 +291,32 @@ ${result.differentialDiagnoses.map((d) => `- ${d.condition}: ${Math.round(d.like
             <Sparkles className="w-3.5 h-3.5 text-primary" />
             Clinical Sample Radiographs (Click to load specimen)
           </span>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {SAMPLE_XRAYS.map((sample) => (
-              <button
-                key={sample.id}
-                type="button"
-                onClick={() => handleLoadSample(sample)}
-                className="text-left p-3.5 rounded-xl border border-border bg-card hover:border-primary/50 hover:bg-muted/40 transition-all space-y-1 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-              >
-                <div className="font-semibold text-xs text-foreground group-hover:text-primary transition-colors flex items-center justify-between">
-                  <span>{sample.title}</span>
-                  <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/60 group-hover:translate-x-0.5 transition-transform" />
-                </div>
-                <div className="text-[11px] text-muted-foreground line-clamp-1">{sample.indication}</div>
-              </button>
-            ))}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {SAMPLE_XRAYS.map((sample) => {
+              const isSelected = imagePreview === sample.svgData;
+              return (
+                <button
+                  key={sample.id}
+                  type="button"
+                  onClick={() => handleLoadSample(sample)}
+                  className={`text-left p-3.5 rounded-xl border transition-all space-y-1.5 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                    isSelected
+                      ? 'border-primary bg-primary/10 shadow-sm'
+                      : 'border-border bg-card hover:border-primary/50 hover:bg-muted/40'
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-1.5">
+                    <span className="font-semibold text-xs text-foreground group-hover:text-primary transition-colors line-clamp-1">
+                      {sample.title}
+                    </span>
+                    <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-muted text-muted-foreground shrink-0">
+                      {sample.region}
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-muted-foreground line-clamp-1">{sample.indication}</div>
+                </button>
+              );
+            })}
           </div>
         </div>
 

@@ -186,9 +186,56 @@ Medical History: ${input.medicalHistory || 'None'}
 Current Medications: ${input.medications || 'None'}`;
 
 
-    const groqOutput = await callGroqChat<{ questions: GenerateQuestionnaireOutput }>(groqSystemPrompt, groqUserPrompt);
-    if (groqOutput && groqOutput.questions && groqOutput.questions.length > 0) {
-      return groqOutput.questions;
+    const rawOutput = await callGroqChat<any>(groqSystemPrompt, groqUserPrompt);
+    const rawQuestions: any[] = Array.isArray(rawOutput)
+      ? rawOutput
+      : (rawOutput && Array.isArray(rawOutput.questions) ? rawOutput.questions : []);
+
+    if (rawQuestions.length > 0) {
+      const normalizedQuestions: StructuredQuestion[] = rawQuestions.map((q, idx) => {
+        const rawType = String(q.type || '').toLowerCase();
+        let type: QuestionType = 'boolean';
+        if (rawType.includes('scale') || rawType.includes('rate') || rawType.includes('num') || rawType.includes('1-10')) {
+          type = 'scale';
+        } else if (rawType.includes('choice') || rawType.includes('select') || rawType.includes('multi') || (Array.isArray(q.options) && q.options.length > 1 && !rawType.includes('bool'))) {
+          type = 'choice';
+        } else if (rawType.includes('text') || rawType.includes('string')) {
+          type = 'text';
+        } else {
+          type = 'boolean';
+        }
+
+        const rawCat = String(q.category || '').toLowerCase();
+        let category: 'onset' | 'severity' | 'associated_symptom' | 'trigger' | 'risk_factor' | 'general' = 'general';
+        if (rawCat.includes('onset') || rawCat.includes('temp') || rawCat.includes('time') || rawCat.includes('durat')) {
+          category = 'onset';
+        } else if (rawCat.includes('sev') || rawCat.includes('red') || rawCat.includes('alarm') || rawCat.includes('intens')) {
+          category = 'severity';
+        } else if (rawCat.includes('assoc') || rawCat.includes('symptom')) {
+          category = 'associated_symptom';
+        } else if (rawCat.includes('trig') || rawCat.includes('posit') || rawCat.includes('aggrav') || rawCat.includes('relie')) {
+          category = 'trigger';
+        } else if (rawCat.includes('risk') || rawCat.includes('hist') || rawCat.includes('factor')) {
+          category = 'risk_factor';
+        }
+
+        const options = Array.isArray(q.options) && q.options.length > 0
+          ? q.options.map(String)
+          : (type === 'choice' ? ['Mild', 'Moderate', 'Severe'] : undefined);
+
+        return {
+          id: String(q.id || `q_${idx + 1}`),
+          question: String(q.question || 'Do you experience this symptom?'),
+          type,
+          options,
+          clinicalRationale: String(q.clinicalRationale || 'Aids in clarifying clinical diagnosis and differentiating risk.'),
+          category,
+        };
+      });
+
+      if (normalizedQuestions.length > 0) {
+        return normalizedQuestions;
+      }
     }
   } catch (groqErr) {
     console.warn("Groq questionnaire inference bypassed, falling back:", groqErr);

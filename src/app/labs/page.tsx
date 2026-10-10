@@ -83,6 +83,30 @@ const LAB_PRESETS = [
       { parameter: 'Creatinine', value: '1.4', unit: 'mg/dL', referenceRange: '0.7 - 1.3 mg/dL' },
     ],
   },
+  {
+    name: 'Diabetic & Kidney Health',
+    panelType: 'Comprehensive Metabolic Panel (CMP)',
+    description: 'Patient with polydipsia, frequent urination, and edema.',
+    values: [
+      { parameter: 'Fasting Blood Glucose', value: '228', unit: 'mg/dL', referenceRange: '70 - 99 mg/dL' },
+      { parameter: 'HbA1c', value: '9.4', unit: '%', referenceRange: '< 5.7 %' },
+      { parameter: 'Serum Creatinine', value: '2.1', unit: 'mg/dL', referenceRange: '0.7 - 1.3 mg/dL' },
+      { parameter: 'Blood Urea Nitrogen (BUN)', value: '38', unit: 'mg/dL', referenceRange: '7 - 20 mg/dL' },
+      { parameter: 'eGFR', value: '34', unit: 'mL/min/1.73m2', referenceRange: '> 60 mL/min/1.73m2' },
+    ],
+  },
+  {
+    name: 'Metabolic & Liver Function',
+    panelType: 'Hepatic Function Panel',
+    description: 'Patient presenting with right upper quadrant ache and dark urine.',
+    values: [
+      { parameter: 'ALT (Alanine Aminotransferase)', value: '142', unit: 'U/L', referenceRange: '7 - 56 U/L' },
+      { parameter: 'AST (Aspartate Aminotransferase)', value: '118', unit: 'U/L', referenceRange: '10 - 40 U/L' },
+      { parameter: 'Total Bilirubin', value: '3.1', unit: 'mg/dL', referenceRange: '0.2 - 1.2 mg/dL' },
+      { parameter: 'Alkaline Phosphatase (ALP)', value: '260', unit: 'U/L', referenceRange: '44 - 147 U/L' },
+      { parameter: 'Albumin', value: '3.2', unit: 'g/dL', referenceRange: '3.5 - 5.0 g/dL' },
+    ],
+  },
 ];
 
 export default function BloodWorkPage() {
@@ -244,21 +268,28 @@ ${result.analyzedParameters.map((p) => `- ${p.name}: ${p.value} ${p.unit} [${p.f
             <Sparkles className="w-3.5 h-3.5 text-primary" />
             Quick Clinical Test Presets (Click to load)
           </span>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            {LAB_PRESETS.map((preset) => (
-              <button
-                key={preset.name}
-                type="button"
-                onClick={() => handleLoadPreset(preset)}
-                className="text-left p-3.5 rounded-xl border border-border bg-card hover:border-primary/50 hover:bg-muted/40 transition-all space-y-1 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-              >
-                <div className="font-semibold text-xs text-foreground group-hover:text-primary transition-colors flex items-center justify-between">
-                  <span>{preset.name}</span>
-                  <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/60 group-hover:translate-x-0.5 transition-transform" />
-                </div>
-                <div className="text-[11px] text-muted-foreground line-clamp-1">{preset.description}</div>
-              </button>
-            ))}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {LAB_PRESETS.map((preset) => {
+              const isSelected = panelType === preset.panelType;
+              return (
+                <button
+                  key={preset.name}
+                  type="button"
+                  onClick={() => handleLoadPreset(preset)}
+                  className={`text-left p-3.5 rounded-xl border transition-all space-y-1.5 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                    isSelected
+                      ? 'border-primary bg-primary/10 shadow-sm'
+                      : 'border-border bg-card hover:border-primary/50 hover:bg-muted/40'
+                  }`}
+                >
+                  <div className="font-semibold text-xs text-foreground group-hover:text-primary transition-colors flex items-center justify-between">
+                    <span>{preset.name}</span>
+                    <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/60 group-hover:translate-x-0.5 transition-transform" />
+                  </div>
+                  <div className="text-[11px] text-muted-foreground line-clamp-1">{preset.description}</div>
+                </button>
+              );
+            })}
           </div>
         </div>
 

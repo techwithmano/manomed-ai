@@ -4,6 +4,11 @@ import type { NextConfig } from 'next';
 const enableComingSoonRedirect = false;
 
 const nextConfig: NextConfig = {
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '10mb',
+    },
+  },
   typescript: {
     ignoreBuildErrors: true,
   },

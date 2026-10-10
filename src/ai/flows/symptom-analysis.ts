@@ -341,12 +341,87 @@ Allergies: ${input.allergies || 'None'}
 Vitals: ${input.vitals || 'None'}
 Intake Answers: ${input.questionnaireAnswers || 'None'}`;
 
-    const groqOutput = await callGroqChat<SymptomAnalysisOutput>(groqSystemPrompt, groqUserPrompt);
+    const groqOutput = await callGroqChat<any>(groqSystemPrompt, groqUserPrompt);
     if (groqOutput && groqOutput.conditions && groqOutput.conditions.length > 0) {
+      // 1. Triage normalization
+      const rawLevel = String(groqOutput.triage?.level || '').toUpperCase();
+      let level: 'EMERGENCY' | 'URGENT' | 'ROUTINE' | 'SELF_CARE' = 'ROUTINE';
+      let urgencyColor: 'red' | 'amber' | 'blue' | 'green' = 'blue';
+
+      if (rawLevel.includes('EMERG') || rawLevel.includes('CRIT') || (Array.isArray(groqOutput.redFlags) && groqOutput.redFlags.length > 0)) {
+        level = 'EMERGENCY';
+        urgencyColor = 'red';
+      } else if (rawLevel.includes('URG') || rawLevel.includes('MODER')) {
+        level = 'URGENT';
+        urgencyColor = 'amber';
+      } else if (rawLevel.includes('SELF') || rawLevel.includes('HOME') || rawLevel.includes('MILD')) {
+        level = 'SELF_CARE';
+        urgencyColor = 'green';
+      } else {
+        level = 'ROUTINE';
+        urgencyColor = 'blue';
+      }
+
+      const triage = {
+        level,
+        urgencyColor,
+        recommendedAction: String(groqOutput.triage?.recommendedAction || (
+          level === 'EMERGENCY'
+            ? 'Seek immediate emergency medical attention or call emergency services.'
+            : level === 'URGENT'
+            ? 'Schedule an urgent in-person medical evaluation within 24 hours.'
+            : 'Schedule a routine consultation with your primary healthcare provider.'
+        )),
+        timeframe: String(groqOutput.triage?.timeframe || (
+          level === 'EMERGENCY' ? 'Immediate' : level === 'URGENT' ? 'Within 24 hours' : 'Within 1-2 weeks'
+        )),
+      };
+
+      // 2. Conditions normalization
+      const conditions: ConditionDifferential[] = (groqOutput.conditions || []).map((c: any) => {
+        let l = typeof c.likelihood === 'number' ? c.likelihood : 0.75;
+        if (l > 1) l = l / 100;
+        if (l < 0) l = 0.1;
+        if (l > 1) l = 1;
+
+        const rawRisk = String(c.riskLevel || '').toLowerCase();
+        let riskLevel: 'Low' | 'Moderate' | 'High' = 'Moderate';
+        if (rawRisk.includes('high') || rawRisk.includes('sev') || rawRisk.includes('crit')) riskLevel = 'High';
+        else if (rawRisk.includes('low') || rawRisk.includes('mild')) riskLevel = 'Low';
+
+        return {
+          condition: String(c.condition || c.name || 'Clinical Presentation'),
+          icd10Hint: c.icd10Hint ? String(c.icd10Hint) : undefined,
+          likelihood: Number(l.toFixed(2)),
+          description: String(c.description || 'Clinical correlation with reported symptoms.'),
+          supportingEvidence: Array.isArray(c.supportingEvidence) ? c.supportingEvidence.map(String) : [],
+          contradictingEvidence: Array.isArray(c.contradictingEvidence) ? c.contradictingEvidence.map(String) : undefined,
+          riskLevel,
+        };
+      });
+
+      // 3. SOAP note normalization
+      const rawSoap = groqOutput.soapNote || {};
+      const soapNote = {
+        subjective: String(rawSoap.subjective || `Patient reports: ${input.symptoms}`),
+        objective: String(rawSoap.objective || `Vitals / Demographics: Age ${input.age || 'N/A'}, Gender ${input.gender || 'N/A'}, Vitals: ${input.vitals || 'Not provided'}`),
+        assessment: String(rawSoap.assessment || `Differential includes: ${conditions.map(c => c.condition).join(', ')}`),
+        plan: String(rawSoap.plan || `Clinical recommendation: ${triage.recommendedAction}`),
+      };
+
       return {
-        ...groqOutput,
-        id: groqOutput.id || `eval_${Date.now()}`,
-        timestamp: groqOutput.timestamp || new Date().toISOString(),
+        id: String(groqOutput.id || `eval_${Date.now()}`),
+        timestamp: String(groqOutput.timestamp || new Date().toISOString()),
+        triage,
+        redFlags: Array.isArray(groqOutput.redFlags) ? groqOutput.redFlags.map(String) : [],
+        emergencyGuidance: groqOutput.emergencyGuidance ? String(groqOutput.emergencyGuidance) : undefined,
+        conditions,
+        recommendedSpecialties: Array.isArray(groqOutput.recommendedSpecialties) ? groqOutput.recommendedSpecialties.map(String) : ['Primary Care / Family Medicine'],
+        recommendedTests: Array.isArray(groqOutput.recommendedTests) ? groqOutput.recommendedTests.map(String) : ['Complete Blood Count', 'Basic Metabolic Panel'],
+        questionsForDoctor: Array.isArray(groqOutput.questionsForDoctor) ? groqOutput.questionsForDoctor.map(String) : ['What tests do you recommend to confirm this?', 'What symptoms should prompt urgent follow-up?'],
+        safeSelfCare: Array.isArray(groqOutput.safeSelfCare) ? groqOutput.safeSelfCare.map(String) : ['Maintain adequate hydration and rest', 'Monitor temperature and symptoms'],
+        whenToSeekEmergencyCare: Array.isArray(groqOutput.whenToSeekEmergencyCare) ? groqOutput.whenToSeekEmergencyCare.map(String) : ['Severe shortness of breath', 'Chest pain or pressure', 'Sudden confusion or dizziness'],
+        soapNote,
       };
     }
   } catch (groqErr) {
