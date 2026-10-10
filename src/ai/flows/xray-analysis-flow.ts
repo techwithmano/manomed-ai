@@ -6,6 +6,7 @@
 
 import { ai } from '@/ai/ai-instance';
 import { z } from 'genkit';
+import { callGroqChat } from '@/ai/groq-client';
 
 const XRayAnalysisInputSchema = z.object({
   imageBase64: z.string().describe('Data URI or base64 string of the uploaded radiograph'),
@@ -295,8 +296,56 @@ const xrayAnalysisFlow = ai.defineFlow<
   inputSchema: XRayAnalysisInputSchema,
   outputSchema: XRayAnalysisOutputSchema,
 }, async (input) => {
+  // 1. Try High-Speed Free Groq Engine (120B reasoning model)
   try {
-    // Only pass valid raster base64 data to Gemini to avoid 400 BAD_REQUEST on SVGs or non-standard URIs
+    const groqSystemPrompt = `You are an elite Diagnostic Radiologist and Imaging AI.
+Analyze the radiograph study details and return a JSON object with this exact structure:
+{
+  "id": "xray_123",
+  "timestamp": "ISO_DATE",
+  "examinationType": "Diagnostic Radiograph (${input.anatomicalRegion.toUpperCase()})",
+  "urgency": "EMERGENCY" | "URGENT" | "ROUTINE" | "NORMAL",
+  "criticalAlerts": ["Alert 1", ...],
+  "anatomicalFindings": [
+    {
+      "structure": "Structure Name (e.g. Lung Parenchyma / Cortical Bone)",
+      "observation": "Detailed radiological observation",
+      "abnormalityDetected": true | false,
+      "severity": "None" | "Mild" | "Moderate" | "Severe"
+    }
+  ],
+  "radiologicalImpression": "Formal impression summary",
+  "differentialDiagnoses": [
+    {
+      "condition": "Condition Name",
+      "likelihood": 0.85,
+      "rationale": "Radiological evidence"
+    }
+  ],
+  "plainLanguageExplanation": "Reassuring, clear explanation for patient",
+  "clinicalPhysicianNotes": "Technical directives for attending doctor",
+  "recommendedNextSteps": ["Next step 1", ...],
+  "questionsForDoctor": ["Question 1", ...]
+}`;
+
+    const groqUserPrompt = `Patient Age: ${input.patientAge || 'N/A'}, Gender: ${input.patientGender || 'N/A'}
+Anatomical Region: ${input.anatomicalRegion}
+Clinical Indication / Presentation: ${input.clinicalIndication || 'Routine evaluation'}`;
+
+    const groqOutput = await callGroqChat<XRayAnalysisOutput>(groqSystemPrompt, groqUserPrompt);
+    if (groqOutput && groqOutput.anatomicalFindings && groqOutput.anatomicalFindings.length > 0) {
+      return {
+        ...groqOutput,
+        id: groqOutput.id || `xray_${Date.now()}`,
+        timestamp: groqOutput.timestamp || new Date().toISOString(),
+      };
+    }
+  } catch (groqErr) {
+    console.warn("Groq X-ray inference bypassed, falling back:", groqErr);
+  }
+
+  // 2. Try GenAI Gemini
+  try {
     const isRasterBase64 = Boolean(
       input.imageBase64 &&
       /^data:image\/(jpeg|jpg|png|webp|gif|bmp);base64,[A-Za-z0-9+/=]+$/i.test(input.imageBase64)
@@ -308,18 +357,19 @@ const xrayAnalysisFlow = ai.defineFlow<
     };
 
     const { output } = await xrayAnalysisPrompt(sanitizedInput);
-    if (!output) {
-      return synthesizeClinicalFallbackXRay(input);
+    if (output) {
+      return {
+        ...output,
+        id: output.id || `xray_${Date.now()}`,
+        timestamp: output.timestamp || new Date().toISOString(),
+      };
     }
-    return {
-      ...output,
-      id: output.id || `xray_${Date.now()}`,
-      timestamp: output.timestamp || new Date().toISOString(),
-    };
   } catch (err) {
     console.warn('GenAI X-Ray Flow unavailable, engaging clinical fallback engine:', err);
-    return synthesizeClinicalFallbackXRay(input);
   }
+
+  // 3. Clinical Rule Fallback Engine
+  return synthesizeClinicalFallbackXRay(input);
 });
 
 export async function interpretXRay(input: XRayAnalysisInput): Promise<XRayAnalysisOutput> {

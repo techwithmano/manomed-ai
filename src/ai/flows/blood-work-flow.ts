@@ -6,6 +6,7 @@
 
 import { ai } from '@/ai/ai-instance';
 import { z } from 'genkit';
+import { callGroqChat } from '@/ai/groq-client';
 
 const LabItemSchema = z.object({
   parameter: z.string().describe('Name of lab test (e.g. Hemoglobin, White Blood Cells, Creatinine)'),
@@ -376,20 +377,82 @@ const bloodWorkFlow = ai.defineFlow<
   inputSchema: BloodWorkInputSchema,
   outputSchema: BloodWorkOutputSchema,
 }, async (input) => {
+  // 1. Try High-Speed Free Groq Engine (120B reasoning model)
+  try {
+    const groqSystemPrompt = `You are an elite Clinical Laboratory Pathologist and Medical Diagnostic AI.
+Analyze the provided blood work values and return a JSON object with this exact structure:
+{
+  "id": "lab_123",
+  "timestamp": "ISO_DATE",
+  "overallStatus": "NORMAL" | "ELEVATED_RISK" | "CRITICAL_ALERT",
+  "triageUrgency": "EMERGENCY" | "URGENT" | "ROUTINE" | "OPTIMAL",
+  "criticalAlerts": ["Alert 1", ...],
+  "analyzedParameters": [
+    {
+      "name": "Parameter Name",
+      "value": "11.2",
+      "unit": "g/dL",
+      "referenceRange": "12.0 - 16.0 g/dL",
+      "flag": "NORMAL" | "LOW" | "HIGH" | "CRITICAL_LOW" | "CRITICAL_HIGH",
+      "interpretation": "Detailed interpretation",
+      "clinicalImpact": "Effect on patient"
+    }
+  ],
+  "plainLanguageSummary": "Compassionate, plain-language explanation for patient",
+  "clinicalPhysicianSynthesis": "High-density technical pathophysiology for physician",
+  "differentialDiagnoses": [
+    {
+      "condition": "Condition Name",
+      "icd10Hint": "ICD code",
+      "likelihood": 0.8,
+      "rationale": "Medical rationale"
+    }
+  ],
+  "recommendedFollowUpTests": ["Test 1", ...],
+  "lifestyleAndDietaryGuidance": ["Diet tip 1", ...],
+  "questionsForDoctor": ["Question 1", ...]
+}`;
+
+    const labListText = input.labValues
+      .map((item) => `- ${item.parameter}: ${item.value} ${item.unit} (Reference Range: ${item.referenceRange || 'Standard'})`)
+      .join('\n');
+
+    const groqUserPrompt = `Patient: ${input.patientName || 'Anonymous'}, Age: ${input.age || 'N/A'}, Gender: ${input.gender || 'N/A'}
+Panel: ${input.panelType || 'General Lab Workup'}
+Concurrent Symptoms: ${input.clinicalSymptoms || 'None reported'}
+Current Medications: ${input.medications || 'None reported'}
+
+Laboratory Values Tested:
+${labListText}`;
+
+    const groqOutput = await callGroqChat<BloodWorkOutput>(groqSystemPrompt, groqUserPrompt);
+    if (groqOutput && groqOutput.analyzedParameters && groqOutput.analyzedParameters.length > 0) {
+      return {
+        ...groqOutput,
+        id: groqOutput.id || `lab_${Date.now()}`,
+        timestamp: groqOutput.timestamp || new Date().toISOString(),
+      };
+    }
+  } catch (groqErr) {
+    console.warn("Groq lab inference bypassed, falling back:", groqErr);
+  }
+
+  // 2. Try GenAI Gemini
   try {
     const { output } = await bloodWorkPrompt(input);
-    if (!output) {
-      return synthesizeClinicalFallbackBloodWork(input);
+    if (output) {
+      return {
+        ...output,
+        id: output.id || `lab_${Date.now()}`,
+        timestamp: output.timestamp || new Date().toISOString(),
+      };
     }
-    return {
-      ...output,
-      id: output.id || `lab_${Date.now()}`,
-      timestamp: output.timestamp || new Date().toISOString(),
-    };
   } catch (err) {
     console.warn('GenAI Blood Work Flow unavailable, engaging clinical fallback engine:', err);
-    return synthesizeClinicalFallbackBloodWork(input);
   }
+
+  // 3. Rule engine fallback
+  return synthesizeClinicalFallbackBloodWork(input);
 });
 
 export async function interpretBloodWork(input: BloodWorkInput): Promise<BloodWorkOutput> {

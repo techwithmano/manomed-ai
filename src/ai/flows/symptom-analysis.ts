@@ -6,6 +6,7 @@
 
 import { ai } from '@/ai/ai-instance';
 import { z } from 'genkit';
+import { callGroqChat } from '@/ai/groq-client';
 
 const SymptomAnalysisInputSchema = z.object({
   name: z.string().optional(),
@@ -293,20 +294,81 @@ const symptomAnalysisFlow = ai.defineFlow<
   inputSchema: SymptomAnalysisInputSchema,
   outputSchema: SymptomAnalysisOutputSchema,
 }, async (input) => {
+  // 1. Try High-Speed Free Groq Engine (120B reasoning model)
+  try {
+    const groqSystemPrompt = `You are an elite Clinical Decision Support and Emergency Medical AI.
+Analyze the clinical intake and return a JSON object with this exact structure:
+{
+  "id": "eval_123",
+  "timestamp": "ISO_DATE",
+  "triage": {
+    "level": "EMERGENCY" | "URGENT" | "ROUTINE" | "SELF_CARE",
+    "urgencyColor": "red" | "amber" | "blue" | "green",
+    "recommendedAction": "Clear advice for patient",
+    "timeframe": "Immediately / within 24h / etc"
+  },
+  "redFlags": ["Flag 1", ...],
+  "emergencyGuidance": "Life support instructions if red flags exist",
+  "conditions": [
+    {
+      "condition": "Condition Name",
+      "icd10Hint": "ICD Code (e.g. I21.9)",
+      "likelihood": 0.85,
+      "description": "Plain clinical explanation",
+      "supportingEvidence": ["Evidence 1", ...],
+      "contradictingEvidence": ["Factor 1", ...],
+      "riskLevel": "High" | "Moderate" | "Low"
+    }
+  ],
+  "recommendedSpecialties": ["Cardiology", ...],
+  "recommendedTests": ["Troponin", "12-Lead ECG", ...],
+  "questionsForDoctor": ["Question 1", ...],
+  "safeSelfCare": ["Rest", ...],
+  "whenToSeekEmergencyCare": ["Chest pain worsens", ...],
+  "soapNote": {
+    "subjective": "Subjective history",
+    "objective": "Objective findings",
+    "assessment": "Clinical assessment",
+    "plan": "Plan details"
+  }
+}`;
+
+    const groqUserPrompt = `Patient: ${input.name || 'Anonymous'}, Age: ${input.age || 'N/A'}, Gender: ${input.gender || 'N/A'}
+Chief Complaint / Symptoms: ${input.symptoms}
+Medical History: ${input.medicalHistory || 'None'}
+Medications: ${input.medications || 'None'}
+Allergies: ${input.allergies || 'None'}
+Vitals: ${input.vitals || 'None'}
+Intake Answers: ${input.questionnaireAnswers || 'None'}`;
+
+    const groqOutput = await callGroqChat<SymptomAnalysisOutput>(groqSystemPrompt, groqUserPrompt);
+    if (groqOutput && groqOutput.conditions && groqOutput.conditions.length > 0) {
+      return {
+        ...groqOutput,
+        id: groqOutput.id || `eval_${Date.now()}`,
+        timestamp: groqOutput.timestamp || new Date().toISOString(),
+      };
+    }
+  } catch (groqErr) {
+    console.warn("Groq inference bypassed, falling back to GenAI/rule engine:", groqErr);
+  }
+
+  // 2. Try GenAI Gemini
   try {
     const { output } = await symptomAnalysisPrompt(input);
-    if (!output) {
-      return synthesizeClinicalFallbackDifferential(input);
+    if (output) {
+      return {
+        ...output,
+        id: output.id || `eval_${Date.now()}`,
+        timestamp: output.timestamp || new Date().toISOString(),
+      };
     }
-    return {
-      ...output,
-      id: output.id || `eval_${Date.now()}`,
-      timestamp: output.timestamp || new Date().toISOString(),
-    };
   } catch (err) {
     console.warn("GenAI API unavailable or rate-limited, engaging clinical fallback engine:", err);
-    return synthesizeClinicalFallbackDifferential(input);
   }
+
+  // 3. Clinical Rule Fallback Engine
+  return synthesizeClinicalFallbackDifferential(input);
 });
 
 export async function symptomAnalysis(input: SymptomAnalysisInput): Promise<SymptomAnalysisOutput> {

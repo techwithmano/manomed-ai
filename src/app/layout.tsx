@@ -6,15 +6,12 @@ import Link from 'next/link';
 import { ClerkProvider } from '@clerk/nextjs';
 import { dark } from '@clerk/themes';
 import { Analytics } from '@vercel/analytics/next';
-import {
-  ShieldAlert,
-  Lock,
-  HeartPulse,
-  Cpu,
-  FileCheck2,
-} from 'lucide-react';
+import { ShieldAlert, Lock, Cpu, FileCheck2 } from 'lucide-react';
+import { FaHeartbeat } from 'react-icons/fa';
 import SiteHeader from '@/components/SiteHeader';
+import { LanguageProvider } from '@/context/language-context';
 import type { Metadata } from 'next';
+
 
 const plusJakarta = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -62,33 +59,32 @@ export default function RootLayout({
             Skip to main content
           </a>
 
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            {/* Modular Site Navigation Header */}
-            <SiteHeader />
+          <LanguageProvider>
+            <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+              {/* Modular Site Navigation Header */}
+              <SiteHeader />
 
-            {/* Main Content Landmark */}
-            <main id="main-content" className="pt-20 flex-1 focus:outline-none" tabIndex={-1}>
-              {children}
-            </main>
+              {/* Main Content Landmark */}
+              <main id="main-content" className="pt-16 flex-1 focus:outline-none" tabIndex={-1}>
+                {children}
+              </main>
 
-            {/* Institutional Healthcare Footer */}
-            <footer className="border-t border-border bg-card/60 transition-colors" role="contentinfo">
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 space-y-8">
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
-                  {/* Brand & Mission */}
-                  <div className="md:col-span-5 space-y-3">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
-                        <HeartPulse className="w-4 h-4" />
+              {/* Institutional Healthcare Footer */}
+              <footer className="border-t border-border bg-card/60 transition-colors" role="contentinfo">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 space-y-8">
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+                    {/* Brand & Mission with Preserved FaHeartbeat Logo */}
+                    <div className="md:col-span-5 space-y-3">
+                      <div className="flex items-center space-x-2.5">
+                        <FaHeartbeat className="text-blue-600 text-2xl" />
+                        <span className="font-bold text-lg tracking-tight text-foreground">
+                          ManoMed AI
+                        </span>
                       </div>
-                      <span className="font-extrabold text-base tracking-tight">ManoMed AI</span>
-                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-primary/10 text-primary border border-primary/20 uppercase tracking-wider">
-                        CDS v2.4
-                      </span>
-                    </div>
-                    <p className="text-xs text-muted-foreground leading-relaxed max-w-sm">
-                      Evidence-grounded clinical decision support tool designed to streamline patient intake, structure differential likelihoods, and generate standard EHR documentation.
-                    </p>
+                      <p className="text-xs text-muted-foreground leading-relaxed max-w-sm">
+                        Intelligent clinical decision support and triage system designed for both families and healthcare professionals.
+                      </p>
+
                     <div className="flex items-center gap-3 text-xs text-muted-foreground pt-1">
                       <span className="flex items-center gap-1">
                         <Lock className="w-3.5 h-3.5 text-primary" />
@@ -177,8 +173,10 @@ export default function RootLayout({
             <Toaster />
             <Analytics />
           </ThemeProvider>
-        </body>
-      </html>
-    </ClerkProvider>
+        </LanguageProvider>
+      </body>
+    </html>
+  </ClerkProvider>
+
   );
 }

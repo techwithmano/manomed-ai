@@ -6,6 +6,7 @@
 
 import { ai } from '@/ai/ai-instance';
 import { z } from 'genkit';
+import { callGroqChat } from '@/ai/groq-client';
 
 const QuestionTypeEnum = z.enum(['boolean', 'scale', 'choice', 'text']);
 export type QuestionType = z.infer<typeof QuestionTypeEnum>;
@@ -161,14 +162,48 @@ const generateQuestionnaireFlow = ai.defineFlow<
   inputSchema: GenerateQuestionnaireInputSchema,
   outputSchema: GenerateQuestionnaireOutputSchema,
 }, async (input) => {
+  // 1. Try High-Speed Free Groq Engine (120B reasoning model)
+  try {
+    const groqSystemPrompt = `You are an elite Clinical Decision Support Physician.
+Generate 4 to 6 high-yield, Bayesian diagnostic questions to narrow down the differential.
+Return a JSON object with a single key "questions":
+{
+  "questions": [
+    {
+      "id": "q1",
+      "question": "Question text?",
+      "type": "boolean" | "scale" | "choice" | "text",
+      "options": ["Option 1", "Option 2"],
+      "clinicalRationale": "Diagnostic rationale",
+      "category": "onset" | "severity" | "associated_symptom" | "trigger" | "risk_factor" | "general"
+    }
+  ]
+}`;
+
+    const groqUserPrompt = `Patient: Age ${input.age || 'N/A'}, Gender ${input.gender || 'N/A'}
+Reported Symptoms: ${input.symptoms}
+Medical History: ${input.medicalHistory || 'None'}
+Current Medications: ${input.medications || 'None'}`;
+
+
+    const groqOutput = await callGroqChat<{ questions: GenerateQuestionnaireOutput }>(groqSystemPrompt, groqUserPrompt);
+    if (groqOutput && groqOutput.questions && groqOutput.questions.length > 0) {
+      return groqOutput.questions;
+    }
+  } catch (groqErr) {
+    console.warn("Groq questionnaire inference bypassed, falling back:", groqErr);
+  }
+
+  // 2. Try GenAI Gemini
   try {
     const { output } = await generateQuestionnairePrompt(input);
     if (output && output.length > 0) return output;
-    return generateClinicalFallbackQuestions(input);
   } catch (err) {
     console.warn("GenAI API unavailable or rate-limited, engaging clinical rule-based engine:", err);
-    return generateClinicalFallbackQuestions(input);
   }
+
+  // 3. Clinical Rule Fallback Engine
+  return generateClinicalFallbackQuestions(input);
 });
 
 export async function generateQuestionnaire(input: GenerateQuestionnaireInput): Promise<GenerateQuestionnaireOutput> {
