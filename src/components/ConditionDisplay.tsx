@@ -28,6 +28,8 @@ import {
   ClipboardList,
   ChevronRight,
   ShieldCheck,
+  FlaskConical,
+  Scan,
 } from "lucide-react";
 import { exportClinicalReportPDF } from "@/lib/pdf-export";
 import {
@@ -57,6 +59,7 @@ export const ConditionDisplay: React.FC<ConditionDisplayProps> = ({
   const [copiedQuestions, setCopiedQuestions] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [checkedQuestions, setCheckedQuestions] = useState<Record<number, boolean>>({});
+  const [viewMode, setViewMode] = useState<"patient" | "clinical">("patient");
 
   const toggleQuestionCheck = (idx: number) => {
     setCheckedQuestions((prev) => ({ ...prev, [idx]: !prev[idx] }));
@@ -271,34 +274,232 @@ ${result.questionsForDoctor.map((q, i) => `${i + 1}. ${q}`).join("\n")}`;
         )}
       </div>
 
-      {/* Main Clinical Intelligence Tabs */}
-      <Tabs defaultValue="differential" className="w-full">
-        <TabsList className="grid grid-cols-2 sm:grid-cols-4 w-full h-auto p-1.5 bg-muted/60 rounded-2xl border border-border gap-1">
-          <TabsTrigger
-            value="differential"
-            className="min-h-[40px] rounded-xl text-xs sm:text-sm font-semibold data-[state=active]:bg-card data-[state=active]:shadow-xs"
+      {/* Audience Perspective Switcher (Doctor vs Granny) */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 pt-1">
+        <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          Evaluation Detail View:
+        </span>
+        <div className="inline-flex p-1 rounded-xl bg-muted border border-border text-xs font-semibold">
+          <button
+            type="button"
+            onClick={() => setViewMode("patient")}
+            className={`px-4 py-2 rounded-lg transition-all min-h-[38px] ${
+              viewMode === "patient"
+                ? "bg-primary text-primary-foreground font-bold shadow-xs"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
           >
-            Differential Diagnosis
-          </TabsTrigger>
-          <TabsTrigger
-            value="doctor"
-            className="min-h-[40px] rounded-xl text-xs sm:text-sm font-semibold data-[state=active]:bg-card data-[state=active]:shadow-xs"
+            👵 Simple Patient Summary
+          </button>
+          <button
+            type="button"
+            onClick={() => setViewMode("clinical")}
+            className={`px-4 py-2 rounded-lg transition-all min-h-[38px] ${
+              viewMode === "clinical"
+                ? "bg-primary text-primary-foreground font-bold shadow-xs"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
           >
-            Workup & Inquiries
-          </TabsTrigger>
-          <TabsTrigger
-            value="soap"
-            className="min-h-[40px] rounded-xl text-xs sm:text-sm font-semibold data-[state=active]:bg-card data-[state=active]:shadow-xs"
-          >
-            EHR SOAP Note
-          </TabsTrigger>
-          <TabsTrigger
-            value="selfcare"
-            className="min-h-[40px] rounded-xl text-xs sm:text-sm font-semibold data-[state=active]:bg-card data-[state=active]:shadow-xs"
-          >
-            Self-Care & Warnings
-          </TabsTrigger>
-        </TabsList>
+            🩺 Clinical Physician Detail
+          </button>
+        </div>
+      </div>
+
+      {/* VIEW 1: SIMPLE PATIENT & SENIOR SUMMARY */}
+      {viewMode === "patient" && (
+        <div className="space-y-6 animate-in fade-in duration-200">
+          {/* Top Primary Condition in Plain Words */}
+          <Card className="clinical-card border-primary/40">
+            <CardHeader className="pb-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div className="space-y-1">
+                  <div className="text-xs font-mono font-bold uppercase tracking-wider text-primary flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
+                    Most Probable Health Condition
+                  </div>
+                  <CardTitle className="text-xl sm:text-2xl font-bold text-foreground">
+                    {result.conditions[0]?.condition || "Evaluation Complete"}
+                  </CardTitle>
+                </div>
+                <Badge className="bg-primary text-primary-foreground font-bold text-sm px-3 py-1 self-start sm:self-auto">
+                  {Math.round((result.conditions[0]?.likelihood || 0.7) * 100)}% Likelihood
+                </Badge>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm sm:text-base text-foreground leading-relaxed bg-muted/30 p-4 rounded-xl border border-border">
+                {result.conditions[0]?.description || "Based on your reported symptoms, this is the most likely condition."}
+              </p>
+
+              {/* Supporting Reasons */}
+              {result.conditions[0]?.supportingEvidence && (
+                <div className="space-y-2 text-xs">
+                  <span className="font-bold text-foreground block">Why we identified this:</span>
+                  <div className="flex flex-wrap gap-2">
+                    {result.conditions[0].supportingEvidence.map((ev, i) => (
+                      <span key={i} className="px-3 py-1 rounded-lg bg-card border border-border text-foreground font-medium">
+                        ✓ {ev}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* What to do today */}
+              <div className="p-4 rounded-xl bg-card border border-border space-y-2 text-xs">
+                <h4 className="font-bold text-foreground flex items-center gap-1.5 text-sm">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                  What You Should Do Next
+                </h4>
+                <p className="text-muted-foreground leading-relaxed">
+                  {result.triage.recommendedAction}
+                </p>
+              </div>
+
+              {/* Home Care & Questions Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+                {/* Safe Home Care */}
+                <div className="p-4 rounded-xl bg-muted/40 border border-border space-y-2 text-xs">
+                  <h4 className="font-bold text-foreground flex items-center gap-1.5 text-sm">
+                    <span>🍵</span> Safe Supportive Home Care
+                  </h4>
+                  <ul className="space-y-2 text-muted-foreground">
+                    {result.safeSelfCare.map((tip, idx) => (
+                      <li key={idx} className="flex items-start gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
+                        <span>{tip}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Questions for Doctor */}
+                <div className="p-4 rounded-xl bg-muted/40 border border-border space-y-2 text-xs">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-bold text-foreground flex items-center gap-1.5 text-sm">
+                      <FileText className="w-4 h-4 text-primary" />
+                      Questions For Your Doctor
+                    </h4>
+                    <button
+                      type="button"
+                      onClick={copyDoctorQuestions}
+                      className="text-[11px] text-primary hover:underline font-semibold"
+                    >
+                      {copiedQuestions ? "Copied!" : "Copy list"}
+                    </button>
+                  </div>
+                  <ul className="space-y-2 text-muted-foreground">
+                    {result.questionsForDoctor.map((q, idx) => (
+                      <li
+                        key={idx}
+                        onClick={() => toggleQuestionCheck(idx)}
+                        className={`flex items-start gap-2 cursor-pointer p-1 rounded-md transition-colors ${
+                          checkedQuestions[idx] ? "line-through opacity-60" : "hover:text-foreground"
+                        }`}
+                      >
+                        <span className="text-primary font-bold">{idx + 1}.</span>
+                        <span>{q}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              {/* Recommended Next Tests (Patient View) */}
+              {result.recommendedTests && result.recommendedTests.length > 0 && (
+                <div className="p-4 rounded-xl bg-card border border-border space-y-3 text-xs">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-bold text-foreground flex items-center gap-1.5 text-sm">
+                      <Activity className="w-4 h-4 text-primary" />
+                      Tests Your Doctor May Suggest
+                    </h4>
+                    <span className="text-[11px] text-muted-foreground">Interactive Diagnostic Suites</span>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {result.recommendedTests.map((t, idx) => {
+                      const isLab = /blood|cbc|cmp|metabolic|troponin|electrolyte|panel|urinalysis|culture|biomarker|d-dimer/i.test(t);
+                      const isImaging = /x-ray|radiograph|ct|mri|ultrasound|echo|scan|imaging/i.test(t);
+                      return (
+                        <div key={idx} className="p-2.5 rounded-lg bg-muted/30 border border-border flex items-center justify-between gap-2">
+                          <span className="font-medium text-foreground truncate">{t}</span>
+                          {isLab && (
+                            <Link href="/labs" className="shrink-0">
+                              <span className="text-[10px] font-semibold text-primary hover:underline flex items-center gap-1 bg-primary/10 px-2 py-1 rounded">
+                                <FlaskConical className="w-3 h-3" /> Test in Labs
+                              </span>
+                            </Link>
+                          )}
+                          {isImaging && (
+                            <Link href="/imaging" className="shrink-0">
+                              <span className="text-[10px] font-semibold text-primary hover:underline flex items-center gap-1 bg-primary/10 px-2 py-1 rounded">
+                                <Scan className="w-3 h-3" /> View X-Ray
+                              </span>
+                            </Link>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Warning Signs */}
+              <div className="p-4 rounded-xl bg-destructive/10 border border-destructive/30 text-destructive text-xs space-y-2">
+                <h4 className="font-bold flex items-center gap-1.5 text-sm">
+                  <AlertTriangle className="w-4 h-4" />
+                  Warning Signs: When To Go To The Emergency Room
+                </h4>
+                <ul className="list-disc list-inside space-y-1 font-medium">
+                  {result.whenToSeekEmergencyCare.map((warning, i) => (
+                    <li key={i}>{warning}</li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="pt-2 text-center">
+                <Button
+                  variant="outline"
+                  onClick={() => setViewMode("clinical")}
+                  className="text-xs h-10 border-border"
+                >
+                  <Stethoscope className="w-3.5 h-3.5 mr-1.5 text-primary" />
+                  View Complete Medical & EHR Technical Report
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* VIEW 2: DOCTOR CLINICAL TABS */}
+      {viewMode === "clinical" && (
+        <Tabs defaultValue="differential" className="w-full">
+          <TabsList className="grid grid-cols-2 sm:grid-cols-4 w-full h-auto p-1.5 bg-muted/60 rounded-2xl border border-border gap-1">
+            <TabsTrigger
+              value="differential"
+              className="min-h-[40px] rounded-xl text-xs sm:text-sm font-semibold data-[state=active]:bg-card data-[state=active]:shadow-xs"
+            >
+              Differential Diagnosis
+            </TabsTrigger>
+            <TabsTrigger
+              value="doctor"
+              className="min-h-[40px] rounded-xl text-xs sm:text-sm font-semibold data-[state=active]:bg-card data-[state=active]:shadow-xs"
+            >
+              Workup & Inquiries
+            </TabsTrigger>
+            <TabsTrigger
+              value="soap"
+              className="min-h-[40px] rounded-xl text-xs sm:text-sm font-semibold data-[state=active]:bg-card data-[state=active]:shadow-xs"
+            >
+              EHR SOAP Note
+            </TabsTrigger>
+            <TabsTrigger
+              value="selfcare"
+              className="min-h-[40px] rounded-xl text-xs sm:text-sm font-semibold data-[state=active]:bg-card data-[state=active]:shadow-xs"
+            >
+              Self-Care & Warnings
+            </TabsTrigger>
+          </TabsList>
 
         {/* TAB 1: DIFFERENTIAL DIAGNOSIS */}
         <TabsContent value="differential" className="space-y-6 pt-4">
@@ -492,17 +693,39 @@ ${result.questionsForDoctor.map((q, i) => `${i + 1}. ${q}`).join("\n")}`;
             </CardHeader>
             <CardContent className="pt-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                {result.recommendedTests.map((test, i) => (
-                  <div
-                    key={i}
-                    className="p-3 rounded-xl border border-border bg-muted/20 text-xs flex items-center gap-2.5"
-                  >
-                    <span className="w-5 h-5 rounded-md bg-primary/10 text-primary font-mono font-bold flex items-center justify-center shrink-0 text-[11px]">
-                      {i + 1}
-                    </span>
-                    <span className="font-medium text-foreground">{test}</span>
-                  </div>
-                ))}
+                {result.recommendedTests.map((test, i) => {
+                  const isLab = /blood|cbc|cmp|metabolic|troponin|electrolyte|panel|urinalysis|culture|biomarker|d-dimer/i.test(test);
+                  const isImaging = /x-ray|radiograph|ct|mri|ultrasound|echo|scan|imaging/i.test(test);
+                  return (
+                    <div
+                      key={i}
+                      className="p-3 rounded-xl border border-border bg-muted/20 text-xs flex items-center justify-between gap-2.5"
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <span className="w-5 h-5 rounded-md bg-primary/10 text-primary font-mono font-bold flex items-center justify-center shrink-0 text-[11px]">
+                          {i + 1}
+                        </span>
+                        <span className="font-medium text-foreground truncate">{test}</span>
+                      </div>
+                      {isLab && (
+                        <Link href="/labs" className="shrink-0">
+                          <Button variant="outline" size="sm" className="h-6 text-[10px] px-2 border-primary/30 text-primary hover:bg-primary/10 gap-1 font-semibold">
+                            <FlaskConical className="w-3 h-3" />
+                            <span>Lab Suite</span>
+                          </Button>
+                        </Link>
+                      )}
+                      {isImaging && (
+                        <Link href="/imaging" className="shrink-0">
+                          <Button variant="outline" size="sm" className="h-6 text-[10px] px-2 border-primary/30 text-primary hover:bg-primary/10 gap-1 font-semibold">
+                            <Scan className="w-3 h-3" />
+                            <span>X-Ray Suite</span>
+                          </Button>
+                        </Link>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </CardContent>
           </Card>
@@ -675,6 +898,7 @@ ${result.questionsForDoctor.map((q, i) => `${i + 1}. ${q}`).join("\n")}`;
           </div>
         </TabsContent>
       </Tabs>
+      )}
 
       {/* Action Footer */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-border">

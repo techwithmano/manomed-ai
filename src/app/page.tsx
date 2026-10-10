@@ -8,6 +8,8 @@ import {
   ArrowRight,
   ShieldCheck,
   Stethoscope,
+  FlaskConical,
+  Scan,
   FileText,
   AlertTriangle,
   History,
@@ -18,6 +20,7 @@ import {
   FileCheck2,
   ExternalLink,
   Info,
+  Sparkles,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -71,6 +74,36 @@ const sampleSpecimens = [
   },
 ];
 
+const clinicalTools = [
+  {
+    id: 'tool-triage',
+    title: 'Symptom Triage & Bayesian Intake',
+    badge: 'Core CDS',
+    icon: Stethoscope,
+    href: '/ManoMedai',
+    description: 'Interactive anatomical mapping across 6 physiological zones, hands-free voice dictation, real-time emergency red-flag screening, and automated EHR SOAP note generation.',
+    cta: 'Start Symptom Intake',
+  },
+  {
+    id: 'tool-labs',
+    title: 'Blood Work & Lab Test Interpreter',
+    badge: 'Diagnostic Pathology',
+    icon: FlaskConical,
+    href: '/labs',
+    description: 'Comprehensive analysis of CBC, Metabolic (CMP), Cardiac troponin, renal, and lipid panels with age/sex-calibrated reference intervals and dual-audience reporting.',
+    cta: 'Interpret Lab Results',
+  },
+  {
+    id: 'tool-imaging',
+    title: 'X-Ray & Radiology Assistant',
+    badge: 'PACS Vision AI',
+    icon: Scan,
+    href: '/imaging',
+    description: 'High-contrast PACS radiology film workstation with zoom, inversion, and brightness filters. Multimodal evaluation of chest radiographs, skeletal fractures, and soft tissue.',
+    cta: 'Analyze Radiograph',
+  },
+];
+
 const triageStandards = [
   {
     level: 'EMERGENCY',
@@ -106,29 +139,6 @@ const triageStandards = [
   },
 ];
 
-const pipelineSteps = [
-  {
-    step: '01',
-    title: 'Anatomical Intake & Voice Localization',
-    desc: 'Patients describe symptoms via hands-free voice dictation or map localized complaints across 6 distinct anatomical zones with instant clinical autocomplete.',
-  },
-  {
-    step: '02',
-    title: 'Dynamic Bayesian Questionnaire',
-    desc: 'The engine formulates 5 to 7 high-yield discriminating follow-up questions tailored specifically to rule in or rule out urgent contraindications.',
-  },
-  {
-    step: '03',
-    title: 'ICD-10 Differential Synthesis',
-    desc: 'Calibrated algorithms compute probability distributions across ranked medical conditions with explicit supporting and absent indicators.',
-  },
-  {
-    step: '04',
-    title: 'EHR-Formatted Clinical Hand-Off',
-    desc: 'Outputs standardized SOAP clinical documentation and structured physician question checklists, exportable to encrypted multi-page PDF.',
-  },
-];
-
 export default function LandingPage() {
   const router = useRouter();
   const [activeSpecimenIndex, setActiveSpecimenIndex] = useState(0);
@@ -148,11 +158,11 @@ export default function LandingPage() {
               </div>
 
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem] font-bold tracking-tight text-foreground leading-[1.15]">
-                Calibrated medical triage & differential analysis for informed care.
+                Calibrated clinical triage, blood work, & imaging for informed care.
               </h1>
 
               <p className="text-base sm:text-lg text-muted-foreground leading-relaxed max-w-2xl font-normal">
-                ManoMed AI structures patient symptom intake, screens for critical red-flag emergencies, and synthesizes standardized EHR SOAP documentation to bridge initial onset with physician consultation.
+                ManoMed AI unifies patient symptom triage, laboratory blood panel interpretation, and radiograph reading. Engineered to be effortlessly accessible for senior family members and rigorous enough for practicing physicians and nurses.
               </p>
 
               {/* Primary Actions */}
@@ -160,21 +170,32 @@ export default function LandingPage() {
                 <Button
                   size="lg"
                   onClick={() => router.push('/ManoMedai')}
-                  className="h-12 px-6 rounded-lg font-semibold bg-primary text-primary-foreground hover:bg-primary/90 shadow-none flex items-center justify-center gap-2 text-sm"
+                  className="h-12 px-6 rounded-xl font-semibold bg-primary text-primary-foreground hover:bg-primary/90 shadow-none flex items-center justify-center gap-2 text-sm"
                 >
                   <Stethoscope className="w-4 h-4" />
-                  Begin Clinical Intake
+                  Begin Symptom Triage
                   <ArrowRight className="w-4 h-4 ml-1" />
                 </Button>
 
-                <Link href="/history">
+                <Link href="/labs">
                   <Button
                     variant="outline"
                     size="lg"
-                    className="h-12 px-5 rounded-lg border-border text-foreground hover:bg-muted font-medium flex items-center justify-center gap-2 text-sm w-full sm:w-auto"
+                    className="h-12 px-5 rounded-xl border-border text-foreground hover:bg-muted font-medium flex items-center justify-center gap-2 text-sm w-full sm:w-auto"
                   >
-                    <History className="w-4 h-4 text-muted-foreground" />
-                    Patient Records Vault
+                    <FlaskConical className="w-4 h-4 text-primary" />
+                    Blood Work Interpreter
+                  </Button>
+                </Link>
+
+                <Link href="/imaging">
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="h-12 px-5 rounded-xl border-border text-foreground hover:bg-muted font-medium flex items-center justify-center gap-2 text-sm w-full sm:w-auto"
+                  >
+                    <Scan className="w-4 h-4 text-primary" />
+                    X-Ray Assistant
                   </Button>
                 </Link>
               </div>
@@ -183,22 +204,22 @@ export default function LandingPage() {
               <div className="pt-6 border-t border-border/80 grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs text-muted-foreground">
                 <div className="flex items-center gap-2">
                   <ShieldCheck className="w-4 h-4 text-primary shrink-0" />
-                  <span>4-Tier Triage Hierarchy</span>
+                  <span>4-Tier Triage Urgency</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Lock className="w-4 h-4 text-primary shrink-0" />
-                  <span>Client-Side Encrypted</span>
+                  <span>Client-Encrypted Vault</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <FileCheck2 className="w-4 h-4 text-primary shrink-0" />
-                  <span>ICD-10 & SOAP Formatted</span>
+                  <span>ICD-10 & SOAP Standard</span>
                 </div>
               </div>
             </div>
 
             {/* Right Column: Live Interactive Clinical Demonstration Specimen */}
             <div className="lg:col-span-5">
-              <div className="clinical-card rounded-xl p-5 space-y-4">
+              <div className="clinical-card rounded-2xl p-5 space-y-4">
                 <div className="flex items-center justify-between border-b border-border pb-3">
                   <div className="flex items-center gap-2">
                     <Activity className="w-4 h-4 text-primary" />
@@ -215,7 +236,7 @@ export default function LandingPage() {
                     <button
                       key={specimen.id}
                       onClick={() => setActiveSpecimenIndex(idx)}
-                      className={`text-xs px-2.5 py-1.5 rounded-md font-medium transition-colors shrink-0 text-left ${
+                      className={`text-xs px-2.5 py-1.5 rounded-lg font-medium transition-colors shrink-0 text-left ${
                         activeSpecimenIndex === idx
                           ? 'bg-primary text-primary-foreground font-semibold'
                           : 'bg-muted text-muted-foreground hover:text-foreground'
@@ -227,14 +248,14 @@ export default function LandingPage() {
                 </div>
 
                 {/* Specimen Content Card */}
-                <div className={`p-4 rounded-lg bg-card/80 border border-border/80 space-y-3.5 ${activeSpecimen.borderClass}`}>
+                <div className={`p-4 rounded-xl bg-card/80 border border-border/80 space-y-3.5 ${activeSpecimen.borderClass}`}>
                   <div>
                     <div className="flex items-center justify-between gap-2">
                       <span className="text-xs font-bold text-foreground">Chief Complaint</span>
                       <span className="text-[11px] text-muted-foreground">{activeSpecimen.patient}</span>
                     </div>
                     <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                      "{activeSpecimen.chiefComplaint}"
+                      &quot;{activeSpecimen.chiefComplaint}&quot;
                     </p>
                   </div>
 
@@ -272,7 +293,7 @@ export default function LandingPage() {
                   </div>
 
                   {/* Sample SOAP Hand-Off Bar */}
-                  <div className="p-2.5 rounded bg-muted/50 border border-border text-[11px] text-muted-foreground font-mono leading-relaxed">
+                  <div className="p-2.5 rounded-lg bg-muted/50 border border-border text-[11px] text-muted-foreground font-mono leading-relaxed">
                     <span className="font-bold text-foreground block mb-0.5">EHR SOAP Hand-off:</span>
                     {activeSpecimen.soapSnippet}
                   </div>
@@ -291,7 +312,65 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Section 2: Clinical Triage Standards Table */}
+      {/* Section 2: Three Core Clinical Pillars */}
+      <section className="py-16 md:py-24 border-b border-border/80 bg-card/20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-12">
+          <div className="max-w-2xl space-y-3">
+            <div className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-primary">
+              <Sparkles className="w-3.5 h-3.5" />
+              Comprehensive Clinical Diagnostic Suite
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+              Three interconnected clinical tools for every patient evaluation.
+            </h2>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Whether conducting initial symptom intake at home or reviewing laboratory assays and chest radiographs in a clinical workstation, ManoMed AI provides exact, structured guidance.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {clinicalTools.map((tool) => {
+              const Icon = tool.icon;
+              return (
+                <div
+                  key={tool.id}
+                  className="clinical-card rounded-2xl p-6 flex flex-col justify-between space-y-6 bg-card"
+                >
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+                        <Icon className="w-6 h-6" />
+                      </div>
+                      <Badge variant="outline" className="text-[10px] font-mono border-border">
+                        {tool.badge}
+                      </Badge>
+                    </div>
+
+                    <div className="space-y-2">
+                      <h3 className="text-lg font-bold text-foreground">{tool.title}</h3>
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        {tool.description}
+                      </p>
+                    </div>
+                  </div>
+
+                  <Link href={tool.href} className="w-full block">
+                    <Button
+                      variant="outline"
+                      className="w-full min-h-[44px] text-xs font-semibold rounded-xl border-border hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all flex items-center justify-center gap-2"
+                    >
+                      <span>{tool.cta}</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </Button>
+                  </Link>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Section 3: Clinical Triage Standards Table */}
       <section className="py-16 md:py-24 border-b border-border/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-12">
           <div className="max-w-2xl space-y-3">
@@ -310,7 +389,7 @@ export default function LandingPage() {
             {triageStandards.map((tier) => (
               <div
                 key={tier.level}
-                className={`clinical-card rounded-xl p-5 flex flex-col justify-between space-y-4 ${tier.borderClass}`}
+                className={`clinical-card rounded-2xl p-5 flex flex-col justify-between space-y-4 ${tier.borderClass}`}
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
@@ -344,52 +423,10 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Section 3: Diagnostic Pipeline Architecture */}
-      <section className="py-16 md:py-24 bg-card/20 border-b border-border/80">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-12">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-            <div className="max-w-2xl space-y-3">
-              <div className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-primary">
-                System Architecture
-              </div>
-              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-                How ManoMed AI structures clinical intelligence.
-              </h2>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                From chief complaint narrative to physician consultation, every step is optimized for clinical signal extraction and patient safety.
-              </p>
-            </div>
-
-            <Link href="/about">
-              <Button variant="outline" className="border-border text-xs font-semibold gap-1.5">
-                Read Clinical Methodology
-                <ExternalLink className="w-3.5 h-3.5" />
-              </Button>
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {pipelineSteps.map((step) => (
-              <div key={step.step} className="clinical-card rounded-xl p-6 space-y-3">
-                <span className="text-3xl font-extrabold text-primary font-mono block">
-                  {step.step}
-                </span>
-                <h3 className="text-base font-bold text-foreground">
-                  {step.title}
-                </h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  {step.desc}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Section 4: Physician Hand-Off & Safety Covenant */}
       <section className="py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="clinical-card rounded-2xl p-8 md:p-12 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-card">
+          <div className="clinical-card rounded-3xl p-8 md:p-12 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-card">
             <div className="lg:col-span-8 space-y-4">
               <div className="inline-flex items-center gap-2 text-xs font-bold text-primary uppercase tracking-wider">
                 <ShieldCheck className="w-4 h-4" />
@@ -420,13 +457,13 @@ export default function LandingPage() {
 
             <div className="lg:col-span-4 flex flex-col gap-3">
               <Link href="/ManoMedai" className="w-full">
-                <Button className="w-full h-12 text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg">
+                <Button className="w-full h-12 text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl">
                   Launch Clinical Intake
                   <ArrowRight className="w-4 h-4 ml-1.5" />
                 </Button>
               </Link>
               <Link href="/privacy" className="w-full">
-                <Button variant="outline" className="w-full h-11 text-xs font-semibold border-border">
+                <Button variant="outline" className="w-full h-11 text-xs font-semibold border-border rounded-xl">
                   Review Privacy Architecture
                 </Button>
               </Link>

@@ -201,6 +201,122 @@ export function deleteAssessmentFromHistory(id: string): void {
   }
 }
 
+export const STORAGE_KEY_LABS = "manomed_lab_history_v2";
+export const STORAGE_KEY_XRAY = "manomed_xray_history_v2";
+
+export interface SavedLabSummary {
+  id: string;
+  date: string;
+  patientName: string;
+  patientAge: string;
+  panelType: string;
+  overallStatus: "NORMAL" | "ELEVATED_RISK" | "CRITICAL_ALERT";
+  triageUrgency: "EMERGENCY" | "URGENT" | "ROUTINE" | "OPTIMAL";
+  abnormalCount: number;
+  data: any;
+}
+
+export function getLabHistory(): SavedLabSummary[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_LABS);
+    if (!raw) return [];
+    return JSON.parse(raw);
+  } catch (err) {
+    console.error("Failed to read lab history:", err);
+    return [];
+  }
+}
+
+export function saveLabToHistory(data: any, patientName = "Anonymous", patientAge = "N/A", panelType = "General Panel"): void {
+  if (typeof window === "undefined" || !data) return;
+  try {
+    const history = getLabHistory();
+    const abnormalCount = (data.analyzedParameters || []).filter((p: any) => p.flag !== "NORMAL").length;
+    const summary: SavedLabSummary = {
+      id: data.id || `lab_${Date.now()}`,
+      date: new Date().toISOString(),
+      patientName,
+      patientAge,
+      panelType,
+      overallStatus: data.overallStatus || "NORMAL",
+      triageUrgency: data.triageUrgency || "OPTIMAL",
+      abnormalCount,
+      data,
+    };
+    const updated = [summary, ...history.filter(h => h.id !== summary.id)].slice(0, 25);
+    localStorage.setItem(STORAGE_KEY_LABS, JSON.stringify(updated));
+  } catch (err) {
+    console.error("Failed to save lab history:", err);
+  }
+}
+
+export function deleteLabFromHistory(id: string): void {
+  if (typeof window === "undefined") return;
+  try {
+    const history = getLabHistory();
+    const updated = history.filter(item => item.id !== id);
+    localStorage.setItem(STORAGE_KEY_LABS, JSON.stringify(updated));
+  } catch (err) {
+    console.error("Failed to delete lab record:", err);
+  }
+}
+
+export interface SavedXRaySummary {
+  id: string;
+  date: string;
+  patientName: string;
+  patientAge: string;
+  region: string;
+  urgency: "EMERGENCY" | "URGENT" | "ROUTINE" | "NORMAL";
+  impression: string;
+  data: any;
+}
+
+export function getXRayHistory(): SavedXRaySummary[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_XRAY);
+    if (!raw) return [];
+    return JSON.parse(raw);
+  } catch (err) {
+    console.error("Failed to read xray history:", err);
+    return [];
+  }
+}
+
+export function saveXRayToHistory(data: any, patientName = "Anonymous", patientAge = "N/A", region = "Chest"): void {
+  if (typeof window === "undefined" || !data) return;
+  try {
+    const history = getXRayHistory();
+    const summary: SavedXRaySummary = {
+      id: data.id || `xray_${Date.now()}`,
+      date: new Date().toISOString(),
+      patientName,
+      patientAge,
+      region,
+      urgency: data.urgency || "NORMAL",
+      impression: data.radiologicalImpression || "Examination completed",
+      data,
+    };
+    const updated = [summary, ...history.filter(h => h.id !== summary.id)].slice(0, 25);
+    localStorage.setItem(STORAGE_KEY_XRAY, JSON.stringify(updated));
+  } catch (err) {
+    console.error("Failed to save xray history:", err);
+  }
+}
+
+export function deleteXRayFromHistory(id: string): void {
+  if (typeof window === "undefined") return;
+  try {
+    const history = getXRayHistory();
+    const updated = history.filter(item => item.id !== id);
+    localStorage.setItem(STORAGE_KEY_XRAY, JSON.stringify(updated));
+  } catch (err) {
+    console.error("Failed to delete xray record:", err);
+  }
+}
+
 export function useAssessmentStore() {
   const [assessment, setAssessmentState] = useState<CurrentAssessment>(initialAssessment);
   const [isLoaded, setIsLoaded] = useState(false);

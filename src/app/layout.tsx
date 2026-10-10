@@ -117,6 +117,16 @@ export default function RootLayout({
                         </Link>
                       </li>
                       <li>
+                        <Link href="/labs" className="hover:text-primary transition-colors focus-visible:underline">
+                          Blood Work & Labs
+                        </Link>
+                      </li>
+                      <li>
+                        <Link href="/imaging" className="hover:text-primary transition-colors focus-visible:underline">
+                          X-Ray & Imaging Assistant
+                        </Link>
+                      </li>
+                      <li>
                         <Link href="/history" className="hover:text-primary transition-colors focus-visible:underline">
                           Audit Trail & Records
                         </Link>

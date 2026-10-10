@@ -4,83 +4,83 @@
 
 @layer base {
   :root {
-    /* Human & Clinical Palette: Trustworthy Deep Slate + Healing Clinical Teal */
-    --background: 210 24% 98%;      /* #F8FAFC porcelain */
-    --foreground: 222 47% 11%;      /* #0F172A deep surgical slate */
-    --card: 0 0% 100%;              /* #FFFFFF crisp white */
+    /* Minimalist Clinical Palette: Crisp White & Medical Blue */
+    --background: 0 0% 100%;           /* #FFFFFF pure crisp white */
+    --foreground: 222 47% 11%;          /* #0F172A deep clinical black/slate */
+    --card: 0 0% 100%;                  /* #FFFFFF crisp white */
     --card-foreground: 222 47% 11%;
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
 
-    /* Clinical Primary: Deep Mediterranean Teal */
-    --primary: 174 78% 30%;         /* #0E877A */
+    /* Clinical Primary: Authoritative Medical Blue */
+    --primary: 221.2 83.2% 53.3%;       /* #2563EB royal clinical blue */
     --primary-foreground: 0 0% 100%;
 
     /* Neutral Secondary */
-    --secondary: 210 20% 93%;       /* #E2E8F0 */
+    --secondary: 210 40% 96.1%;         /* #F1F5F9 soft light blue-gray */
     --secondary-foreground: 222 47% 15%;
 
-    --muted: 210 20% 94%;
-    --muted-foreground: 215 16% 40%; /* #475569 - high contrast readable text */
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 44%; /* #64748B - clean readable text */
 
-    --accent: 174 45% 94%;          /* Subtle mint wash */
-    --accent-foreground: 174 85% 22%;
+    --accent: 214 95% 93%;              /* Subtle soft blue wash */
+    --accent-foreground: 221.2 83.2% 45%;
 
     /* Clinical Triage & Semantic */
-    --destructive: 0 72% 51%;        /* #DC2626 - Emergency Red */
+    --destructive: 0 84.2% 60.2%;       /* #EF4444 - Emergency Red */
     --destructive-foreground: 0 0% 100%;
-    --warning: 38 92% 50%;           /* Urgent Amber */
+    --warning: 38 92% 50%;              /* Urgent Amber */
     --warning-foreground: 38 92% 15%;
-    --success: 160 84% 39%;          /* Self-care / Routine Emerald */
+    --success: 160 84% 39%;             /* Self-care / Routine Emerald */
     --success-foreground: 0 0% 100%;
 
-    --border: 214 20% 88%;           /* #DDE3EA */
-    --input: 214 20% 88%;
-    --ring: 174 78% 30%;
+    --border: 214.3 31.8% 91.4%;        /* #E2E8F0 clean minimalist border */
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
     --radius: 0.75rem;
 
-    --chart-1: 174 78% 30%;
+    --chart-1: 221.2 83.2% 53.3%;
     --chart-2: 217 91% 60%;
     --chart-3: 38 92% 50%;
-    --chart-4: 0 72% 51%;
+    --chart-4: 0 84.2% 60.2%;
     --chart-5: 262 83% 58%;
   }
 
   .dark {
-    /* Dark Mode: Deep Obsidian Hospital Slate */
-    --background: 222 47% 6%;       /* #0B0F17 */
-    --foreground: 210 20% 96%;      /* #F1F5F9 */
-    --card: 222 40% 10%;            /* #101725 elevated card */
-    --card-foreground: 210 20% 96%;
-    --popover: 222 40% 10%;
-    --popover-foreground: 210 20% 96%;
+    /* Minimalist Clinical Palette: Deep Obsidian Black & Electric Medical Blue */
+    --background: 0 0% 3%;              /* #08080A pure deep black */
+    --foreground: 0 0% 98%;             /* #FAFAFA pure high-contrast white */
+    --card: 0 0% 6%;                    /* #0F0F13 dark elevated surface */
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 6%;
+    --popover-foreground: 0 0% 98%;
 
-    /* Dark Mode Primary: Vibrant Clinical Mint */
-    --primary: 174 72% 44%;         /* #20BEAA */
-    --primary-foreground: 222 47% 7%;
+    /* Dark Mode Primary: Vibrant Medical Blue */
+    --primary: 217.2 91.2% 59.8%;       /* #3B82F6 high-visibility surgical blue */
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 222 30% 16%;
-    --secondary-foreground: 210 20% 96%;
+    --secondary: 240 4% 14%;            /* #232328 */
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 222 30% 13%;
-    --muted-foreground: 215 16% 68%; /* #94A3B8 */
+    --muted: 240 4% 12%;                /* #1C1C20 */
+    --muted-foreground: 240 5% 65%;     /* #A1A1AA */
 
-    --accent: 174 40% 15%;
-    --accent-foreground: 174 70% 75%;
+    --accent: 217.2 91.2% 18%;          /* Deep blue accent */
+    --accent-foreground: 217.2 91.2% 75%;
 
     --destructive: 0 72% 55%;
     --destructive-foreground: 0 0% 100%;
     --warning: 38 92% 55%;
-    --warning-foreground: 222 47% 7%;
+    --warning-foreground: 0 0% 10%;
     --success: 160 70% 45%;
     --success-foreground: 0 0% 100%;
 
-    --border: 222 25% 18%;           /* #1C2433 */
-    --input: 222 25% 18%;
-    --ring: 174 72% 44%;
+    --border: 240 4% 16%;               /* #27272A subtle surgical border */
+    --input: 240 4% 16%;
+    --ring: 217.2 91.2% 59.8%;
 
-    --chart-1: 174 72% 44%;
-    --chart-2: 217 91% 60%;
+    --chart-1: 217.2 91.2% 59.8%;
+    --chart-2: 221.2 83.2% 53.3%;
     --chart-3: 38 92% 55%;
     --chart-4: 0 72% 55%;
     --chart-5: 262 83% 58%;
@@ -120,7 +120,7 @@
   top: 1rem;
 }
 
-/* Refined Medical Navbar */
+/* Refined Minimalist Medical Navbar */
 .clinical-navbar {
   background: hsl(var(--background) / 0.94);
   backdrop-filter: blur(12px);
@@ -128,7 +128,7 @@
   border-bottom: 1px solid hsl(var(--border));
 }
 
-/* Subtle, Controlled Card Elevations (No Neon Blobs) */
+/* Clean, Simple Card Elevations */
 .clinical-card {
   background: hsl(var(--card));
   border: 1px solid hsl(var(--border));
@@ -148,13 +148,13 @@
   border-left: 4px solid hsl(38 92% 50%);
 }
 .triage-routine {
-  border-left: 4px solid hsl(217 91% 60%);
+  border-left: 4px solid hsl(217.2 91.2% 59.8%);
 }
 .triage-self-care {
   border-left: 4px solid hsl(160 84% 39%);
 }
 
-/* Custom Scrollbars */
+/* Custom Minimal Scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -170,7 +170,7 @@
   background: hsl(var(--muted-foreground) / 0.45);
 }
 
-/* Purposeful, subtle motion (Respects prefers-reduced-motion) */
+/* Respects prefers-reduced-motion */
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {
     animation-duration: 0.01ms !important;
