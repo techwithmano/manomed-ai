@@ -76,13 +76,13 @@ export default function ContactPage() {
         <div className="space-y-3 max-w-2xl">
           <div className="inline-flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-wider text-primary">
             <Building2 className="w-4 h-4" />
-            Institutional Communications
+            Get in Touch
           </div>
-          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-normal tracking-tight text-foreground">
-            Contact ManoMed Clinical Operations
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-foreground">
+            Contact ManoMed AI
           </h1>
           <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">
-            Connect with our clinical engineering division, propose health system research partnerships, or request EHR integration documentation.
+            Have questions, feedback, or need help? Reach out to our team anytime. We are here to support you.
           </p>
         </div>
 

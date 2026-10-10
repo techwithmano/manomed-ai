@@ -25,299 +25,299 @@ export const translations = {
     // Navigation
     brandName: "ManoMed AI",
     navHome: "Home",
-    navTriage: "Symptom Triage",
-    navLabs: "Blood Work",
-    navImaging: "X-Ray Vision",
-    navStation: "Ward Station",
-    navHistory: "Vault",
-    navAbout: "Clinical Model",
-    navContact: "Contact",
+    navTriage: "Check Symptoms",
+    navLabs: "Blood Tests",
+    navImaging: "X-Rays & Scans",
+    navStation: "Doctor Dashboard",
+    navHistory: "My Records",
+    navAbout: "About Us",
+    navContact: "Help & Contact",
     navEmergency: "Emergency 911",
     signIn: "Sign In",
     signOut: "Sign Out",
 
     // Hero
-    heroBadge: "Clinical Intelligence & Triage System",
-    heroTitle: "Intelligent Medical Care for Everyone.",
+    heroBadge: "Smart & Simple Health Assistant",
+    heroTitle: "Clear Medical Answers in Plain Everyday Words.",
     heroSubtitle:
-      "Simple enough for a 60-year-old grandmother to understand without stress, and precise enough for hospital doctors and triage nurses.",
-    btnStartTriage: "Start Health Assessment",
-    btnOpenStation: "Hospital Ward Station",
-    btnExploreLabs: "Blood Work Interpreter",
-    btnExploreImaging: "X-Ray Diagnostics",
+      "Simple enough for any family member to understand without worry or confusion, and detailed enough to share directly with your doctor.",
+    btnStartTriage: "Check My Symptoms",
+    btnOpenStation: "Doctor & Clinic Dashboard",
+    btnExploreLabs: "Understand Blood Tests",
+    btnExploreImaging: "Look at Scans & X-Rays",
 
     // Pillars
-    pillarsHeading: "Core Diagnostic Pillars",
-    pillarsSubheading: "Three clinical tools designed for instant, evidence-backed evaluation.",
-    pillarTriageTitle: "Symptom Triage & Intake",
+    pillarsHeading: "How ManoMed Helps You",
+    pillarsSubheading: "Three easy tools to help you understand your body and take the right next steps.",
+    pillarTriageTitle: "Symptom Checker",
     pillarTriageDesc:
-      "Conversational, calm intake that pinpoints symptoms, alerts on red flags, and ranks differential diagnoses.",
-    pillarLabsTitle: "Blood Work Pathology",
+      "A calm, simple step-by-step guide to help pinpoint what's bothering you and tell you if you need to see a doctor.",
+    pillarLabsTitle: "Blood Test Explainer",
     pillarLabsDesc:
-      "Instant analysis of CBC, CMP, lipids, and cardiac enzymes with clear High/Low indicators and clinical rationale.",
-    pillarImagingTitle: "X-Ray & Radiology Assistant",
+      "See what your test results mean with simple Normal, High, and Low indicators instead of confusing lab numbers.",
+    pillarImagingTitle: "Scan & X-Ray Viewer",
     pillarImagingDesc:
-      "PACS viewer with contrast, brightness, and negative film inversion to detect fractures, infiltrates, and trauma.",
+      "Easily view chest and bone X-rays with simple brightness, contrast, and zoom controls.",
 
     // Dual Audience
-    dualHeading: "Designed for Dual Clarity",
-    patientViewTitle: "For Patients & Grandparents",
+    dualHeading: "Simple for You, Helpful for Your Doctor",
+    patientViewTitle: "For You & Your Family",
     patientViewDesc:
-      "Jargon-free explanations, clear next steps, comforting guidance, and questions to ask your doctor.",
-    doctorViewTitle: "For Doctors & Nurses",
+      "Everyday words, clear next steps, comforting advice, and helpful questions to ask at the clinic.",
+    doctorViewTitle: "For Your Doctor or Nurse",
     doctorViewDesc:
-      "ICD-10 classifications, Bayesian differential likelihood percentages, and ready-to-copy EHR SOAP notes.",
+      "An organized summary of your symptoms and timeline so your doctor can review your visit in seconds.",
 
     // Triage Tiers
-    tierEmergency: "Emergency (Immediate)",
-    tierUrgent: "Urgent (< 24-48 Hours)",
-    tierRoutine: "Routine Clinic Visit",
-    tierSelfCare: "Safe Home Supportive Care",
+    tierEmergency: "🚨 Emergency (Call 911 / Go to ER)",
+    tierUrgent: "⚠️ Urgent (See a Doctor in 24–48 Hours)",
+    tierRoutine: "🗓️ Routine (Book a Regular Doctor Visit)",
+    tierSelfCare: "🏡 Home Care (Rest & Monitor at Home)",
 
     // Common
-    liveSyncActive: "Live Ward Sync",
-    confidentialNotice: "Zero Data Sold • Client-Side Encryption Available",
+    liveSyncActive: "Live Clinic Sync",
+    confidentialNotice: "100% Private & Secure • We Never Sell Your Data",
     emergencyDisclaimer:
-      "If you are experiencing chest pain, severe shortness of breath, sudden numbness, or heavy bleeding, call 911 or your local emergency number immediately.",
-    footerRights: "ManoMed AI. All rights reserved. For clinical decision support.",
+      "If you have severe chest pain, trouble breathing, sudden weakness or numbness, call 911 or your local emergency number immediately.",
+    footerRights: "ManoMed AI. All rights reserved. Built to guide and support your health decisions.",
   },
 
   ar: {
     // Navigation
     brandName: "مانوميد للذكاء الطبي",
     navHome: "الرئيسية",
-    navTriage: "تقييم الأعراض",
+    navTriage: "فحص الأعراض",
     navLabs: "تحاليل الدم",
-    navImaging: "الأشعة السينية",
-    navStation: "محطة الطاقم",
-    navHistory: "السجل الطبي",
-    navAbout: "النموذج السريري",
-    navContact: "اتصل بنا",
+    navImaging: "الأشعة والفحوصات",
+    navStation: "لوحة الطبيب",
+    navHistory: "سجل زياراتي",
+    navAbout: "عن التطبيق",
+    navContact: "تواصل معنا",
     navEmergency: "طوارئ 911",
     signIn: "تسجيل الدخول",
     signOut: "تسجيل الخروج",
 
     // Hero
-    heroBadge: "نظام الذكاء السريري والفرز الطبي",
-    heroTitle: "تقييم طبي ذكي ودقيق ومتاح للجميع.",
+    heroBadge: "دليلك الصحي الذكي وبسيط الفهم",
+    heroTitle: "إجابات طبية واضحة ومطمئنة بلغة يفهمها الجميع.",
     heroSubtitle:
-      "مُصمم ببساطة فائقة لتفهمه الجدة بكل راحة ودون تعقيد، وبدقة سريرية موثوقة تلبي معايير أطباء المستشفيات وممرضي الطوارئ.",
-    btnStartTriage: "بدء التقييم الطبي",
-    btnOpenStation: "محطة الطاقم الطبي",
-    btnExploreLabs: "تفسير تحاليل الدم",
-    btnExploreImaging: "فحص الأشعة السينية",
+      "مصمم ببساطة تامة ليفهمه أي شخص في العائلة دون أي قلق أو تعقيد، وبترتيب واضح ومفيد لطبيبك عند زيارة العيادة.",
+    btnStartTriage: "ابدأ فحص الأعراض",
+    btnOpenStation: "لوحة الطبيب والعيادة",
+    btnExploreLabs: "فهم تحاليل الدم",
+    btnExploreImaging: "فحص صور الأشعة",
 
     // Pillars
-    pillarsHeading: "الركائز التشخيصية الأساسية",
-    pillarsSubheading: "ثلاث أدوات سريرية متطورة لتشخيص فوري ومسنود بالأدلة الطبية.",
-    pillarTriageTitle: "تقييم الأعراض والفرز الذكي",
+    pillarsHeading: "كيف يساعدك مانوميد؟",
+    pillarsSubheading: "ثلاث أدوات بسيطة وسريعة لتفهم حالتك وتعرف الخطوة المناسبة التالية.",
+    pillarTriageTitle: "فاحص الأعراض البسيط",
     pillarTriageDesc:
-      "استبيان هادئ وبسيط يحدد مواضع الألم، يكشف علامات الخطر الحرجة، ويرتب الاحتمالات التشخيصية بدقة.",
-    pillarLabsTitle: "تفسير تحاليل الدم والمختبر",
+      "أسئلة هادئة وسهلة تساعدك على تحديد سبب انزعاجك ومعرفة ما إذا كنت بحاجة لزيارة الطبيب.",
+    pillarLabsTitle: "مترجم تحاليل الدم",
     pillarLabsDesc:
-      "تحليل فوري لفحوصات CBC وCMP وإنزيمات القلب والدهون مع مؤشرات واضحة للمعدلات الطبيعية والحرجة.",
-    pillarImagingTitle: "مساعد الأشعة السينية والتصوير",
+      "شرح فوري لنتائج الفحوصات بمؤشرات واضحة (طبيعي، مرتفع، منخفض) بعيداً عن الرموز المعقدة.",
+    pillarImagingTitle: "مساعد فحص الأشعة",
     pillarImagingDesc:
-      "عارض إشعاعي PACS مع تحكم بالإضاءة والتباين وعكس الصورة للكشف عن الكسور والالتهابات الرئوية.",
+      "عرض صور الأشعة للصدر والعظام مع أدوات تكبير وإضاءة سهلة الاستخدام.",
 
     // Dual Audience
-    dualHeading: "وضوح مزدوج: للمريض والطبيب",
-    patientViewTitle: "للمرضى ولكبار السن",
+    dualHeading: "بسيط لك، ومفيد لطبيبك",
+    patientViewTitle: "لك ولعائلتك",
     patientViewDesc:
-      "شرح بلغة عربية مبسطة وخالية من المصطلحات المعقدة، مع نصائح واضحة وأسئلة تطرحها على طبيبك.",
-    doctorViewTitle: "للأطباء وطاقم التمريض",
+      "كلام يومي واضح، خطوات عملية مطمئنة، وقائمة أسئلة مفيدة تطرحها على طبيبك في العيادة.",
+    doctorViewTitle: "للطبيب والممرض",
     doctorViewDesc:
-      "رموز ICD-10 العالمية، نسب الاحتمال التفريقي، ومذكرات SOAP السريرية الجاهزة للنسخ في الملف الإلكتروني.",
+      "ملخص زمني مرتب وواضح للأعراض وتصنيف دقيق يساعد الطبيب على فهم حالتك في ثوانٍ.",
 
     // Triage Tiers
-    tierEmergency: "حالة طارئة (فوري)",
-    tierUrgent: "حالة عاجلة (خلال 24-48 ساعة)",
-    tierRoutine: "زيارة عيادة روتينية",
-    tierSelfCare: "رعاية منزلية آمنة",
+    tierEmergency: "🚨 حالة طارئة (اتصل بالإسعاف أو توجه للطوارئ فوراً)",
+    tierUrgent: "⚠️ حالة عاجلة (راجع الطبيب خلال 24–48 ساعة)",
+    tierRoutine: "🗓️ موعد عادي (احجز موعداً عادياً في العيادة)",
+    tierSelfCare: "🏡 رعاية منزلية (راحة ومتابعة بسيطة في البيت)",
 
     // Common
-    liveSyncActive: "مزامنة مباشرة مع الجناح",
-    confidentialNotice: "بياناتك مشفرة بالكامل • حماية خصوصية مطلقة",
+    liveSyncActive: "مزامنة مباشرة مع العيادة",
+    confidentialNotice: "خصوصيتك محمية 100% • لا نشارك بياناتك أبداً",
     emergencyDisclaimer:
-      "إذا كنت تعاني من ألم حاد في الصدر، أو صعوبة شديدة في التنفس، أو تنميل مفاجئ، يرجى الاتصال بالإسعاف فوراً.",
-    footerRights: "مانوميد للذكاء الطبي. جميع الحقوق محفوظة. نظام لدعم القرار السريري.",
+      "إذا كنت تشعر بألم شديد في الصدر، أو صعوبة في التنفس، أو خدر مفاجئ، اتصل بالإسعاف فوراً.",
+    footerRights: "مانوميد للذكاء الطبي. جميع الحقوق محفوظة. لمساعدتك على اتخاذ قرارات صحية أفضل.",
   },
 
   es: {
     // Navigation
     brandName: "ManoMed AI",
     navHome: "Inicio",
-    navTriage: "Triaje de Síntomas",
+    navTriage: "Revisar Síntomas",
     navLabs: "Análisis de Sangre",
-    navImaging: "Rayos X",
-    navStation: "Estación Médica",
-    navHistory: "Historial",
-    navAbout: "Modelo Clínico",
-    navContact: "Contacto",
+    navImaging: "Radiografías",
+    navStation: "Panel Médico",
+    navHistory: "Mis Consultas",
+    navAbout: "Acerca de Nosotros",
+    navContact: "Contacto y Ayuda",
     navEmergency: "Emergencia 911",
     signIn: "Iniciar Sesión",
     signOut: "Cerrar Sesión",
 
     // Hero
-    heroBadge: "Sistema de Inteligencia Clínica y Triaje",
-    heroTitle: "Atención médica inteligente para todos.",
+    heroBadge: "Guía de Salud y Síntomas Sencilla",
+    heroTitle: "Respuestas médicas claras en un lenguaje que todos entienden.",
     heroSubtitle:
-      "Tan sencillo que una abuela de 60 años puede entenderlo sin estrés, y tan riguroso como exigen médicos y enfermeros de hospital.",
-    btnStartTriage: "Iniciar Evaluación de Salud",
-    btnOpenStation: "Estación de Guardia Médica",
-    btnExploreLabs: "Intérprete de Laboratorio",
-    btnExploreImaging: "Diagnóstico de Rayos X",
+      "Tan fácil que cualquiera en casa puede entenderlo sin estrés ni dudas, y con el detalle necesario para mostrarle a tu médico.",
+    btnStartTriage: "Comprobar mis Síntomas",
+    btnOpenStation: "Panel Médico y Clínica",
+    btnExploreLabs: "Entender mis Análisis",
+    btnExploreImaging: "Revisar Radiografías",
 
     // Pillars
-    pillarsHeading: "Pilares Diagnósticos Clave",
-    pillarsSubheading: "Tres herramientas clínicas para una evaluación instantánea basada en evidencia.",
-    pillarTriageTitle: "Triaje de Síntomas e Ingreso",
+    pillarsHeading: "¿Cómo te ayuda ManoMed?",
+    pillarsSubheading: "Tres herramientas sencillas para entender qué sientes y saber qué hacer a continuación.",
+    pillarTriageTitle: "Comprobador de Síntomas",
     pillarTriageDesc:
-      "Evaluación guiada y comprensible que identifica síntomas, alerta sobre banderas rojas y clasifica diagnósticos.",
-    pillarLabsTitle: "Patología de Análisis de Sangre",
+      "Una guía tranquila y sencilla que te ayuda a saber qué te pasa y si necesitas ver a un médico.",
+    pillarLabsTitle: "Explicador de Análisis de Sangre",
     pillarLabsDesc:
-      "Interpretación inmediata de hemogramas, bioquímica, perfil lipídico y enzimas cardíacas con rangos de alerta.",
-    pillarImagingTitle: "Asistente de Rayos X",
+      "Entiende tus resultados fácilmente con etiquetas de Normal, Alto o Bajo sin números complicados.",
+    pillarImagingTitle: "Visor de Radiografías",
     pillarImagingDesc:
-      "Visor PACS con contraste, brillo e inversión de película para detectar fracturas e infiltrados pulmonares.",
+      "Observa radiografías de tórax o huesos con herramientas sencillas de brillo y zoom.",
 
     // Dual Audience
-    dualHeading: "Claridad Doble: Paciente y Médico",
-    patientViewTitle: "Para Pacientes y Mayores",
+    dualHeading: "Claro para ti, útil para tu médico",
+    patientViewTitle: "Para ti y tu familia",
     patientViewDesc:
-      "Explicaciones claras sin tecnicismos, pasos a seguir sencillos y preguntas recomendadas para su médico.",
-    doctorViewTitle: "Para Médicos y Enfermeros",
+      "Palabras de todos los días, pasos tranquilos a seguir y preguntas útiles para hacerle a tu médico.",
+    doctorViewTitle: "Para tu médico o enfermero",
     doctorViewDesc:
-      "Códigos ICD-10, porcentajes de probabilidad diferencial y notas SOAP listas para la historia clínica.",
+      "Un resumen ordenado con la cronología de tus síntomas para que el médico lo entienda en segundos.",
 
     // Triage Tiers
-    tierEmergency: "Emergencia (Inmediata)",
-    tierUrgent: "Urgente (< 24-48 Horas)",
-    tierRoutine: "Consulta de Rutina",
-    tierSelfCare: "Cuidados en el Hogar",
+    tierEmergency: "🚨 Emergencia (Llama a emergencias / Ve a Urgencias)",
+    tierUrgent: "⚠️ Urgente (Consulta médica en 24–48 horas)",
+    tierRoutine: "🗓️ Rutina (Pide cita en tu centro de salud)",
+    tierSelfCare: "🏡 Cuidados en Casa (Descanso y observación tranquila)",
 
     // Common
-    liveSyncActive: "Sincronización en Vivo",
-    confidentialNotice: "Privacidad Garantizada • Cifrado Seguro",
+    liveSyncActive: "Sincronización Médica en Vivo",
+    confidentialNotice: "100% Privado y Seguro • Nunca vendemos tus datos",
     emergencyDisclaimer:
-      "Si presenta dolor torácico, dificultad respiratoria grave o debilidad repentina, llame a emergencias de inmediato.",
-    footerRights: "ManoMed AI. Todos los derechos reservados. Soporte para decisiones clínicas.",
+      "Si sientes dolor fuerte en el pecho, dificultad para respirar o debilidad repentina, llama a emergencias de inmediato.",
+    footerRights: "ManoMed AI. Todos los derechos reservados. Diseñado para orientar tus decisiones de salud.",
   },
 
   zh: {
     // Navigation
-    brandName: "ManoMed AI 智医",
+    brandName: "ManoMed AI 智医助手",
     navHome: "首页",
-    navTriage: "症状分诊",
-    navLabs: "验血分析",
-    navImaging: "X光诊断",
-    navStation: "医护工作站",
-    navHistory: "健康档案",
-    navAbout: "临床模型",
-    navContact: "联系我们",
+    navTriage: "自测症状",
+    navLabs: "化验单解读",
+    navImaging: "X光影像",
+    navStation: "医护工作台",
+    navHistory: "健康记录",
+    navAbout: "关于我们",
+    navContact: "联系与求助",
     navEmergency: "急救 120 / 911",
     signIn: "登录",
     signOut: "退出",
 
     // Hero
-    heroBadge: "循证临床决策与智能分诊系统",
-    heroTitle: "让每个人都能享受到智能精准的医疗关怀。",
+    heroBadge: "简单好懂的智能健康助手",
+    heroTitle: "用大白话讲清健康问题，让每个人都心里有底。",
     heroSubtitle:
-      "界面极致简明，60岁老人亦能轻松自如地描述病情；同时兼具三甲医院临床医生与急诊护士所要求的专业严谨性。",
-    btnStartTriage: "开始健康自测评估",
-    btnOpenStation: "进入医院病区工作站",
-    btnExploreLabs: "解读血液化验单",
-    btnExploreImaging: "X光影像辅助诊断",
+      "界面简单明了，家里老人也能轻松看懂不慌张；同时整理清晰的重点，方便看病时直接给医生看。",
+    btnStartTriage: "自测我的症状",
+    btnOpenStation: "医护工作台",
+    btnExploreLabs: "看懂化验单",
+    btnExploreImaging: "查看X光影像",
 
     // Pillars
-    pillarsHeading: "核心临床诊断支柱",
-    pillarsSubheading: "三大循证医学工具，提供即时、严谨的辅助评估。",
-    pillarTriageTitle: "智能症状分诊与问卷",
-    pillarTriageDesc: "温和友善的对话式问诊，实时筛查危急红旗警示，按概率排列鉴别诊断。",
-    pillarLabsTitle: "血液化验与病理分析",
-    pillarLabsDesc: "极速解读血常规、生化、心肌酶谱及血脂指标，智能标注异常偏高偏低值。",
-    pillarImagingTitle: "X光医学影像工作站",
-    pillarImagingDesc: "配备专业PACS阅片功能（缩放、反转、明暗对比），辅助识别骨折与肺部病变。",
+    pillarsHeading: "ManoMed 如何帮助您",
+    pillarsSubheading: "三项实用小工具，帮您弄清身体不适，明确下一步该怎么做。",
+    pillarTriageTitle: "症状自测小助手",
+    pillarTriageDesc: "像和朋友聊天一样回答几个简单问题，快速了解可能的原因以及是否需要尽快就医。",
+    pillarLabsTitle: "化验单大白话解读",
+    pillarLabsDesc: "轻松看懂血常规等化验单的高低含义，不用再对着复杂的医学缩写发愁。",
+    pillarImagingTitle: "X光影像查看器",
+    pillarImagingDesc: "提供简单的放大与明暗调节，辅助查看骨骼或胸部影像。",
 
     // Dual Audience
-    dualHeading: "双重视角：患者明了，医生专业",
-    patientViewTitle: "面向患者与长辈",
-    patientViewDesc: "通俗易懂的日常语言，安心的就医指引，以及去医院前可向医生提出的重点问题。",
-    doctorViewTitle: "面向医生与护理人员",
-    doctorViewDesc: "标准化ICD-10编码、贝叶斯概率评分、以及可一键导入电子病历的完整SOAP病程记录。",
+    dualHeading: "患者看得懂，医生用得上",
+    patientViewTitle: "给您和家人",
+    patientViewDesc: "通俗易懂的大白话，安心实在的就诊建议，以及去医院前可以问医生的关键问题。",
+    doctorViewTitle: "给接诊医生和护士",
+    doctorViewDesc: "整理清晰的症状时间线，帮助医生在接诊时几十秒内快速掌握核心病情。",
 
     // Triage Tiers
-    tierEmergency: "🔴 紧急级（立即就医）",
-    tierUrgent: "🟠 优先缓急（24-48小时内）",
-    tierRoutine: "🔵 普通门诊（常规预约）",
-    tierSelfCare: "🟢 居家护理（支持性休息）",
+    tierEmergency: "🚨 紧急情况（请立即前往急诊或拨打 120）",
+    tierUrgent: "⚠️ 尽快就诊（建议24–48小时内看医生）",
+    tierRoutine: "🗓️ 普通门诊（按常规预约普通门诊即可）",
+    tierSelfCare: "🏡 居家休养（注意休息并留意身体变化）",
 
     // Common
-    liveSyncActive: "病区实时同步中",
-    confidentialNotice: "数据本地加密 • 严格保障隐私",
-    emergencyDisclaimer: "如遇剧烈胸痛、突发呼吸困难、意识障碍或肢体麻木，请立即拨打急救电话。",
-    footerRights: "ManoMed AI 智医系统。版权所有。仅供临床决策辅助。",
+    liveSyncActive: "诊区实时同步中",
+    confidentialNotice: "100% 隐私安全 • 绝不出售您的任何数据",
+    emergencyDisclaimer: "如果您出现剧烈胸痛、呼吸急促、意识模糊或突发身体麻木，请立刻前往最近的急诊室或拨打120。",
+    footerRights: "ManoMed AI 智医系统。版权所有。辅助健康决策，守护您的安心。",
   },
 
   fr: {
     // Navigation
     brandName: "ManoMed AI",
     navHome: "Accueil",
-    navTriage: "Triage des Symptômes",
-    navLabs: "Analyses de Sang",
-    navImaging: "Imagerie Rayons X",
+    navTriage: "Vérifier mes Symptômes",
+    navLabs: "Prises de Sang",
+    navImaging: "Radiographies",
     navStation: "Poste Médical",
-    navHistory: "Dossiers",
-    navAbout: "Modèle Clinique",
-    navContact: "Contact",
+    navHistory: "Mes Bilans",
+    navAbout: "À Propos",
+    navContact: "Aide & Contact",
     navEmergency: "Urgences 15 / 911",
     signIn: "Connexion",
     signOut: "Déconnexion",
 
     // Hero
-    heroBadge: "Système d'Aide à la Décision Clinique",
-    heroTitle: "Des soins médicaux intelligents pour tous.",
+    heroBadge: "Guide de Santé et Symptômes Simple",
+    heroTitle: "Des réponses médicales claires, dans un langage simple pour tous.",
     heroSubtitle:
-      "Assez simple pour qu'une grand-mère de 60 ans comprenne sans stress, et rigoureux pour répondre aux exigences des médecins et infirmiers hospitaliers.",
-    btnStartTriage: "Démarrer l'Évaluation",
-    btnOpenStation: "Poste de Garde Hospitalier",
-    btnExploreLabs: "Interpréter les Analyses",
-    btnExploreImaging: "Diagnostics Rayons X",
+      "Facile à comprendre sans stress pour toute la famille, et suffisamment clair et détaillé pour aider votre médecin.",
+    btnStartTriage: "Vérifier mes Symptômes",
+    btnOpenStation: "Poste Médical & Clinique",
+    btnExploreLabs: "Comprendre mes Analyses",
+    btnExploreImaging: "Consulter les Radiographies",
 
     // Pillars
-    pillarsHeading: "Piliers Diagnostiques Essentiels",
-    pillarsSubheading: "Trois outils cliniques pour une évaluation rapide et fondée sur des preuves.",
-    pillarTriageTitle: "Triage des Symptômes",
+    pillarsHeading: "Comment ManoMed vous aide",
+    pillarsSubheading: "Trois outils simples pour comprendre ce que vous ressentez et savoir quoi faire.",
+    pillarTriageTitle: "Vérificateur de Symptômes",
     pillarTriageDesc:
-      "Questionnaire rassurant et ciblé pour identifier les symptômes, détecter les signaux d'alerte et hiérarchiser les diagnostics.",
-    pillarLabsTitle: "Pathologie Sanguine & Labo",
+      "Un guide pas à pas bienveillant pour identifier vos symptômes et savoir quand consulter un médecin.",
+    pillarLabsTitle: "Explicateur d'Analyses de Sang",
     pillarLabsDesc:
-      "Interprétation instantanée des NFS, ionogrammes, enzymes cardiaques et bilans lipidiques avec seuils d'alerte.",
-    pillarImagingTitle: "Assistant Imagerie Rayons X",
+      "Comprenez facilement vos prises de sang avec des repères clairs Normal, Haut ou Bas sans jargon obscur.",
+    pillarImagingTitle: "Visionneuse de Radiographies",
     pillarImagingDesc:
-      "Visualiseur PACS avec contraste, zoom et inversion pour détecter fractures et anomalies thoraciques.",
+      "Affichez vos radios osseuses et thoraciques avec des réglages simples de zoom et de contraste.",
 
     // Dual Audience
-    dualHeading: "Double Clarté : Patient & Praticien",
-    patientViewTitle: "Pour les Patients & Aînés",
+    dualHeading: "Clair pour vous, utile pour votre médecin",
+    patientViewTitle: "Pour vous et votre famille",
     patientViewDesc:
-      "Explications sans jargon médical complexe, étapes rassurantes et questions clés à poser à votre médecin.",
-    doctorViewTitle: "Pour les Médecins & Infirmiers",
+      "Des mots simples de tous les jours, des conseils rassurants et des questions utiles à poser à votre médecin.",
+    doctorViewTitle: "Pour votre médecin ou soignant",
     doctorViewDesc:
-      "Codage ICD-10, pourcentages de probabilité bayésienne et transmissions SOAP prêtes à copier.",
+      "Un résumé clair et chronologique de vos symptômes, prêt à être lu en quelques secondes par le soignant.",
 
     // Triage Tiers
-    tierEmergency: "Urgence Absolue (Immédiat)",
-    tierUrgent: "Prioritaire (< 24-48 Heures)",
-    tierRoutine: "Consultation Ordinaire",
-    tierSelfCare: "Soins à Domicile",
+    tierEmergency: "🚨 Urgence Immédiate (Appelez le 15 / Allez aux Urgences)",
+    tierUrgent: "⚠️ Consultation Rapide (Consultez sous 24–48h)",
+    tierRoutine: "🗓️ Consultation Ordinaire (Prenez un rendez-vous classique)",
+    tierSelfCare: "🏡 Soins à la Maison (Repos et surveillance tranquille)",
 
     // Common
-    liveSyncActive: "Synchronisation Directe",
-    confidentialNotice: "Données Sécurisées • Chiffrement Avancé",
+    liveSyncActive: "Synchronisation en Direct",
+    confidentialNotice: "100% Privé et Sécurisé • Données jamais vendues",
     emergencyDisclaimer:
-      "En cas de douleur thoracique brutale, détresse respiratoire ou faiblesse soudaine, contactez immédiatement les urgences.",
-    footerRights: "ManoMed AI. Tous droits réservés. Aide à la décision clinique.",
+      "En cas de douleur vive dans la poitrine, détresse respiratoire ou faiblesse soudaine, contactez immédiatement le 15 ou les urgences.",
+    footerRights: "ManoMed AI. Tous droits réservés. Créé pour vous guider en toute confiance.",
   },
 };
 

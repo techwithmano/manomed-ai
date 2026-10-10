@@ -145,12 +145,12 @@ function ConditionsContent() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[calc(100vh-5rem)] px-6 py-12 text-center bg-background">
         <div className="max-w-md space-y-4">
-          <h2 className="font-serif text-2xl font-normal text-foreground">No Active Assessment Found</h2>
+          <h2 className="text-2xl font-bold tracking-tight text-foreground">No Assessment Found Yet</h2>
           <p className="text-muted-foreground text-sm leading-relaxed">
-            To view calibrated condition differentials and generated clinical documentation, please complete the intake and diagnostic inquiry.
+            To view possible health conditions and clear guidance, please take a moment to tell us about your symptoms.
           </p>
           <Button onClick={() => router.push("/ManoMedai")} className="min-h-[44px] px-6">
-            Begin Clinical Assessment
+            Check Symptoms Now
           </Button>
         </div>
       </div>

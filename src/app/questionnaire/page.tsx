@@ -231,7 +231,7 @@ function QuestionnaireContent() {
               Intake
             </Link>
             <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/60" />
-            <span className="font-semibold text-foreground">Stage 02 / Follow-up Inquiry</span>
+            <span className="font-semibold text-foreground">Step 2 / Clarifying Questions</span>
           </div>
 
           <div className="flex items-center gap-3 font-mono text-[11px]">
@@ -248,7 +248,7 @@ function QuestionnaireContent() {
         {/* Progress Tracker */}
         <div className="space-y-1.5">
           <div className="flex justify-between items-center text-xs text-muted-foreground">
-            <span className="font-medium text-foreground">Examination Progress</span>
+            <span className="font-medium text-foreground">Questions Progress</span>
             <span className="font-mono">{Math.round(progressPercent)}% Complete</span>
           </div>
           <Progress value={progressPercent} className="h-2 rounded-full" />
@@ -263,7 +263,7 @@ function QuestionnaireContent() {
                   <Stethoscope className="w-4 h-4" />
                 </div>
                 <span className="text-xs font-mono font-bold uppercase tracking-wider text-primary">
-                  Differential Focus #{currentIndex + 1}
+                  Question #{currentIndex + 1}
                 </span>
               </div>
               {currentQ.category && (
@@ -273,7 +273,7 @@ function QuestionnaireContent() {
               )}
             </div>
 
-            <CardTitle className="font-serif text-2xl sm:text-3xl font-normal leading-snug pt-1 text-foreground">
+            <CardTitle className="text-2xl sm:text-3xl font-bold tracking-tight leading-snug pt-1 text-foreground">
               {currentQ.question}
             </CardTitle>
           </CardHeader>
@@ -284,7 +284,7 @@ function QuestionnaireContent() {
               <div className="p-3.5 rounded-xl bg-muted/40 border border-border/80 flex items-start gap-2.5 text-xs text-foreground/90">
                 <HelpCircle className="w-4 h-4 text-primary shrink-0 mt-0.5" />
                 <div className="leading-relaxed">
-                  <span className="font-semibold text-foreground">Clinical Diagnostic Intent: </span>
+                  <span className="font-semibold text-foreground">Why we ask this: </span>
                   <span className="text-muted-foreground">{currentQ.clinicalRationale}</span>
                 </div>
               </div>

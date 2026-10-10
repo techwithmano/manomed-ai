@@ -19,13 +19,13 @@ export default function UnderMaintenance() {
 
         <div className="space-y-2">
           <Badge variant="outline" className="text-[10px] font-mono uppercase tracking-wider border-border">
-            SCHEDULED CLINICAL MAINTENANCE
+            SYSTEM UPDATE
           </Badge>
-          <h1 className="font-serif text-3xl font-normal tracking-tight text-foreground">
-            Platform Upgrade in Progress
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">
+            System Update in Progress
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-            Our clinical engineering division is deploying updated diagnostic taxonomies and algorithmic safety rules. Service continuity will be restored momentarily.
+            We are currently updating our health assistant with new improvements. Everything will be back up and running shortly.
           </p>
         </div>
 

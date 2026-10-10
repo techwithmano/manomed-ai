@@ -1,7 +1,7 @@
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { ThemeProvider } from '@/components/theme-provider';
-import { Plus_Jakarta_Sans, Newsreader } from 'next/font/google';
+import { Plus_Jakarta_Sans } from 'next/font/google';
 import Link from 'next/link';
 import { ClerkProvider } from '@clerk/nextjs';
 import { dark } from '@clerk/themes';
@@ -12,7 +12,6 @@ import SiteHeader from '@/components/SiteHeader';
 import { LanguageProvider } from '@/context/language-context';
 import type { Metadata } from 'next';
 
-
 const plusJakarta = Plus_Jakarta_Sans({
   subsets: ['latin'],
   display: 'swap',
@@ -20,23 +19,15 @@ const plusJakarta = Plus_Jakarta_Sans({
   weight: ['400', '500', '600', '700', '800'],
 });
 
-const newsreader = Newsreader({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-serif',
-  style: ['normal', 'italic'],
-  weight: ['400', '500', '600', '700'],
-});
-
 export const metadata: Metadata = {
-  title: 'ManoMed AI | Clinical Decision Support & Symptom Triage',
-  description: 'Evidence-grounded medical AI triage, dynamic clinical questionnaire assessment, and automated EHR documentation generator.',
-  keywords: ['clinical decision support', 'symptom triage', 'medical AI', 'differential diagnosis', 'EHR SOAP notes'],
-  authors: [{ name: 'ManoMed AI Clinical Intelligence Systems' }],
+  title: 'ManoMed AI | Smart Health Assistant & Symptom Checker',
+  description: 'Check your symptoms, understand blood tests, and get clear doctor-ready health guidance in simple everyday words.',
+  keywords: ['symptom checker', 'health assistant', 'medical guidance', 'check symptoms', 'blood test reader'],
+  authors: [{ name: 'ManoMed AI' }],
   metadataBase: new URL('https://manomed.ai'),
   openGraph: {
-    title: 'ManoMed AI | Clinical Decision Support & Symptom Triage',
-    description: 'Evidence-grounded medical triage and automated EHR SOAP documentation.',
+    title: 'ManoMed AI | Smart Health Assistant & Symptom Checker',
+    description: 'Check your symptoms, understand blood tests, and get clear health guidance in simple everyday words.',
     type: 'website',
   },
 };
@@ -50,7 +41,7 @@ export default function RootLayout({
     <ClerkProvider appearance={{ baseTheme: dark }}>
       <html
         lang="en"
-        className={`${plusJakarta.variable} ${newsreader.variable} scroll-smooth`}
+        className={`${plusJakarta.variable} scroll-smooth`}
         suppressHydrationWarning
       >
         <body className="bg-background text-foreground min-h-screen flex flex-col font-sans selection:bg-primary/20 selection:text-primary">
@@ -105,41 +96,41 @@ export default function RootLayout({
 
                   {/* Navigation Links */}
                   <div className="md:col-span-3 space-y-2.5 text-xs">
-                    <h4 className="font-bold uppercase tracking-wider text-foreground">Clinical Platform</h4>
+                    <h4 className="font-bold uppercase tracking-wider text-foreground">Health Tools</h4>
                     <ul className="space-y-1.5 text-muted-foreground">
                       <li>
                         <Link href="/ManoMedai" className="hover:text-primary transition-colors focus-visible:underline">
-                          Symptom Triage Intake
+                          Check Symptoms
                         </Link>
                       </li>
                       <li>
                         <Link href="/labs" className="hover:text-primary transition-colors focus-visible:underline">
-                          Blood Work & Labs
+                          Blood Tests
                         </Link>
                       </li>
                       <li>
                         <Link href="/imaging" className="hover:text-primary transition-colors focus-visible:underline">
-                          X-Ray & Imaging Assistant
+                          X-Rays & Scans
                         </Link>
                       </li>
                       <li>
                         <Link href="/history" className="hover:text-primary transition-colors focus-visible:underline">
-                          Audit Trail & Records
+                          My Saved Records
                         </Link>
                       </li>
                       <li>
                         <Link href="/about" className="hover:text-primary transition-colors focus-visible:underline">
-                          Clinical Methodology
+                          About Us
                         </Link>
                       </li>
                       <li>
                         <Link href="/contact" className="hover:text-primary transition-colors focus-visible:underline">
-                          Institutional Routing
+                          Contact & Support
                         </Link>
                       </li>
                       <li>
                         <Link href="/privacy" className="hover:text-primary transition-colors focus-visible:underline">
-                          Privacy & Data Governance
+                          Privacy Policy
                         </Link>
                       </li>
                     </ul>
@@ -149,10 +140,10 @@ export default function RootLayout({
                   <div className="md:col-span-4 p-4 rounded-xl bg-destructive/5 border border-destructive/20 space-y-2 text-xs">
                     <div className="flex items-center gap-1.5 font-bold text-destructive">
                       <ShieldAlert className="w-4 h-4" />
-                      <span>Emergency Medical Protocol</span>
+                      <span>Emergency Help</span>
                     </div>
                     <p className="text-muted-foreground text-[11px] leading-relaxed">
-                      ManoMed AI is an educational decision-support aid and does not substitute professional medical diagnosis or urgent dispatch services. If in immediate danger:
+                      ManoMed AI guides your health decisions, but does not replace emergency medical care. If you are experiencing severe symptoms:
                     </p>
                     <div className="flex flex-wrap gap-2 pt-1 font-mono font-bold text-[11px]">
                       <span className="px-2 py-0.5 rounded bg-card border border-border">US/CA: 911</span>
@@ -164,8 +155,8 @@ export default function RootLayout({
                 </div>
 
                 <div className="pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
-                  <p>© 2026 ManoMed AI Clinical Intelligence Systems. All rights reserved.</p>
-                  <p className="text-[11px]">Engineered for diagnostic rigor, patient safety, and seamless physician hand-off.</p>
+                  <p>© 2026 ManoMed AI. All rights reserved.</p>
+                  <p className="text-[11px]">Simple and reassuring for patients, organized and practical for doctors.</p>
                 </div>
               </div>
             </footer>

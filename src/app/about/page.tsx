@@ -70,27 +70,27 @@ export default function AboutPage() {
       <section className="container mx-auto px-4 pt-16 pb-20 max-w-5xl space-y-6">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20">
           <Stethoscope className="w-3.5 h-3.5" />
-          Clinical Intelligence Architecture
+          Our Mission
         </div>
 
-        <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl font-normal tracking-tight max-w-3xl leading-[1.1] text-foreground">
-          Bridging the Critical Gap Between Symptom Onset & Clinical Care
+        <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight max-w-3xl leading-[1.1] text-foreground">
+          Clear, Compassionate Health Guidance for Everyone
         </h1>
 
         <p className="max-w-2xl text-base sm:text-lg text-muted-foreground leading-relaxed">
-          ManoMed AI was engineered to eliminate healthcare diagnostic ambiguity. By combining state-of-the-art medical language modeling with rigorous emergency triage protocols, we empower patients with calm, reliable guidance and provide physicians with structured, time-saving clinical notes.
+          ManoMed AI helps take the anxiety and confusion out of feeling unwell. By combining smart medical intelligence with gentle, everyday language, we give patients calm and trustworthy answers, and give doctors clean visit summaries.
         </p>
 
         <div className="pt-4 flex flex-wrap gap-4">
           <Link href="/ManoMedai">
             <Button size="lg" className="min-h-[48px] rounded-xl px-8 font-semibold flex items-center gap-2 shadow-xs bg-primary text-primary-foreground">
-              Begin Clinical Triage Session
+              Check Symptoms Now
               <ArrowRight className="w-4 h-4" />
             </Button>
           </Link>
           <Link href="/contact">
             <Button size="lg" variant="outline" className="min-h-[48px] rounded-xl px-6 font-semibold border-border">
-              Institutional Inquiries
+              Contact Our Team
             </Button>
           </Link>
         </div>
@@ -102,13 +102,13 @@ export default function AboutPage() {
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
             <div className="md:col-span-7 space-y-4">
               <span className="text-xs font-mono font-bold uppercase tracking-wider text-primary">
-                Our Clinical Mission
+                Why We Built This
               </span>
-              <h2 className="font-serif text-2xl sm:text-3xl font-normal tracking-tight text-foreground">
-                Empowering Safe, Timely Healthcare Decisions Worldwide
+              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+                Helping You Make Confident, Timely Health Decisions
               </h2>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Every year, millions of individuals either delay necessary emergency medical treatment due to uncertainty or overwhelm acute emergency rooms with self-limiting conditions. ManoMed AI provides immediate, clinical-grade triage support to direct patients to the right care tier at the right time.
+                When symptoms begin, people often struggle to know whether to rush to the emergency room, book a doctor appointment, or safely rest at home. ManoMed AI provides immediate clarity so you always know the safest next step.
               </p>
               <div className="flex items-center gap-3 pt-2">
                 <div className="p-2 rounded-lg bg-primary/10 text-primary">
@@ -156,13 +156,13 @@ export default function AboutPage() {
       <section className="container mx-auto px-4 py-20 max-w-5xl space-y-12">
         <div className="space-y-2 max-w-2xl">
           <span className="text-xs font-mono font-bold uppercase tracking-wider text-primary">
-            ENGINEERING PRINCIPLES
+            OUR CORE VALUES
           </span>
-          <h2 className="font-serif text-3xl font-normal tracking-tight text-foreground">
-            Clinical Architecture & Rigor
+          <h2 className="text-3xl font-bold tracking-tight text-foreground">
+            Clear Guidance & Careful Accuracy
           </h2>
           <p className="text-sm text-muted-foreground">
-            How our intelligence engine operates to deliver high-yield differential assessments:
+            How our system ensures your guidance is both simple to read and medically sound:
           </p>
         </div>
 
@@ -184,10 +184,10 @@ export default function AboutPage() {
         <div className="container mx-auto px-4 max-w-5xl space-y-12">
           <div className="space-y-2 max-w-2xl">
             <span className="text-xs font-mono font-bold uppercase tracking-wider text-primary">
-              Standard Operating Procedure
+              How It Works
             </span>
-            <h2 className="font-serif text-3xl font-normal tracking-tight text-foreground">
-              Our 4-Stage Diagnostic Pipeline
+            <h2 className="text-3xl font-bold tracking-tight text-foreground">
+              Our 4-Step Health Journey
             </h2>
           </div>
 

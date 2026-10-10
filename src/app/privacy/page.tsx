@@ -28,8 +28,8 @@ export default function PrivacyPolicyPage() {
             <ShieldCheck className="w-4 h-4" />
             Patient Data Governance
           </div>
-          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-normal tracking-tight text-foreground">
-            ManoMed AI Clinical Privacy Policy
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-foreground">
+            ManoMed AI Privacy Policy
           </h1>
           <p className="text-xs font-mono text-muted-foreground">
             EFFECTIVE DATE: OCTOBER 2026 • REVISION 4.1
@@ -75,7 +75,7 @@ export default function PrivacyPolicyPage() {
         {/* Detailed Articles */}
         <div className="space-y-8 text-sm leading-relaxed text-foreground/90">
           <section className="space-y-3">
-            <h2 className="font-serif text-xl sm:text-2xl font-normal text-foreground">
+            <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
               1. Information Collected During Assessment
             </h2>
             <p className="text-muted-foreground">
@@ -91,8 +91,8 @@ export default function PrivacyPolicyPage() {
           </section>
 
           <section className="space-y-3 border-t border-border/60 pt-6">
-            <h2 className="font-serif text-xl sm:text-2xl font-normal text-foreground">
-              2. Purpose of Processing & Clinical Inference
+            <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+              2. How Your Information Is Used
             </h2>
             <p className="text-muted-foreground text-xs leading-relaxed">
               Data collected during an assessment session is utilized exclusively to:
@@ -106,8 +106,8 @@ export default function PrivacyPolicyPage() {
           </section>
 
           <section className="space-y-3 border-t border-border/60 pt-6">
-            <h2 className="font-serif text-xl sm:text-2xl font-normal text-foreground">
-              3. Client-Side Vault & Data Retention
+            <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+              3. Private On-Device Storage
             </h2>
             <p className="text-muted-foreground text-xs leading-relaxed">
               ManoMed AI operates with a privacy-first local storage architecture. Completed evaluations are stored on your local device via encrypted browser storage. You can view, search, export to PDF, or permanently erase individual records or the entire vault at any time via the{" "}
@@ -119,8 +119,8 @@ export default function PrivacyPolicyPage() {
           </section>
 
           <section className="space-y-3 border-t border-border/60 pt-6">
-            <h2 className="font-serif text-xl sm:text-2xl font-normal text-foreground">
-              4. Patient Rights (GDPR & CCPA Alignment)
+            <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+              4. Your Privacy Rights
             </h2>
             <p className="text-muted-foreground text-xs leading-relaxed">
               In accordance with international privacy legislation, including the EU General Data Protection Regulation (GDPR) and the California Consumer Privacy Act (CCPA), you retain the following rights:
@@ -146,8 +146,8 @@ export default function PrivacyPolicyPage() {
           </section>
 
           <section className="space-y-3 border-t border-border/60 pt-6">
-            <h2 className="font-serif text-xl sm:text-2xl font-normal text-foreground">
-              5. Governance Officer & Contact
+            <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+              5. Contact Us
             </h2>
             <p className="text-muted-foreground text-xs leading-relaxed">
               For regulatory inquiries, compliance certifications, or institutional audit requests, contact our Data Governance Officer at:

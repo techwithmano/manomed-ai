@@ -175,7 +175,7 @@ ${result.questionsForDoctor.map((q, i) => `${i + 1}. ${q}`).join("\n")}`;
                   Care Window: <strong className="text-foreground">{result.triage.timeframe}</strong>
                 </span>
               </div>
-              <h2 className="font-serif text-2xl sm:text-3xl font-normal tracking-tight text-foreground">
+              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
                 {triageTheme.title}
               </h2>
               <p className="text-xs sm:text-sm max-w-2xl leading-relaxed text-muted-foreground">
@@ -577,7 +577,7 @@ ${result.questionsForDoctor.map((q, i) => `${i + 1}. ${q}`).join("\n")}`;
                         #{idx + 1}
                       </span>
                       <div>
-                        <CardTitle className="font-serif text-xl sm:text-2xl font-normal flex items-center gap-2">
+                        <CardTitle className="text-xl sm:text-2xl font-bold tracking-tight flex items-center gap-2">
                           {item.condition}
                           {item.icd10Hint && (
                             <Badge variant="outline" className="text-[10px] font-mono border-border">

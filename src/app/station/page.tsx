@@ -288,26 +288,26 @@ ${soap.plan || "N/A"}`;
               <div className="p-2 rounded-lg bg-primary/10 text-primary">
                 <Hospital className="w-6 h-6" />
               </div>
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Clinical Staff Triage Station</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Doctor & Clinic Dashboard</h1>
               <Badge variant="outline" className="border-emerald-500/50 text-emerald-500 flex items-center gap-1.5 py-0.5">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-                Live Ward Sync
+                Live Clinic Sync
               </Badge>
             </div>
             <p className="text-muted-foreground text-sm max-w-3xl">
-              Centralized monitoring dashboard designed for hospital staff, doctors, and triage nurses. Real-time patient intake, AI differential ranking, and clinical action protocols across 1,000 active participants.
+              Live overview of patient visits, symptom checks, lab tests, and imaging for doctors and clinic staff.
             </p>
           </div>
 
           <div className="flex items-center gap-3">
             <Button variant="outline" size="sm" onClick={seedSampleCohort} className="gap-2">
               <Users className="w-4 h-4 text-primary" />
-              Load Sample Cohort
+              Load Sample Patients
             </Button>
             <Link href="/ManoMedai">
               <Button size="sm" className="gap-2">
                 <Activity className="w-4 h-4" />
-                New Intake
+                New Patient Check
               </Button>
             </Link>
           </div>
@@ -321,7 +321,7 @@ ${soap.plan || "N/A"}`;
                 <Flame className="w-6 h-6" />
               </div>
               <div>
-                <p className="text-xs uppercase font-medium text-muted-foreground">Emergencies (Immediate)</p>
+                <p className="text-xs uppercase font-medium text-muted-foreground">Emergency Cases</p>
                 <p className="text-2xl font-bold text-red-500">{emergencyCount}</p>
               </div>
             </CardContent>

@@ -65,7 +65,7 @@ export default function SiteHeader() {
               ManoMed AI
             </span>
             <span className="hidden sm:inline-block text-[11px] text-muted-foreground/80 pl-2.5 rtl:pr-2.5 rtl:pl-0 border-l rtl:border-r rtl:border-l-0 border-border font-medium">
-              Clinical Decision Support
+              Smart Health Assistant
             </span>
           </Link>
 
@@ -101,7 +101,7 @@ export default function SiteHeader() {
             aria-label="Emergency 911"
           >
             <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-pulse" />
-            <span className="font-mono text-[11px]">911 PROTOCOL</span>
+            <span className="font-semibold text-[11px]">Emergency 911</span>
           </a>
 
           {/* Language Switcher */}

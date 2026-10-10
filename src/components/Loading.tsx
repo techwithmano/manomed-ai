@@ -22,9 +22,9 @@ const Loading: React.FC<LoadingProps> = ({ title, description }) => (
 
       <div className="space-y-1.5">
         <span className="text-[11px] font-mono uppercase tracking-wider text-primary font-bold">
-          CLINICAL PROCESSING
+          CHECKING YOUR SYMPTOMS
         </span>
-        <h2 className="font-serif text-2xl font-normal text-foreground">
+        <h2 className="text-2xl font-bold tracking-tight text-foreground">
           {title}
         </h2>
         <p className="text-xs text-muted-foreground leading-relaxed">
@@ -34,7 +34,7 @@ const Loading: React.FC<LoadingProps> = ({ title, description }) => (
 
       <div className="pt-2 border-t border-border/60 w-full flex items-center justify-center gap-2 text-[11px] text-muted-foreground">
         <ShieldCheck className="w-3.5 h-3.5 text-primary" />
-        <span>End-to-end encrypted clinical inference session</span>
+        <span>Private & secure health session</span>
       </div>
     </div>
   </div>

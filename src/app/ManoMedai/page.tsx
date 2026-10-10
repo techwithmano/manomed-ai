@@ -56,28 +56,28 @@ export default function ManoMedAIPage() {
                   className="min-h-[36px] flex items-center gap-2 text-xs border-border/80"
                 >
                   <History className="w-3.5 h-3.5 text-primary" />
-                  Audit Vault ({historyCount} Records)
+                  My Past Records ({historyCount})
                 </Button>
               </Link>
             )}
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20">
               <ShieldCheck className="w-3.5 h-3.5" />
-              <span>HIPAA-Conscious Session</span>
+              <span>Private & Secure Session</span>
             </div>
           </div>
         </div>
 
-        {/* Clinical Section Header */}
+        {/* Section Header */}
         <div className="space-y-3 max-w-3xl">
           <div className="inline-flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-wider text-primary">
             <Stethoscope className="w-4 h-4" />
-            Stage 01 / Patient Intake & Anatomical Localization
+            Step 1 / Tell Us What's Bothering You
           </div>
-          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-normal tracking-tight text-foreground">
-            Clinical Symptom Intake & Preliminary Triage
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-foreground">
+            Check Your Symptoms
           </h1>
           <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">
-            Record patient demographics, chief complaints, pharmacological history, and localize symptomatic anatomical regions. Our evidence-grounded inference engine calibrates follow-up differential inquiries in real time.
+            Describe how you are feeling in simple everyday words. Tell us where it hurts, how long it's been going on, and any medications you take. We will guide you with clear questions and help you prepare for a doctor visit.
           </p>
         </div>
 
@@ -92,17 +92,17 @@ export default function ManoMedAIPage() {
             <div className="p-16 rounded-2xl border border-border bg-card/50 text-center space-y-3">
               <Activity className="w-8 h-8 text-primary animate-spin mx-auto" />
               <p className="text-sm text-muted-foreground font-medium">
-                Loading clinical intake session...
+                Loading your health check session...
               </p>
             </div>
           )}
         </div>
 
-        {/* Emergency Escalation Notice */}
+        {/* Emergency Notice */}
         <div className="p-4 rounded-xl bg-muted/40 border border-border/60 text-xs text-muted-foreground flex items-start gap-3">
           <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
           <p className="leading-relaxed">
-            <strong className="text-foreground">Critical Medical Disclaimer:</strong> ManoMed AI is a clinical decision-support and preparatory health education tool. It does not provide formal diagnosis or prescription treatment. If you or the patient are experiencing sudden crushing chest pain, acute respiratory distress, severe uncontrolled hemorrhage, or focal neurological deficits (facial drooping, unilateral arm weakness, slurred speech), dial <strong>911</strong> or your local emergency number immediately.
+            <strong className="text-foreground">Medical Disclaimer:</strong> ManoMed AI helps guide your health decisions and prepare for doctor visits, but does not replace emergency medical care. If you or a loved one have severe chest pain, trouble breathing, heavy bleeding, or sudden weakness or numbness, call <strong>911</strong> or go to the nearest emergency room immediately.
           </p>
         </div>
       </div>

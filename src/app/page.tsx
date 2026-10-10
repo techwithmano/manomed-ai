@@ -19,9 +19,9 @@ export default function HomePage() {
           <div className="lg:col-span-7 space-y-6">
             <div className="flex items-center gap-2 text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
               <span className="w-1.5 h-1.5 rounded-full bg-blue-600" />
-              <span>Clinical Decision Support System</span>
+              <span>Smart Health Assistant</span>
               <span>•</span>
-              <span>Version 2.4</span>
+              <span>Simple & Clear</span>
             </div>
 
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-foreground leading-[1.12]">
@@ -55,16 +55,16 @@ export default function HomePage() {
             {/* Real Telemetry Benchmarks */}
             <div className="pt-8 border-t border-border grid grid-cols-3 gap-4 text-xs font-mono">
               <div>
-                <span className="text-[10px] uppercase text-muted-foreground block mb-0.5">Latency</span>
-                <span className="font-semibold text-foreground">~1.0s Groq LPU</span>
+                <span className="text-[10px] uppercase text-muted-foreground block mb-0.5">Speed</span>
+                <span className="font-semibold text-foreground">~1.0s Fast AI</span>
               </div>
               <div>
-                <span className="text-[10px] uppercase text-muted-foreground block mb-0.5">Classification</span>
-                <span className="font-semibold text-foreground">ICD-10 & SOAP</span>
+                <span className="text-[10px] uppercase text-muted-foreground block mb-0.5">Languages</span>
+                <span className="font-semibold text-foreground">5 Global</span>
               </div>
               <div>
-                <span className="text-[10px] uppercase text-muted-foreground block mb-0.5">Encryption</span>
-                <span className="font-semibold text-foreground">Client Vault</span>
+                <span className="text-[10px] uppercase text-muted-foreground block mb-0.5">Privacy</span>
+                <span className="font-semibold text-foreground">100% On-Device</span>
               </div>
             </div>
           </div>
@@ -76,7 +76,7 @@ export default function HomePage() {
                 Direct Entry
               </span>
               <h2 className="text-base font-semibold text-foreground">
-                Clinical Assessment Modalities
+                Choose What You Need
               </h2>
             </div>
 
@@ -91,7 +91,7 @@ export default function HomePage() {
                     {t.pillarTriageTitle}
                   </span>
                   <span className="text-muted-foreground text-[11px] block">
-                    Anatomical localization, Bayesian questions, red-flag triage
+                    Answer a few simple questions about what hurts or bothers you
                   </span>
                 </div>
                 <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-blue-600 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-all shrink-0" />
@@ -107,7 +107,7 @@ export default function HomePage() {
                     {t.pillarLabsTitle}
                   </span>
                   <span className="text-muted-foreground text-[11px] block">
-                    CBC, CMP, Cardiac Troponin I/T, Lipid reference interpretation
+                    Understand blood test numbers, cholesterol, and routine labs
                   </span>
                 </div>
                 <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-blue-600 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-all shrink-0" />
@@ -123,7 +123,7 @@ export default function HomePage() {
                     {t.pillarImagingTitle}
                   </span>
                   <span className="text-muted-foreground text-[11px] block">
-                    PACS viewer with zoom, negative inversion, fracture detection
+                    View bone, dental, and chest scans with easy zoom and brightness
                   </span>
                 </div>
                 <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-blue-600 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-all shrink-0" />
@@ -136,10 +136,10 @@ export default function HomePage() {
               >
                 <div className="space-y-0.5 pr-4 rtl:pr-0 rtl:pl-4">
                   <span className="font-semibold text-foreground group-hover:text-blue-600 block">
-                    Hospital Staff Triage Station
+                    Doctor & Clinic Dashboard
                   </span>
                   <span className="text-muted-foreground text-[11px] block">
-                    Live ward queue, attending physician review, SOAP copy
+                    Live patient list and quick summaries for clinic staff
                   </span>
                 </div>
                 <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-blue-600 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-all shrink-0" />
@@ -167,7 +167,7 @@ export default function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-border pt-4">
             {/* Capability 01 */}
             <div className="py-6 md:py-0 md:pr-8 rtl:md:pr-0 rtl:md:pl-8 space-y-3">
-              <span className="font-mono text-xs text-blue-600 font-bold block">01 / Triage</span>
+              <span className="font-mono text-xs text-blue-600 font-bold block">01 / Symptoms</span>
               <h3 className="text-base font-semibold text-foreground">
                 {t.pillarTriageTitle}
               </h3>
@@ -179,7 +179,7 @@ export default function HomePage() {
                   href="/ManoMedai"
                   className="text-xs font-semibold text-blue-600 hover:text-blue-700 inline-flex items-center gap-1"
                 >
-                  <span>Launch Triage Intake</span>
+                  <span>Start Symptom Check</span>
                   <ArrowRight className="w-3 h-3 rtl:rotate-180" />
                 </Link>
               </div>
@@ -187,7 +187,7 @@ export default function HomePage() {
 
             {/* Capability 02 */}
             <div className="py-6 md:py-0 md:px-8 space-y-3">
-              <span className="font-mono text-xs text-blue-600 font-bold block">02 / Pathology</span>
+              <span className="font-mono text-xs text-blue-600 font-bold block">02 / Blood Tests</span>
               <h3 className="text-base font-semibold text-foreground">
                 {t.pillarLabsTitle}
               </h3>
@@ -199,7 +199,7 @@ export default function HomePage() {
                   href="/labs"
                   className="text-xs font-semibold text-blue-600 hover:text-blue-700 inline-flex items-center gap-1"
                 >
-                  <span>Launch Lab Interpreter</span>
+                  <span>Check Blood Tests</span>
                   <ArrowRight className="w-3 h-3 rtl:rotate-180" />
                 </Link>
               </div>
@@ -207,7 +207,7 @@ export default function HomePage() {
 
             {/* Capability 03 */}
             <div className="py-6 md:py-0 md:pl-8 rtl:md:pl-0 rtl:md:pr-8 space-y-3">
-              <span className="font-mono text-xs text-blue-600 font-bold block">03 / Radiology</span>
+              <span className="font-mono text-xs text-blue-600 font-bold block">03 / Scans & X-Rays</span>
               <h3 className="text-base font-semibold text-foreground">
                 {t.pillarImagingTitle}
               </h3>
@@ -219,7 +219,7 @@ export default function HomePage() {
                   href="/imaging"
                   className="text-xs font-semibold text-blue-600 hover:text-blue-700 inline-flex items-center gap-1"
                 >
-                  <span>Launch PACS Suite</span>
+                  <span>Open Scan Viewer</span>
                   <ArrowRight className="w-3 h-3 rtl:rotate-180" />
                 </Link>
               </div>
@@ -233,13 +233,13 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto space-y-8">
           <div className="space-y-1">
             <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground block">
-              Clinical Synthesis
+              Designed for Clarity
             </span>
             <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-foreground">
               {t.dualHeading}
             </h2>
             <p className="text-xs sm:text-sm text-muted-foreground max-w-xl">
-              Every evaluation translates subjective patient symptoms into objective clinical documentation.
+              Every check translates your everyday symptoms into easy-to-understand advice for you, and a neat summary for your doctor.
             </p>
           </div>
 
@@ -248,7 +248,7 @@ export default function HomePage() {
             <div className="border border-border bg-background p-6 rounded space-y-4">
               <div className="border-b border-border pb-3">
                 <span className="text-[10px] font-mono uppercase text-muted-foreground block">
-                  Patient & Family Experience
+                  You & Your Family
                 </span>
                 <h3 className="text-base font-semibold text-foreground">
                   {t.patientViewTitle}
@@ -260,15 +260,15 @@ export default function HomePage() {
               <div className="space-y-2.5 text-xs text-foreground/90 pt-1">
                 <div className="flex items-start gap-2">
                   <span className="font-mono text-blue-600 font-bold">•</span>
-                  <span>Jargon-free clinical descriptions with plain-English next steps</span>
+                  <span>Plain everyday words with clear, comforting advice on what to do next</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <span className="font-mono text-blue-600 font-bold">•</span>
-                  <span>Curated list of 4–6 specific questions to ask your doctor at the visit</span>
+                  <span>A helpful list of 4–5 specific questions to ask your doctor at your visit</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <span className="font-mono text-blue-600 font-bold">•</span>
-                  <span>Safe non-pharmacological supportive home care and return precautions</span>
+                  <span>Safe, easy self-care tips you can do at home while resting</span>
                 </div>
               </div>
             </div>
@@ -277,7 +277,7 @@ export default function HomePage() {
             <div className="border border-border bg-background p-6 rounded space-y-4">
               <div className="border-b border-border pb-3">
                 <span className="text-[10px] font-mono uppercase text-muted-foreground block">
-                  Physician & Nursing Standards
+                  Your Doctor or Nurse
                 </span>
                 <h3 className="text-base font-semibold text-foreground">
                   {t.doctorViewTitle}
@@ -289,15 +289,15 @@ export default function HomePage() {
               <div className="space-y-2.5 text-xs text-foreground/90 pt-1">
                 <div className="flex items-start gap-2">
                   <span className="font-mono text-blue-600 font-bold">•</span>
-                  <span>International ICD-10 diagnostic coding with Bayesian likelihood percentages</span>
+                  <span>Clear timeline of symptoms so your doctor doesn't have to guess</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <span className="font-mono text-blue-600 font-bold">•</span>
-                  <span>Standard 4-part EHR SOAP note (Subjective, Objective, Assessment, Plan) with 1-click copy</span>
+                  <span>Organized visit notes ready to save or print in 1 click</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <span className="font-mono text-blue-600 font-bold">•</span>
-                  <span>Institutional PDF export for laboratory pathology and diagnostic radiography</span>
+                  <span>Clean PDF export you can bring directly to your appointment</span>
                 </div>
               </div>
             </div>
@@ -310,10 +310,10 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto space-y-6">
           <div className="space-y-1">
             <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground block">
-              Triage Protocol
+              When to Get Care
             </span>
             <h2 className="text-lg font-semibold tracking-tight text-foreground">
-              Emergency Severity Classification
+              Understanding Care Levels
             </h2>
           </div>
 
@@ -321,28 +321,28 @@ export default function HomePage() {
             <div className="p-4 border-l-2 border-l-red-600 border border-border bg-card rounded space-y-1">
               <span className="font-bold text-red-600 block">{t.tierEmergency}</span>
               <p className="text-muted-foreground text-[11px] leading-relaxed">
-                Immediate intervention required. Severe chest discomfort, stroke signs, acute airway compromise.
+                Needs immediate care right now. Severe chest pain, trouble breathing, or sudden numbness.
               </p>
             </div>
 
             <div className="p-4 border-l-2 border-l-amber-600 border border-border bg-card rounded space-y-1">
               <span className="font-bold text-amber-600 block">{t.tierUrgent}</span>
               <p className="text-muted-foreground text-[11px] leading-relaxed">
-                Review within 24–48 hours. Progressive abdominal guarding, acute pyrexia, suspected fractures.
+                See a doctor within 1 to 2 days. Persistent high fever, bad stomach ache, or possible broken bone.
               </p>
             </div>
 
             <div className="p-4 border-l-2 border-l-blue-600 border border-border bg-card rounded space-y-1">
               <span className="font-bold text-blue-600 block">{t.tierRoutine}</span>
               <p className="text-muted-foreground text-[11px] leading-relaxed">
-                Scheduled outpatient clinic visit. Subacute localized pain, recurring cough, medication review.
+                Book a regular appointment with your doctor. Ongoing mild pain, cough, or routine check-up.
               </p>
             </div>
 
             <div className="p-4 border-l-2 border-l-emerald-600 border border-border bg-card rounded space-y-1">
               <span className="font-bold text-emerald-600 block">{t.tierSelfCare}</span>
               <p className="text-muted-foreground text-[11px] leading-relaxed">
-                Supportive home protocol. Hydration, physical rest, and structured red-flag return precautions.
+                Safe to rest at home. Drink plenty of fluids, rest, and check back if symptoms worsen.
               </p>
             </div>
           </div>
@@ -359,7 +359,7 @@ export default function HomePage() {
             href="tel:911"
             className="text-xs font-mono font-bold text-red-600 hover:underline shrink-0"
           >
-            DISPATCH 911 PROTOCOL
+            Call 911 Immediately
           </a>
         </div>
       </section>
