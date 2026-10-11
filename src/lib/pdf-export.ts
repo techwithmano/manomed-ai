@@ -306,7 +306,24 @@ export async function exportLabReportPDF(
     doc.setFontSize(12);
     doc.setTextColor(15, 23, 42);
     doc.text("Analyzed Laboratory Parameters & Reference Ranges", margin, cursorY);
-    cursorY += 14;
+    cursorY += 13;
+
+    doc.setFont("helvetica", "italic");
+    doc.setFontSize(8.5);
+    doc.setTextColor(100, 116, 139);
+    doc.text("Reference ranges shown are for adults.", margin, cursorY);
+    cursorY += 12;
+
+    const parsedAge = parseInt(patientAge, 10);
+    if (!isNaN(parsedAge) && parsedAge > 0 && parsedAge < 18) {
+      doc.setFillColor(254, 243, 199);
+      doc.roundedRect(margin, cursorY, width - margin * 2, 22, 3, 3, "FD");
+      doc.setTextColor(146, 64, 14);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8);
+      doc.text("Pediatric Caution: Patient age is under 18. Reference ranges shown are for adults. Interpret results with a clinician.", margin + 8, cursorY + 14);
+      cursorY += 28;
+    }
 
     const paramRows = (labData.analyzedParameters || []).map((p: any) => [
       p.name,

@@ -160,7 +160,7 @@ function ConditionsContent() {
   return (
     <div className="min-h-[calc(100vh-5rem)] px-4 py-8 bg-background text-foreground">
       {/* Navigation Breadcrumb */}
-      <div className="max-w-5xl mx-auto flex items-center justify-between text-xs text-muted-foreground pb-6 mb-6 border-b border-border/60">
+      <div className="max-w-5xl mx-auto flex items-center justify-between text-xs text-muted-foreground pb-6 mb-6 border-b border-border/60 print:hidden">
         <div className="flex items-center gap-2">
           <Link href="/ManoMedai" className="hover:text-foreground transition-colors">
             Intake
@@ -184,7 +184,7 @@ function ConditionsContent() {
         assessment={assessment}
         onStartNew={handleStartNew}
       />
-      <div className="max-w-5xl mx-auto mt-6">
+      <div className="max-w-5xl mx-auto mt-6 print:hidden">
         <Disclaimer />
       </div>
     </div>

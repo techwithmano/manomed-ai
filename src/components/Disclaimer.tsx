@@ -14,7 +14,7 @@ export const Disclaimer: React.FC = () => {
           Clinical Guidance & Medical Disclaimer
         </h4>
         <p className="text-xs text-muted-foreground leading-relaxed">
-          ManoMed AI provides preliminary clinical triage and decision support synthesized from reported patient inputs and evidence-based clinical reasoning models. This application does not establish a formal physician-patient relationship and is not a substitute for clinical diagnosis, laboratory pathology, or prescription therapeutics. For sudden severe symptoms (e.g. crushing chest pain, dyspnea, acute neurological deficit), immediately contact emergency services (<strong>911</strong>).
+          ManoMed AI provides preliminary clinical triage and decision support synthesized from reported patient inputs and evidence-based clinical reasoning models. This application does not establish a formal physician-patient relationship and is not a substitute for clinical diagnosis, laboratory pathology, or prescription therapeutics. For sudden severe symptoms (e.g. crushing chest pain, dyspnea, acute neurological deficit), immediately contact your local emergency services.
         </p>
       </div>
     </div>
