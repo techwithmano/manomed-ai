@@ -141,6 +141,8 @@ export function clearCurrentAssessment(): void {
   }
 }
 
+export type WorkflowStatus = 'pending' | 'reviewed' | 'escalated' | 'archived';
+
 export interface SavedAssessmentSummary {
   id: string;
   date: string;
@@ -151,6 +153,12 @@ export interface SavedAssessmentSummary {
   topCondition: string;
   topLikelihood: number;
   fullData: CurrentAssessment;
+  /**
+   * Local triage workflow status. Missing defaults to 'pending'.
+   * Labeled in UI as "Local triage status (not a medical record)".
+   */
+  workflowStatus?: WorkflowStatus;
+  reviewedAt?: string;
 }
 
 export function getAssessmentHistory(): SavedAssessmentSummary[] {
@@ -182,6 +190,7 @@ export function saveAssessmentToHistory(assessment: CurrentAssessment): void {
       topCondition,
       topLikelihood,
       fullData: assessment,
+      workflowStatus: 'pending',
     };
 
     // Keep up to 25 latest assessments locally
@@ -197,6 +206,36 @@ export function saveAssessmentToHistory(assessment: CurrentAssessment): void {
     }
   } catch (err) {
     console.error("Failed to save to assessment history:", err);
+  }
+}
+
+export function updateAssessmentWorkflowStatus(id: string, status: WorkflowStatus): void {
+  if (typeof window === "undefined") return;
+  try {
+    const history = getAssessmentHistory();
+    const updated = history.map((item) => {
+      if (item.id === id) {
+        return {
+          ...item,
+          workflowStatus: status,
+          reviewedAt: status === "reviewed" ? new Date().toISOString() : item.reviewedAt,
+        };
+      }
+      return item;
+    });
+    localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(updated));
+
+    if (db) {
+      setDoc(
+        doc(db, "assessments", id),
+        { workflowStatus: status, reviewedAt: new Date().toISOString() },
+        { merge: true }
+      ).catch((err) => {
+        console.warn("Firestore update assessment status:", err);
+      });
+    }
+  } catch (err) {
+    console.error("Failed to update assessment status:", err);
   }
 }
 
@@ -231,6 +270,8 @@ export interface SavedLabSummary {
   triageUrgency: "EMERGENCY" | "URGENT" | "ROUTINE" | "OPTIMAL";
   abnormalCount: number;
   data: any;
+  workflowStatus?: WorkflowStatus;
+  reviewedAt?: string;
 }
 
 export function getLabHistory(): SavedLabSummary[] {
@@ -260,6 +301,7 @@ export function saveLabToHistory(data: any, patientName = "Anonymous", patientAg
       triageUrgency: data.triageUrgency || "OPTIMAL",
       abnormalCount,
       data,
+      workflowStatus: 'pending',
     };
     const updated = [summary, ...history.filter(h => h.id !== summary.id)].slice(0, 25);
     localStorage.setItem(STORAGE_KEY_LABS, JSON.stringify(updated));
@@ -272,6 +314,36 @@ export function saveLabToHistory(data: any, patientName = "Anonymous", patientAg
     }
   } catch (err) {
     console.error("Failed to save lab history:", err);
+  }
+}
+
+export function updateLabWorkflowStatus(id: string, status: WorkflowStatus): void {
+  if (typeof window === "undefined") return;
+  try {
+    const history = getLabHistory();
+    const updated = history.map((item) => {
+      if (item.id === id) {
+        return {
+          ...item,
+          workflowStatus: status,
+          reviewedAt: status === "reviewed" ? new Date().toISOString() : item.reviewedAt,
+        };
+      }
+      return item;
+    });
+    localStorage.setItem(STORAGE_KEY_LABS, JSON.stringify(updated));
+
+    if (db) {
+      setDoc(
+        doc(db, "lab_records", id),
+        { workflowStatus: status, reviewedAt: new Date().toISOString() },
+        { merge: true }
+      ).catch((err) => {
+        console.warn("Firestore update lab status:", err);
+      });
+    }
+  } catch (err) {
+    console.error("Failed to update lab status:", err);
   }
 }
 
@@ -301,6 +373,8 @@ export interface SavedXRaySummary {
   urgency: "EMERGENCY" | "URGENT" | "ROUTINE" | "NORMAL";
   impression: string;
   data: any;
+  workflowStatus?: WorkflowStatus;
+  reviewedAt?: string;
 }
 
 export function getXRayHistory(): SavedXRaySummary[] {
@@ -328,6 +402,7 @@ export function saveXRayToHistory(data: any, patientName = "Anonymous", patientA
       urgency: data.urgency || "NORMAL",
       impression: data.radiologicalImpression || "Examination completed",
       data,
+      workflowStatus: 'pending',
     };
     const updated = [summary, ...history.filter(h => h.id !== summary.id)].slice(0, 25);
     localStorage.setItem(STORAGE_KEY_XRAY, JSON.stringify(updated));
@@ -340,6 +415,36 @@ export function saveXRayToHistory(data: any, patientName = "Anonymous", patientA
     }
   } catch (err) {
     console.error("Failed to save xray history:", err);
+  }
+}
+
+export function updateXRayWorkflowStatus(id: string, status: WorkflowStatus): void {
+  if (typeof window === "undefined") return;
+  try {
+    const history = getXRayHistory();
+    const updated = history.map((item) => {
+      if (item.id === id) {
+        return {
+          ...item,
+          workflowStatus: status,
+          reviewedAt: status === "reviewed" ? new Date().toISOString() : item.reviewedAt,
+        };
+      }
+      return item;
+    });
+    localStorage.setItem(STORAGE_KEY_XRAY, JSON.stringify(updated));
+
+    if (db) {
+      setDoc(
+        doc(db, "imaging_records", id),
+        { workflowStatus: status, reviewedAt: new Date().toISOString() },
+        { merge: true }
+      ).catch((err) => {
+        console.warn("Firestore update xray status:", err);
+      });
+    }
+  } catch (err) {
+    console.error("Failed to update xray status:", err);
   }
 }
 

@@ -33,6 +33,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { interpretBloodWork, LabItem, BloodWorkOutput } from '@/ai/flows/blood-work-flow';
 import { saveLabToHistory } from '@/lib/assessment-store';
 import { exportLabReportPDF } from '@/lib/pdf-export';
+import { ClinicalStatusBadge } from '@/components/ClinicalStatusBadge';
+import { LabReferenceRangeBar } from '@/components/LabReferenceRangeBar';
+import { checkLabItemsPlausibility, PlausibilityWarning, getCandidateUnitsForParameter } from '@/lib/labPlausibilityConfig';
 
 // Standard Clinical Presets for Instant 1-Click Evaluation
 const LAB_PRESETS = [
@@ -129,6 +132,10 @@ export default function BloodWorkPage() {
   const [isExportingPdf, setIsExportingPdf] = useState(false);
   const [audienceView, setAudienceView] = useState<'patient' | 'clinical'>('patient');
 
+  // Input validation state for impossible/unusual values
+  const [plausibilityWarnings, setPlausibilityWarnings] = useState<PlausibilityWarning[] | null>(null);
+  const [confirmedPlausibility, setConfirmedPlausibility] = useState(false);
+
   const handleExportPdf = async () => {
     if (!result) return;
     setIsExportingPdf(true);
@@ -145,11 +152,15 @@ export default function BloodWorkPage() {
       ...prev,
       { parameter: '', value: '', unit: '', referenceRange: '' },
     ]);
+    setPlausibilityWarnings(null);
+    setConfirmedPlausibility(false);
   };
 
   // Remove parameter
   const handleRemoveParameter = (index: number) => {
     setLabItems((prev) => prev.filter((_, i) => i !== index));
+    setPlausibilityWarnings(null);
+    setConfirmedPlausibility(false);
   };
 
   // Update parameter
@@ -159,6 +170,11 @@ export default function BloodWorkPage() {
       next[index] = { ...next[index], [field]: val };
       return next;
     });
+    // Reset plausibility warnings when values are edited
+    if (plausibilityWarnings) {
+      setPlausibilityWarnings(null);
+      setConfirmedPlausibility(false);
+    }
   };
 
   // Load Preset
@@ -167,24 +183,21 @@ export default function BloodWorkPage() {
     setLabItems(preset.values);
     setClinicalNotes(preset.description);
     setResult(null);
+    setPlausibilityWarnings(null);
+    setConfirmedPlausibility(false);
   };
 
-  // Run Analysis
-  const handleRunAnalysis = async () => {
-    const validItems = labItems.filter((i) => i.parameter.trim() && i.value.trim());
-    if (validItems.length === 0) {
-      alert('Please enter at least one laboratory test parameter and value.');
-      return;
-    }
-
+  // Core execution of blood work analysis
+  const executeAnalysis = async (itemsToAnalyze: LabItem[]) => {
     setIsAnalyzing(true);
+    setPlausibilityWarnings(null);
     try {
       const output = await interpretBloodWork({
         patientName: patientName || 'Patient',
         age: age || undefined,
         gender: gender || undefined,
         panelType,
-        labValues: validItems,
+        labValues: itemsToAnalyze,
         clinicalSymptoms: clinicalNotes || undefined,
       });
 
@@ -196,6 +209,38 @@ export default function BloodWorkPage() {
     } finally {
       setIsAnalyzing(false);
     }
+  };
+
+  // Run Analysis with Plausibility Gate
+  const handleRunAnalysis = async () => {
+    const validItems = labItems.filter((i) => i.parameter.trim() && i.value.trim());
+    if (validItems.length === 0) {
+      alert('Please enter at least one laboratory test parameter and value.');
+      return;
+    }
+
+    // Unit completeness validation: Check for parameters that have multiple standard units
+    const missingUnitItems = validItems.filter((i) => {
+      const candidateUnits = getCandidateUnitsForParameter(i.parameter);
+      return candidateUnits.length > 1 && !i.unit.trim();
+    });
+
+    if (missingUnitItems.length > 0) {
+      const names = missingUnitItems.map((i) => i.parameter).join(', ');
+      alert(`Unit needed: Please select or enter the measurement unit for: ${names}.`);
+      return;
+    }
+
+    // Check for impossible/unusual values (e.g. potassium 42)
+    if (!confirmedPlausibility) {
+      const warnings = checkLabItemsPlausibility(validItems);
+      if (warnings.length > 0) {
+        setPlausibilityWarnings(warnings);
+        return;
+      }
+    }
+
+    await executeAnalysis(validItems);
   };
 
   const copyResults = () => {
@@ -286,7 +331,7 @@ ${result.analyzedParameters.map((p) => `- ${p.name}: ${p.value} ${p.unit} [${p.f
                     <span>{preset.name}</span>
                     <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/60 group-hover:translate-x-0.5 transition-transform" />
                   </div>
-                  <div className="text-[11px] text-muted-foreground line-clamp-1">{preset.description}</div>
+                  <div className="text-xs text-muted-foreground line-clamp-1">{preset.description}</div>
                 </button>
               );
             })}
@@ -350,6 +395,21 @@ ${result.analyzedParameters.map((p) => `- ${p.name}: ${p.value} ${p.unit} [${p.f
               />
             </div>
           </CardContent>
+
+          {/* Pediatric Caution if age under 18 */}
+          {parseInt(age, 10) > 0 && parseInt(age, 10) < 18 && (
+            <div className="px-6 pb-4">
+              <div
+                role="status"
+                className="p-3 rounded-xl border border-amber-500/40 bg-amber-500/10 text-amber-950 dark:text-amber-200 text-xs flex items-center gap-2.5 animate-in fade-in"
+              >
+                <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" aria-hidden="true" />
+                <span>
+                  <strong>Pediatric Caution:</strong> Patient age is under 18. Reference ranges and automated interpretations shown are calibrated for adults. Please interpret all pediatric laboratory results directly with a qualified pediatric clinician.
+                </span>
+              </div>
+            </div>
+          )}
         </Card>
 
         {/* Laboratory Parameters Input Table */}
@@ -360,9 +420,14 @@ ${result.analyzedParameters.map((p) => `- ${p.name}: ${p.value} ${p.unit} [${p.f
                 <FlaskConical className="w-4 h-4 text-primary" />
                 Laboratory Test Values
               </CardTitle>
-              <CardDescription className="text-xs">
-                Enter your lab report numbers. Leave reference range blank to use our automated clinical standards.
-              </CardDescription>
+              <div className="flex flex-wrap items-center gap-2 mt-1">
+                <CardDescription className="text-xs">
+                  Enter your lab report numbers. Leave reference range blank to use our automated clinical standards.
+                </CardDescription>
+                <Badge variant="outline" className="text-[11px] font-medium border-border/80 text-muted-foreground">
+                  Reference ranges shown are for adults
+                </Badge>
+              </div>
             </div>
             <Button
               type="button"
@@ -407,13 +472,34 @@ ${result.analyzedParameters.map((p) => `- ${p.name}: ${p.value} ${p.unit} [${p.f
                       className="text-xs h-9 font-mono"
                     />
                   </div>
-                  <div className="sm:col-span-2">
+                  <div className="sm:col-span-2 space-y-1">
                     <Input
                       placeholder="e.g. g/dL, mg/dL"
                       value={item.unit}
                       onChange={(e) => handleUpdateParameter(idx, 'unit', e.target.value)}
                       className="text-xs h-9"
                     />
+                    {(() => {
+                      const candidateUnits = item.parameter ? getCandidateUnitsForParameter(item.parameter) : [];
+                      if (candidateUnits.length > 1 && !item.unit.trim()) {
+                        return (
+                          <div className="flex items-center gap-1 text-[10px] text-amber-600 dark:text-amber-400">
+                            <span className="font-semibold">Unit needed:</span>
+                            {candidateUnits.map((u) => (
+                              <button
+                                key={u}
+                                type="button"
+                                onClick={() => handleUpdateParameter(idx, 'unit', u)}
+                                className="underline hover:text-foreground font-mono"
+                              >
+                                {u}
+                              </button>
+                            ))}
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
                   </div>
                   <div className="sm:col-span-3">
                     <Input
@@ -430,7 +516,7 @@ ${result.analyzedParameters.map((p) => `- ${p.name}: ${p.value} ${p.unit} [${p.f
                       size="icon"
                       onClick={() => handleRemoveParameter(idx)}
                       disabled={labItems.length === 1}
-                      className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                      className="h-11 w-11 sm:h-8 sm:w-8 text-muted-foreground hover:text-destructive flex items-center justify-center focus-visible:ring-2 focus-visible:ring-destructive focus-visible:ring-offset-2"
                       aria-label="Delete test line"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -454,10 +540,66 @@ ${result.analyzedParameters.map((p) => `- ${p.name}: ${p.value} ${p.unit} [${p.f
               />
             </div>
 
+            {/* Biological Plausibility Confirmation Banner (Unusual Values Gate) */}
+            {plausibilityWarnings && plausibilityWarnings.length > 0 && (
+              <div
+                role="status"
+                aria-live="polite"
+                className="p-4 rounded-xl border border-amber-500/50 bg-amber-500/10 text-amber-950 dark:text-amber-200 text-xs space-y-3 animate-in fade-in"
+              >
+                <div className="flex items-start gap-2.5">
+                  <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" aria-hidden="true" />
+                  <div className="space-y-1.5 flex-1">
+                    <h4 className="font-bold text-sm text-foreground flex items-center gap-1.5">
+                      This value looks unusual. Please double-check the number and unit.
+                    </h4>
+                    <p className="text-muted-foreground leading-relaxed">
+                      Please verify that these values were entered accurately or if they represent a typing mistake or unit mismatch:
+                    </p>
+                    <ul className="list-disc list-inside space-y-1 pt-1 font-mono text-[11px] sm:text-xs">
+                      {plausibilityWarnings.map((w, idx) => (
+                        <li key={idx}>
+                          <span className="font-semibold text-foreground">{w.parameter}</span>: entered{' '}
+                          <span className="font-bold text-destructive underline">{w.enteredValue} {w.expectedUnit === 'Unit needed' ? '(no unit)' : w.expectedUnit}</span>.{' '}
+                          {w.expectedUnit === 'Unit needed'
+                            ? w.guidance
+                            : `(standard plausible interval: ${w.plausibleMin} – ${w.plausibleMax} ${w.expectedUnit}). ${w.guidance}`}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2.5 pt-1 pl-7">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setPlausibilityWarnings(null)}
+                    className="text-xs h-8 border-border"
+                  >
+                    Review / Correct Values
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => {
+                      setConfirmedPlausibility(true);
+                      const validItems = labItems.filter((i) => i.parameter.trim() && i.value.trim());
+                      executeAnalysis(validItems);
+                    }}
+                    className="text-xs h-8 bg-primary text-primary-foreground font-semibold"
+                  >
+                    Confirm and Proceed
+                  </Button>
+                </div>
+              </div>
+            )}
+
             <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3">
               <div className="text-xs text-muted-foreground flex items-center gap-1.5">
                 <Info className="w-3.5 h-3.5 text-primary shrink-0" />
-                <span>Reference ranges automatically adapt for age and biological sex where applicable.</span>
+                <span>Reference ranges automatically adapt for age and biological sex where applicable (pending clinical review).</span>
               </div>
 
               <Button
@@ -497,13 +639,12 @@ ${result.analyzedParameters.map((p) => `- ${p.name}: ${p.value} ${p.unit} [${p.f
               }`}
             >
               <div className="flex items-start sm:items-center gap-3">
-                {result.overallStatus === 'CRITICAL_ALERT' ? (
-                  <AlertTriangle className="w-6 h-6 shrink-0 mt-0.5 sm:mt-0 animate-pulse text-destructive" />
-                ) : result.overallStatus === 'ELEVATED_RISK' ? (
-                  <ShieldAlert className="w-6 h-6 shrink-0 mt-0.5 sm:mt-0 text-amber-500" />
-                ) : (
-                  <CheckCircle2 className="w-6 h-6 shrink-0 mt-0.5 sm:mt-0 text-emerald-600" />
-                )}
+                <ClinicalStatusBadge
+                  status={result.overallStatus === 'CRITICAL_ALERT' ? 'CRITICAL' : result.overallStatus === 'ELEVATED_RISK' ? 'HIGH' : 'NORMAL'}
+                  variant="lab-flag"
+                  size="lg"
+                  className="shrink-0 mt-0.5 sm:mt-0"
+                />
                 <div>
                   <h3 className="font-bold text-base text-foreground">
                     {result.overallStatus === 'CRITICAL_ALERT'
@@ -512,9 +653,11 @@ ${result.analyzedParameters.map((p) => `- ${p.name}: ${p.value} ${p.unit} [${p.f
                       ? 'Elevated Diagnostic Findings: Outpatient Follow-Up Recommended'
                       : 'All Analyzed Biomarkers Within Healthy Target Intervals'}
                   </h3>
-                  <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
-                    Triage Urgency: <strong className="text-foreground">{result.triageUrgency}</strong> • Tested ID: {result.id}
-                  </p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-xs text-muted-foreground">Triage Priority:</span>
+                    <ClinicalStatusBadge status={result.triageUrgency} variant="triage" size="sm" />
+                    <span className="text-xs text-muted-foreground">• Tested ID: {result.id}</span>
+                  </div>
                 </div>
               </div>
 
@@ -658,7 +801,7 @@ ${result.analyzedParameters.map((p) => `- ${p.name}: ${p.value} ${p.unit} [${p.f
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-3 text-xs leading-relaxed text-foreground">
-                    <div className="p-4 rounded-xl bg-muted/30 border border-border font-mono text-[12px] whitespace-pre-wrap">
+                    <div className="p-4 rounded-xl bg-muted/30 border border-border font-mono text-xs whitespace-pre-wrap">
                       {result.clinicalPhysicianSynthesis}
                     </div>
 
@@ -672,16 +815,16 @@ ${result.analyzedParameters.map((p) => `- ${p.name}: ${p.value} ${p.unit} [${p.f
                           <div key={i} className="p-3 rounded-xl border border-border bg-card space-y-1">
                             <div className="flex items-center justify-between">
                               <span className="font-bold text-xs text-foreground">{diff.condition}</span>
-                              <Badge variant="outline" className="text-[10px] font-mono">
+                              <Badge variant="outline" className="text-xs font-mono">
                                 {Math.round(diff.likelihood * 100)}% Match
                               </Badge>
                             </div>
                             {diff.icd10Hint && (
-                              <div className="text-[10px] font-mono text-primary font-bold">
+                              <div className="text-xs font-mono text-primary font-bold">
                                 ICD-10: {diff.icd10Hint}
                               </div>
                             )}
-                            <p className="text-[11px] text-muted-foreground leading-normal">{diff.rationale}</p>
+                            <p className="text-xs text-muted-foreground leading-normal">{diff.rationale}</p>
                           </div>
                         ))}
                       </div>
@@ -704,35 +847,30 @@ ${result.analyzedParameters.map((p) => `- ${p.name}: ${p.value} ${p.unit} [${p.f
                   <table className="w-full text-left text-xs border-collapse">
                     <thead>
                       <tr className="border-b border-border text-muted-foreground font-semibold">
-                        <th className="py-2.5 px-3">Parameter</th>
-                        <th className="py-2.5 px-3">Patient Value</th>
-                        <th className="py-2.5 px-3">Reference Range</th>
-                        <th className="py-2.5 px-3">Flag Status</th>
-                        <th className="py-2.5 px-3">Clinical Impact</th>
+                        <th className="py-2.5 px-3 min-w-[140px]">Parameter</th>
+                        <th className="py-2.5 px-3 min-w-[260px]">Reference Range & Flag</th>
+                        <th className="py-2.5 px-3 min-w-[200px]">Clinical Impact</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-border/60">
                       {result.analyzedParameters.map((param, idx) => (
                         <tr key={idx} className="hover:bg-muted/30 transition-colors">
-                          <td className="py-3 px-3 font-semibold text-foreground">{param.name}</td>
-                          <td className="py-3 px-3 font-mono font-bold text-foreground">
-                            {param.value} {param.unit}
+                          <td className="py-3.5 px-3 font-semibold text-foreground align-top">
+                            <div>{param.name}</div>
+                            <div className="text-[11px] text-muted-foreground font-normal mt-0.5 font-mono">
+                              Ref: {param.referenceRange}
+                            </div>
                           </td>
-                          <td className="py-3 px-3 font-mono text-muted-foreground">{param.referenceRange}</td>
-                          <td className="py-3 px-3">
-                            <span
-                              className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                                param.flag === 'CRITICAL_HIGH' || param.flag === 'CRITICAL_LOW'
-                                  ? 'bg-destructive/20 text-destructive border border-destructive/30'
-                                  : param.flag === 'HIGH' || param.flag === 'LOW'
-                                  ? 'bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30'
-                                  : 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30'
-                              }`}
-                            >
-                              {param.flag.replace('_', ' ')}
-                            </span>
+                          <td className="py-3.5 px-3 align-top">
+                            <LabReferenceRangeBar
+                              parameterName={param.name}
+                              value={param.value}
+                              unit={param.unit}
+                              referenceRange={param.referenceRange}
+                              flag={param.flag}
+                            />
                           </td>
-                          <td className="py-3 px-3 text-muted-foreground text-[11px] leading-relaxed max-w-xs">
+                          <td className="py-3.5 px-3 text-muted-foreground text-xs leading-relaxed align-top">
                             {param.interpretation}
                           </td>
                         </tr>
@@ -771,7 +909,7 @@ ${result.analyzedParameters.map((p) => `- ${p.name}: ${p.value} ${p.unit} [${p.f
         <div className="p-4 rounded-xl bg-muted/40 border border-border/60 text-xs text-muted-foreground flex items-start gap-3">
           <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
           <p className="leading-relaxed">
-            <strong className="text-foreground">Pathology Advisory:</strong> ManoMed AI laboratory interpretation assists in clinical pattern recognition and patient education. It does not supersede formal lab re-testing or physical medical consultation. In cases of critical lab values or severe acute distress, activate emergency services (911) or proceed to the nearest emergency department immediately.
+            <strong className="text-foreground">Pathology Advisory:</strong> ManoMed AI laboratory interpretation assists in clinical pattern recognition and patient education. It does not supersede formal lab re-testing or physical medical consultation. In cases of critical lab values or severe acute distress, contact your local emergency services or proceed to the nearest emergency department immediately.
           </p>
         </div>
       </div>

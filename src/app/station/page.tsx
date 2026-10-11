@@ -51,6 +51,7 @@ import {
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
+import { ClinicalStatusBadge } from "@/components/ClinicalStatusBadge";
 
 export default function ClinicalStationPage() {
   const [assessments, setAssessments] = useState<SavedAssessmentSummary[]>([]);
@@ -64,16 +65,44 @@ export default function ClinicalStationPage() {
   const [selectedXRay, setSelectedXRay] = useState<SavedXRaySummary | null>(null);
   const [copiedSoap, setCopiedSoap] = useState(false);
 
+  // Live timestamp tracking (accurate, driven by real data events)
+  const [lastDataTimestamp, setLastDataTimestamp] = useState<number>(() => Date.now());
+  const [now, setNow] = useState<number>(() => Date.now());
+  const [srAnnouncement, setSrAnnouncement] = useState<string>("");
+  const [selectedQueueIndex, setSelectedQueueIndex] = useState<number>(0);
+  const [shortcutsEnabled, setShortcutsEnabled] = useState<boolean>(true);
+  const [shortcutFeedback, setShortcutFeedback] = useState<string | null>(null);
+
   useEffect(() => {
-    const unsubAssessments = subscribeToAssessments((items) => setAssessments(items));
-    const unsubLabs = subscribeToLabs((items) => setLabs(items));
-    const unsubXRays = subscribeToXRays((items) => setXRays(items));
+    const unsubAssessments = subscribeToAssessments((items) => {
+      setAssessments(items);
+      setLastDataTimestamp(Date.now());
+      setSrAnnouncement(`Clinical queue updated. ${items.length} assessments active.`);
+    });
+    const unsubLabs = subscribeToLabs((items) => {
+      setLabs(items);
+      setLastDataTimestamp(Date.now());
+      setSrAnnouncement(`Laboratory queue updated. ${items.length} panels active.`);
+    });
+    const unsubXRays = subscribeToXRays((items) => {
+      setXRays(items);
+      setLastDataTimestamp(Date.now());
+      setSrAnnouncement(`Imaging queue updated. ${items.length} studies active.`);
+    });
 
     return () => {
       unsubAssessments();
       unsubLabs();
       unsubXRays();
     };
+  }, []);
+
+  // Update relative time tick every 5 seconds (not every second to avoid UI churn)
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setNow(Date.now());
+    }, 5000);
+    return () => clearInterval(timer);
   }, []);
 
   // Filtered lists
@@ -249,33 +278,133 @@ ${soap.plan || "N/A"}`;
     setAssessments(subscribeToAssessments((items) => setAssessments(items)) as any || []);
   };
 
+  // Format accurate relative time based on real data updates
+  const elapsedSeconds = Math.max(0, Math.floor((now - lastDataTimestamp) / 1000));
+  const formatRelativeTime = (seconds: number): string => {
+    if (seconds < 5) return 'just now';
+    if (seconds < 60) return `${seconds}s ago`;
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes}m ago`;
+    const hours = Math.floor(minutes / 60);
+    return `${hours}h ago`;
+  };
+  const relativeTimeStr = formatRelativeTime(elapsedSeconds);
+
+  // Active queue based on current tab
+  const currentQueue =
+    activeTab === 'symptoms'
+      ? filteredAssessments
+      : activeTab === 'labs'
+      ? filteredLabs
+      : filteredXRays;
+
+  // Keyboard navigation & safe actions (guarded against text input focus)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Guard 1: Ignore all shortcuts when Ctrl, Meta (Cmd), or Alt is pressed.
+      // This ensures native browser shortcuts like Ctrl+C, Cmd+C, Ctrl+V, Alt+Tab, etc. function normally.
+      if (e.ctrlKey || e.metaKey || e.altKey) {
+        return;
+      }
+
+      // Guard 2: NEVER trigger shortcuts when user is focused inside any input, textarea, select, or editable element,
+      // including search inputs, filter selectors, and fields inside dialog modals.
+      const activeEl = document.activeElement;
+      if (
+        activeEl &&
+        (activeEl instanceof HTMLInputElement ||
+          activeEl instanceof HTMLTextAreaElement ||
+          activeEl instanceof HTMLSelectElement ||
+          activeEl.getAttribute('contenteditable') === 'true' ||
+          Boolean(activeEl.closest('input, textarea, select, [contenteditable="true"]')))
+      ) {
+        return;
+      }
+
+      // Esc: Close any open modal (always available for modal accessibility)
+      if (e.key === 'Escape') {
+        if (selectedAssessment || selectedLab || selectedXRay) {
+          e.preventDefault();
+          setSelectedAssessment(null);
+          setSelectedLab(null);
+          setSelectedXRay(null);
+        }
+        return;
+      }
+
+      // Guard 3: WCAG 2.1.4 single-character shortcuts (j, k, c) are disabled when user turns them off
+      if (!shortcutsEnabled) {
+        return;
+      }
+
+      // c: Copy SOAP note of currently selected/focused assessment
+      if (e.key === 'c' || e.key === 'C') {
+        const targetAssessment =
+          selectedAssessment ??
+          (activeTab === 'symptoms' ? filteredAssessments[selectedQueueIndex] ?? null : null);
+        if (targetAssessment?.fullData?.result?.soapNote) {
+          e.preventDefault();
+          handleCopySoap(targetAssessment.fullData.result.soapNote);
+          setShortcutFeedback('SOAP Note copied to clipboard');
+          setTimeout(() => setShortcutFeedback(null), 2500);
+        }
+        return;
+      }
+
+      // j: Move down/next in the queue
+      if (e.key === 'j' || e.key === 'J') {
+        if (currentQueue.length === 0) return;
+        e.preventDefault();
+        setSelectedQueueIndex((prev) => {
+          const next = Math.min(currentQueue.length - 1, prev + 1);
+          if (selectedAssessment && activeTab === 'symptoms') {
+            setSelectedAssessment(filteredAssessments[next] || null);
+          } else if (selectedLab && activeTab === 'labs') {
+            setSelectedLab(filteredLabs[next] || null);
+          } else if (selectedXRay && activeTab === 'imaging') {
+            setSelectedXRay(filteredXRays[next] || null);
+          }
+          return next;
+        });
+        return;
+      }
+
+      // k: Move up/previous in the queue
+      if (e.key === 'k' || e.key === 'K') {
+        if (currentQueue.length === 0) return;
+        e.preventDefault();
+        setSelectedQueueIndex((prev) => {
+          const next = Math.max(0, prev - 1);
+          if (selectedAssessment && activeTab === 'symptoms') {
+            setSelectedAssessment(filteredAssessments[next] || null);
+          } else if (selectedLab && activeTab === 'labs') {
+            setSelectedLab(filteredLabs[next] || null);
+          } else if (selectedXRay && activeTab === 'imaging') {
+            setSelectedXRay(filteredXRays[next] || null);
+          }
+          return next;
+        });
+        return;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [
+    shortcutsEnabled,
+    selectedAssessment,
+    selectedLab,
+    selectedXRay,
+    activeTab,
+    selectedQueueIndex,
+    currentQueue,
+    filteredAssessments,
+    filteredLabs,
+    filteredXRays,
+  ]);
+
   const getTriageBadge = (level: string) => {
-    switch (level) {
-      case "EMERGENCY":
-        return (
-          <Badge className="bg-red-600 hover:bg-red-700 text-white font-semibold flex items-center gap-1 animate-pulse">
-            <Flame className="w-3.5 h-3.5" /> 🔴 EMERGENCY
-          </Badge>
-        );
-      case "URGENT":
-        return (
-          <Badge className="bg-amber-600 hover:bg-amber-700 text-white font-medium flex items-center gap-1">
-            <AlertTriangle className="w-3.5 h-3.5" /> 🟠 URGENT
-          </Badge>
-        );
-      case "ROUTINE":
-        return (
-          <Badge className="bg-blue-600 hover:bg-blue-700 text-white font-medium flex items-center gap-1">
-            <Clock className="w-3.5 h-3.5" /> 🔵 ROUTINE
-          </Badge>
-        );
-      default:
-        return (
-          <Badge className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium flex items-center gap-1">
-            <CheckCircle2 className="w-3.5 h-3.5" /> 🟢 SELF-CARE
-          </Badge>
-        );
-    }
+    return <ClinicalStatusBadge status={level} size="sm" />;
   };
 
   return (
@@ -284,15 +413,60 @@ ${soap.plan || "N/A"}`;
         {/* Header Banner */}
         <div className="border border-border rounded-xl p-6 bg-card/60 backdrop-blur-sm shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-3 mb-2">
+            <div className="flex flex-wrap items-center gap-3 mb-2">
               <div className="p-2 rounded-lg bg-primary/10 text-primary">
                 <Hospital className="w-6 h-6" />
               </div>
               <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Doctor & Clinic Dashboard</h1>
-              <Badge variant="outline" className="border-emerald-500/50 text-emerald-500 flex items-center gap-1.5 py-0.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-                Live Clinic Sync
-              </Badge>
+              
+              {/* Live Clinic Sync with Real Timestamp */}
+              <div className="flex items-center gap-2">
+                <div
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border border-emerald-500/40 bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 select-none"
+                  aria-label={`Live Clinic Sync active. Last updated ${relativeTimeStr}.`}
+                >
+                  <span className="relative flex h-2 w-2" aria-hidden="true">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                  </span>
+                  <span>Live Sync</span>
+                  <span className="text-muted-foreground font-mono text-[11px] ml-0.5">
+                    • Updated {relativeTimeStr}
+                  </span>
+                </div>
+
+                {/* Screen Reader polite live announcement on real data changes (not every second) */}
+                <div role="status" aria-live="polite" className="sr-only">
+                  {srAnnouncement}
+                </div>
+              </div>
+
+              {/* WCAG 2.1.4: Single-character keyboard shortcuts toggleable by user */}
+              <button
+                type="button"
+                onClick={() => setShortcutsEnabled((prev) => !prev)}
+                aria-pressed={shortcutsEnabled}
+                aria-label={`Toggle single-character keyboard shortcuts. Currently ${shortcutsEnabled ? "enabled" : "disabled"}.`}
+                className={`hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] font-mono transition-colors focus-visible:ring-2 focus-visible:ring-primary ${
+                  shortcutsEnabled
+                    ? "border-primary/40 bg-primary/10 text-primary"
+                    : "border-border bg-muted/40 text-muted-foreground opacity-75"
+                }`}
+                title="Click to toggle single-character shortcuts on or off (WCAG 2.1.4)"
+              >
+                <span className="font-semibold text-foreground">Shortcuts ({shortcutsEnabled ? "ON" : "OFF"}):</span>
+                <kbd className="px-1.5 py-0.5 rounded bg-card border border-border font-bold text-[10px]">j</kbd>/<kbd className="px-1.5 py-0.5 rounded bg-card border border-border font-bold text-[10px]">k</kbd> queue
+                <span className="text-muted-foreground/60">•</span>
+                <kbd className="px-1.5 py-0.5 rounded bg-card border border-border font-bold text-[10px]">c</kbd> SOAP
+                <span className="text-muted-foreground/60">•</span>
+                <kbd className="px-1.5 py-0.5 rounded bg-card border border-border font-bold text-[10px]">Esc</kbd>
+              </button>
+
+              {shortcutFeedback && (
+                <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 animate-in fade-in">
+                  ✓ {shortcutFeedback}
+                </span>
+              )}
             </div>
             <p className="text-muted-foreground text-sm max-w-3xl">
               Live overview of patient visits, symptom checks, lab tests, and imaging for doctors and clinic staff.
@@ -433,17 +607,24 @@ ${soap.plan || "N/A"}`;
               </Card>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredAssessments.map((item) => (
+                {filteredAssessments.map((item, idx) => (
                   <Card
                     key={item.id}
                     className={`border transition-all hover:shadow-md cursor-pointer ${
+                      activeTab === "symptoms" && idx === selectedQueueIndex
+                        ? "ring-2 ring-primary ring-offset-2 ring-offset-background"
+                        : ""
+                    } ${
                       item.triageLevel === "EMERGENCY"
                         ? "border-red-500/40 bg-red-500/[0.02]"
                         : item.triageLevel === "URGENT"
                         ? "border-amber-500/40 bg-amber-500/[0.02]"
                         : "border-border"
                     }`}
-                    onClick={() => setSelectedAssessment(item)}
+                    onClick={() => {
+                      setSelectedQueueIndex(idx);
+                      setSelectedAssessment(item);
+                    }}
                   >
                     <CardHeader className="p-5 pb-3">
                       <div className="flex items-center justify-between gap-2 mb-2">
@@ -503,17 +684,24 @@ ${soap.plan || "N/A"}`;
               </Card>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredLabs.map((item) => (
+                {filteredLabs.map((item, idx) => (
                   <Card
                     key={item.id}
                     className={`border transition-all hover:shadow-md cursor-pointer ${
+                      activeTab === "labs" && idx === selectedQueueIndex
+                        ? "ring-2 ring-primary ring-offset-2 ring-offset-background"
+                        : ""
+                    } ${
                       item.triageUrgency === "EMERGENCY"
                         ? "border-red-500/40 bg-red-500/[0.02]"
                         : item.triageUrgency === "URGENT"
                         ? "border-amber-500/40 bg-amber-500/[0.02]"
                         : "border-border"
                     }`}
-                    onClick={() => setSelectedLab(item)}
+                    onClick={() => {
+                      setSelectedQueueIndex(idx);
+                      setSelectedLab(item);
+                    }}
                   >
                     <CardHeader className="p-5 pb-3">
                       <div className="flex items-center justify-between gap-2 mb-2">
@@ -566,17 +754,24 @@ ${soap.plan || "N/A"}`;
               </Card>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredXRays.map((item) => (
+                {filteredXRays.map((item, idx) => (
                   <Card
                     key={item.id}
                     className={`border transition-all hover:shadow-md cursor-pointer ${
+                      activeTab === "imaging" && idx === selectedQueueIndex
+                        ? "ring-2 ring-primary ring-offset-2 ring-offset-background"
+                        : ""
+                    } ${
                       item.urgency === "EMERGENCY"
                         ? "border-red-500/40 bg-red-500/[0.02]"
                         : item.urgency === "URGENT"
                         ? "border-amber-500/40 bg-amber-500/[0.02]"
                         : "border-border"
                     }`}
-                    onClick={() => setSelectedXRay(item)}
+                    onClick={() => {
+                      setSelectedQueueIndex(idx);
+                      setSelectedXRay(item);
+                    }}
                   >
                     <CardHeader className="p-5 pb-3">
                       <div className="flex items-center justify-between gap-2 mb-2">

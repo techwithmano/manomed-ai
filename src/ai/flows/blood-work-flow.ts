@@ -171,27 +171,70 @@ function synthesizeClinicalFallbackBloodWork(input: BloodWorkInput): BloodWorkOu
     }
     // 4. Glucose / Fasting Blood Sugar
     else if (lowerName.includes('glucose') || lowerName.includes('sugar')) {
-      ref = ref || '70 - 99 mg/dL';
-      if (!isNaN(num)) {
-        if (num < 50) {
-          flag = 'CRITICAL_LOW';
-          criticalAlerts.push(`Severe Hypoglycemia: Glucose ${num} mg/dL (immediate oral/IV dextrose required)`);
-          interpretation = 'Critically depressed blood sugar triggering neuroglycopenia.';
-          impact = 'High risk of diaphoresis, tremors, altered mental status, and loss of consciousness.';
-        } else if (num > 300) {
-          flag = 'CRITICAL_HIGH';
-          criticalAlerts.push(`Marked Hyperglycemia: Glucose ${num} mg/dL (DKA / HHS rule-out)`);
-          interpretation = 'Critical glycemic excursion requiring fluid resuscitation and insulin therapy.';
-          impact = 'Risk of osmotic diuresis, electrolyte wasting, dehydration, and ketoacidosis.';
-        } else if (num > 125) {
-          flag = 'HIGH';
-          interpretation = 'Elevated fasting glucose compatible with diabetic dysregulation.';
-          impact = 'Chronic microvascular and macrovascular risk factor requiring endocrine management.';
-        } else if (num < 70) {
-          flag = 'LOW';
-          interpretation = 'Mild hypoglycemia.';
-          impact = 'Can produce lightheadedness, autonomic sweating, and jitteriness.';
+      const normUnit = (unit || '').toLowerCase().trim();
+      const isMmol = normUnit.includes('mmol');
+      const isMg = normUnit.includes('mg');
+
+      if (isMmol) {
+        ref = ref || '3.9 - 5.5 mmol/L';
+        if (!isNaN(num)) {
+          if (num < 2.8) {
+            flag = 'CRITICAL_LOW';
+            criticalAlerts.push(`Severe Hypoglycemia: Glucose ${num} mmol/L (immediate oral/IV dextrose required)`);
+            interpretation = 'Critically depressed blood sugar triggering neuroglycopenia.';
+            impact = 'High risk of diaphoresis, tremors, altered mental status, and loss of consciousness.';
+          } else if (num < 3.9) {
+            flag = 'LOW';
+            interpretation = 'Mild hypoglycemia.';
+            impact = 'Can produce lightheadedness, autonomic sweating, and jitteriness.';
+          } else if (num > 16.7) {
+            flag = 'CRITICAL_HIGH';
+            criticalAlerts.push(`Marked Hyperglycemia: Glucose ${num} mmol/L (DKA / HHS rule-out)`);
+            interpretation = 'Critical glycemic excursion requiring fluid resuscitation and insulin therapy.';
+            impact = 'Risk of osmotic diuresis, electrolyte wasting, dehydration, and ketoacidosis.';
+          } else if (num > 5.5) {
+            flag = 'HIGH';
+            interpretation = 'Elevated fasting glucose compatible with impaired glucose tolerance or diabetes.';
+            impact = 'Chronic microvascular and macrovascular risk factor requiring endocrine management.';
+          } else {
+            flag = 'NORMAL';
+            interpretation = 'Fasting glucose is within expected normal physiological limits (3.9 - 5.5 mmol/L).';
+            impact = 'Healthy glycemic regulation maintaining cellular metabolism.';
+          }
         }
+      } else if (isMg) {
+        ref = ref || '70 - 99 mg/dL';
+        if (!isNaN(num)) {
+          if (num < 50) {
+            flag = 'CRITICAL_LOW';
+            criticalAlerts.push(`Severe Hypoglycemia: Glucose ${num} mg/dL (immediate oral/IV dextrose required)`);
+            interpretation = 'Critically depressed blood sugar triggering neuroglycopenia.';
+            impact = 'High risk of diaphoresis, tremors, altered mental status, and loss of consciousness.';
+          } else if (num < 70) {
+            flag = 'LOW';
+            interpretation = 'Mild hypoglycemia.';
+            impact = 'Can produce lightheadedness, autonomic sweating, and jitteriness.';
+          } else if (num > 300) {
+            flag = 'CRITICAL_HIGH';
+            criticalAlerts.push(`Marked Hyperglycemia: Glucose ${num} mg/dL (DKA / HHS rule-out)`);
+            interpretation = 'Critical glycemic excursion requiring fluid resuscitation and insulin therapy.';
+            impact = 'Risk of osmotic diuresis, electrolyte wasting, dehydration, and ketoacidosis.';
+          } else if (num > 99) {
+            flag = 'HIGH';
+            interpretation = 'Elevated fasting glucose compatible with diabetic dysregulation.';
+            impact = 'Chronic microvascular and macrovascular risk factor requiring endocrine management.';
+          } else {
+            flag = 'NORMAL';
+            interpretation = 'Fasting glucose is within expected normal physiological limits (70 - 99 mg/dL).';
+            impact = 'Healthy glycemic regulation maintaining cellular metabolism.';
+          }
+        }
+      } else {
+        // NO SILENT GUESSING: Unit is blank or unrecognized
+        ref = 'Unit needed';
+        flag = 'NORMAL';
+        interpretation = 'Unit needed: Measurement unit (e.g. mg/dL or mmol/L) is required to evaluate glucose safely. Interpretation withheld.';
+        impact = 'Clinical interpretation withheld to prevent hazardous misclassification.';
       }
     }
     // 5. Potassium (K+)
@@ -221,18 +264,60 @@ function synthesizeClinicalFallbackBloodWork(input: BloodWorkInput): BloodWorkOu
     }
     // 6. Creatinine
     else if (lowerName.includes('creatinine') || lowerName === 'cr') {
-      ref = ref || '0.7 - 1.3 mg/dL';
-      if (!isNaN(num)) {
-        if (num > 3.0) {
-          flag = 'CRITICAL_HIGH';
-          criticalAlerts.push(`Severe Renal Impairment: Creatinine ${num} mg/dL (acute kidney injury / urgent nephrology consult)`);
-          interpretation = 'Marked accumulation of nitrogenous waste reflecting severely reduced glomerular filtration.';
-          impact = 'Fluid retention, metabolic acidosis, and nephrotoxic drug accumulation.';
-        } else if (num > 1.3) {
-          flag = 'HIGH';
-          interpretation = 'Elevated serum creatinine indicating acute kidney injury or chronic renal disease.';
-          impact = 'Requires careful hydration, avoidance of NSAIDs/contrast, and renal ultrasound.';
+      const normUnit = (unit || '').toLowerCase().trim();
+      const isUmol = normUnit.includes('umol') || normUnit.includes('µmol') || normUnit.includes('micromol');
+      const isMg = normUnit.includes('mg');
+
+      if (isUmol) {
+        ref = ref || '60 - 115 umol/L';
+        if (!isNaN(num)) {
+          if (num > 265) {
+            flag = 'CRITICAL_HIGH';
+            criticalAlerts.push(`Severe Renal Impairment: Creatinine ${num} umol/L (acute kidney injury / urgent nephrology consult)`);
+            interpretation = 'Marked accumulation of nitrogenous waste reflecting severely reduced glomerular filtration.';
+            impact = 'Fluid retention, metabolic acidosis, and nephrotoxic drug accumulation.';
+          } else if (num > 115) {
+            flag = 'HIGH';
+            interpretation = 'Elevated serum creatinine indicating acute kidney injury or chronic renal disease.';
+            impact = 'Requires careful hydration, avoidance of NSAIDs/contrast, and renal ultrasound.';
+          } else if (num < 60) {
+            flag = 'LOW';
+            interpretation = 'Low serum creatinine, often associated with decreased muscle mass.';
+            impact = 'Typically non-pathological; assess nutritional status.';
+          } else {
+            flag = 'NORMAL';
+            interpretation = 'Serum creatinine is within normal physiological limits (60 - 115 umol/L).';
+            impact = 'Normal glomerular filtration and renal clearance.';
+          }
         }
+      } else if (isMg) {
+        ref = ref || '0.7 - 1.3 mg/dL';
+        if (!isNaN(num)) {
+          if (num > 3.0) {
+            flag = 'CRITICAL_HIGH';
+            criticalAlerts.push(`Severe Renal Impairment: Creatinine ${num} mg/dL (acute kidney injury / urgent nephrology consult)`);
+            interpretation = 'Marked accumulation of nitrogenous waste reflecting severely reduced glomerular filtration.';
+            impact = 'Fluid retention, metabolic acidosis, and nephrotoxic drug accumulation.';
+          } else if (num > 1.3) {
+            flag = 'HIGH';
+            interpretation = 'Elevated serum creatinine indicating acute kidney injury or chronic renal disease.';
+            impact = 'Requires careful hydration, avoidance of NSAIDs/contrast, and renal ultrasound.';
+          } else if (num < 0.7) {
+            flag = 'LOW';
+            interpretation = 'Low serum creatinine, often associated with decreased muscle mass.';
+            impact = 'Typically non-pathological; assess nutritional status.';
+          } else {
+            flag = 'NORMAL';
+            interpretation = 'Serum creatinine is within normal physiological limits (0.7 - 1.3 mg/dL).';
+            impact = 'Normal glomerular filtration and renal clearance.';
+          }
+        }
+      } else {
+        // NO SILENT GUESSING: Unit is blank or unrecognized
+        ref = 'Unit needed';
+        flag = 'NORMAL';
+        interpretation = 'Unit needed: Measurement unit (e.g. mg/dL or umol/L) is required to evaluate creatinine safely. Interpretation withheld.';
+        impact = 'Clinical interpretation withheld to prevent hazardous misclassification.';
       }
     }
     // 7. Troponin (Cardiac)
@@ -543,5 +628,10 @@ ${labListText}`;
 });
 
 export async function interpretBloodWork(input: BloodWorkInput): Promise<BloodWorkOutput> {
-  return bloodWorkFlow(input);
+  try {
+    return await bloodWorkFlow(input);
+  } catch (err) {
+    console.warn('Blood work GenAI flow threw, engaging clinical rule engine fallback:', err);
+    return synthesizeClinicalFallbackBloodWork(input);
+  }
 }

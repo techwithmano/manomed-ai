@@ -37,6 +37,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { interpretXRay, XRayAnalysisOutput } from '@/ai/flows/xray-analysis-flow';
 import { saveXRayToHistory } from '@/lib/assessment-store';
 import { exportXRayReportPDF } from '@/lib/pdf-export';
+import { ClinicalStatusBadge } from '@/components/ClinicalStatusBadge';
 
 // Clinical Sample Radiographs with simulated high-fidelity specimen illustrations for instant testing
 const SAMPLE_XRAYS = [
@@ -309,11 +310,11 @@ ${result.differentialDiagnoses.map((d) => `- ${d.condition}: ${Math.round(d.like
                     <span className="font-semibold text-xs text-foreground group-hover:text-primary transition-colors line-clamp-1">
                       {sample.title}
                     </span>
-                    <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-muted text-muted-foreground shrink-0">
+                    <span className="text-xs uppercase font-mono px-1.5 py-0.5 rounded bg-muted text-muted-foreground shrink-0">
                       {sample.region}
                     </span>
                   </div>
-                  <div className="text-[11px] text-muted-foreground line-clamp-1">{sample.indication}</div>
+                  <div className="text-xs text-muted-foreground line-clamp-1">{sample.indication}</div>
                 </button>
               );
             })}
@@ -339,7 +340,8 @@ ${result.differentialDiagnoses.map((d) => `- ${d.condition}: ${Math.round(d.like
                     size="icon"
                     onClick={() => setInvertFilm(!invertFilm)}
                     title="Invert Film (Negative / Positive)"
-                    className="h-8 w-8 text-xs border-border"
+                    aria-label="Invert Film (Negative / Positive)"
+                    className="h-11 w-11 sm:h-8 sm:w-8 text-xs border-border flex items-center justify-center focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                   >
                     <Eye className="w-3.5 h-3.5 text-primary" />
                   </Button>
@@ -349,7 +351,8 @@ ${result.differentialDiagnoses.map((d) => `- ${d.condition}: ${Math.round(d.like
                     size="icon"
                     onClick={() => setZoomLevel((z) => Math.min(z + 0.25, 2.5))}
                     title="Zoom In"
-                    className="h-8 w-8 text-xs border-border"
+                    aria-label="Zoom In"
+                    className="h-11 w-11 sm:h-8 sm:w-8 text-xs border-border flex items-center justify-center focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                   >
                     <ZoomIn className="w-3.5 h-3.5" />
                   </Button>
@@ -359,7 +362,8 @@ ${result.differentialDiagnoses.map((d) => `- ${d.condition}: ${Math.round(d.like
                     size="icon"
                     onClick={() => setZoomLevel((z) => Math.max(z - 0.25, 0.75))}
                     title="Zoom Out"
-                    className="h-8 w-8 text-xs border-border"
+                    aria-label="Zoom Out"
+                    className="h-11 w-11 sm:h-8 sm:w-8 text-xs border-border flex items-center justify-center focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                   >
                     <ZoomOut className="w-3.5 h-3.5" />
                   </Button>
@@ -374,7 +378,8 @@ ${result.differentialDiagnoses.map((d) => `- ${d.condition}: ${Math.round(d.like
                       setContrast(100);
                     }}
                     title="Reset Film Parameters"
-                    className="h-8 w-8 text-xs border-border"
+                    aria-label="Reset Film Parameters"
+                    className="h-11 w-11 sm:h-8 sm:w-8 text-xs border-border flex items-center justify-center focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                   >
                     <RotateCcw className="w-3.5 h-3.5" />
                   </Button>
@@ -578,13 +583,11 @@ ${result.differentialDiagnoses.map((d) => `- ${d.condition}: ${Math.round(d.like
               }`}
             >
               <div className="flex items-start sm:items-center gap-3">
-                {result.urgency === 'EMERGENCY' ? (
-                  <AlertTriangle className="w-6 h-6 shrink-0 mt-0.5 sm:mt-0 animate-pulse text-destructive" />
-                ) : result.urgency === 'URGENT' ? (
-                  <ShieldAlert className="w-6 h-6 shrink-0 mt-0.5 sm:mt-0 text-amber-500" />
-                ) : (
-                  <CheckCircle2 className="w-6 h-6 shrink-0 mt-0.5 sm:mt-0 text-emerald-600" />
-                )}
+                <ClinicalStatusBadge
+                  status={result.urgency}
+                  size="lg"
+                  className="shrink-0 mt-0.5 sm:mt-0"
+                />
                 <div>
                   <h3 className="font-bold text-base text-foreground">
                     {result.urgency === 'EMERGENCY'
@@ -593,9 +596,11 @@ ${result.differentialDiagnoses.map((d) => `- ${d.condition}: ${Math.round(d.like
                       ? 'Abnormal Findings Detected: Clinical Medical Consultation Advised'
                       : 'No Acute Radiographic Abnormality Identified (Within Normal Limits)'}
                   </h3>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Study: <strong className="text-foreground">{result.examinationType}</strong> • ID: {result.id}
-                  </p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-xs text-muted-foreground">Triage Priority:</span>
+                    <ClinicalStatusBadge status={result.urgency} size="sm" />
+                    <span className="text-xs text-muted-foreground">• Study: <strong className="text-foreground font-semibold">{result.examinationType}</strong> • ID: {result.id}</span>
+                  </div>
                 </div>
               </div>
 
