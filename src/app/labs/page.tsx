@@ -286,8 +286,8 @@ ${result.analyzedParameters.map((p) => `- ${p.name}: ${p.value} ${p.unit} [${p.f
               <span>Evidence-Calibrated Reference Ranges</span>
             </div>
             <Link href="/history">
-              <Button variant="outline" size="sm" className="text-xs h-8">
-                Records Vault
+              <Button variant="outline" size="sm" className="text-xs min-h-[44px]">
+                View History
               </Button>
             </Link>
           </div>
@@ -628,6 +628,21 @@ ${result.analyzedParameters.map((p) => `- ${p.name}: ${p.value} ${p.unit} [${p.f
         {/* Results Section */}
         {result && (
           <div className="space-y-6 pt-4 animate-in fade-in duration-300">
+            {/* Pediatric Clinical Review Caution Banner */}
+            {result.isPediatric && (
+              <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-200 text-xs flex items-start gap-3">
+                <ShieldAlert className="w-4 h-4 shrink-0 text-amber-600 mt-0.5" />
+                <div className="space-y-1">
+                  <h4 className="font-bold text-sm text-foreground">
+                    Pediatric / Unspecified Age Alert: Adult Interpretations Suppressed
+                  </h4>
+                  <p className="leading-relaxed">
+                    Patient age is under 18, missing, or invalid. Adult reference intervals and automated LOW/HIGH/CRITICAL classifications have been withheld. The entered values are shown below and require review by a clinician who can interpret them for age.
+                  </p>
+                </div>
+              </div>
+            )}
+
             {/* Urgency Status Banner */}
             <div
               className={`p-6 rounded-2xl border text-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${
@@ -896,8 +911,8 @@ ${result.analyzedParameters.map((p) => `- ${p.name}: ${p.value} ${p.unit} [${p.f
               </Button>
 
               <Link href="/history" className="w-full sm:w-auto">
-                <Button className="text-xs h-10 w-full sm:w-auto bg-primary text-primary-foreground font-semibold">
-                  View in Patient Vault
+                <Button className="text-xs min-h-[44px] w-full sm:w-auto bg-primary text-primary-foreground font-semibold">
+                  View in History
                   <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
                 </Button>
               </Link>

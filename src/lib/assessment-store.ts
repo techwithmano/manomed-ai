@@ -566,3 +566,26 @@ export function useAssessmentStore() {
     isLoaded,
   };
 }
+
+/**
+ * Permanently clears all local records stored in browser localStorage.
+ * Covers assessments, current intake, labs, imaging, episodes, and suggestions.
+ * Note: Does NOT delete copies already synchronized to cloud Firestore.
+ */
+export function clearAllLocalDeviceData(): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.removeItem(STORAGE_KEY_CURRENT);
+    localStorage.removeItem(STORAGE_KEY_HISTORY);
+    localStorage.removeItem(STORAGE_KEY_LABS);
+    localStorage.removeItem(STORAGE_KEY_XRAY);
+    localStorage.removeItem("manomed_episodes_v1");
+    localStorage.removeItem("manomed_dismissed_suggestions_v1");
+    localStorage.removeItem("manomed_current_assessment");
+    localStorage.removeItem("manomed_assessment_history");
+    localStorage.removeItem("manomed_lab_history");
+    localStorage.removeItem("manomed_xray_history");
+  } catch (err) {
+    console.error("Failed to clear local device data:", err);
+  }
+}

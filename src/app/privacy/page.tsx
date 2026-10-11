@@ -18,7 +18,7 @@ export default function PrivacyPolicyPage() {
 
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20">
             <Lock className="w-3.5 h-3.5" />
-            <span>GDPR & HIPAA Standards</span>
+            <span>Privacy & Data Protection Principles</span>
           </div>
         </div>
 
@@ -98,7 +98,7 @@ export default function PrivacyPolicyPage() {
               Data collected during an assessment session is utilized exclusively to:
             </p>
             <ul className="list-disc pl-5 space-y-1.5 text-xs text-muted-foreground">
-              <li>Formulate calibrated differential condition probabilities based on clinical taxonomy and ICD-10 codification.</li>
+              <li>Formulate structured differential condition possibilities based on clinical taxonomy and ICD-10 codification.</li>
               <li>Assign stratified triage urgency tiers (Emergency, Urgent, Routine, Self-Care) according to emergency medical protocols.</li>
               <li>Synthesize Electronic Health Record (EHR) SOAP documentation (Subjective, Objective, Assessment, Plan) and clinical workup checklists for your physician.</li>
               <li>Flag immediate emergency red flags (e.g. acute coronary syndromes, stroke indicators, pulmonary compromise).</li>
@@ -110,7 +110,7 @@ export default function PrivacyPolicyPage() {
               3. Private On-Device Storage
             </h2>
             <p className="text-muted-foreground text-xs leading-relaxed">
-              ManoMed AI operates with a privacy-first local storage architecture. Completed evaluations are stored on your local device via encrypted browser storage. You can view, search, export to PDF, or permanently erase individual records or the entire vault at any time via the{" "}
+              ManoMed AI operates with a privacy-first local storage architecture. Completed evaluations are stored locally on your device in your browser's private local storage (localStorage). You can view, search, export to PDF, or permanently erase individual records or the entire vault at any time via the{" "}
               <Link href="/history" className="text-primary underline">
                 Audit Vault
               </Link>

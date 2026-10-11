@@ -32,7 +32,7 @@ export const translations = {
     navHistory: "My Records",
     navAbout: "About Us",
     navContact: "Help & Contact",
-    navEmergency: "Emergency 911",
+    navEmergency: "Emergency Help",
     signIn: "Sign In",
     signOut: "Sign Out",
 
@@ -69,8 +69,8 @@ export const translations = {
       "An organized summary of your symptoms and timeline so your doctor can review your visit in seconds.",
 
     // Triage Tiers
-    tierEmergency: "🚨 Emergency (Call 911 / Go to ER)",
-    tierUrgent: "⚠️ Urgent (See a Doctor in 24–48 Hours)",
+    tierEmergency: "🚨 Emergency (Seek Immediate Care / Call Emergency Services)",
+    tierUrgent: "⚠️ Urgent (See a Doctor Promptly)",
     tierRoutine: "🗓️ Routine (Book a Regular Doctor Visit)",
     tierSelfCare: "🏡 Home Care (Rest & Monitor at Home)",
 
@@ -78,9 +78,12 @@ export const translations = {
     liveSyncActive: "Live Clinic Sync",
     confidentialNotice: "100% Private & Secure • We Never Sell Your Data",
     emergencyDisclaimer:
-      "If you have severe chest pain, trouble breathing, sudden weakness or numbness, call 911 or your local emergency number immediately.",
+      "If you have severe chest pain, trouble breathing, sudden weakness or numbness, contact your local emergency services or go to the nearest emergency room immediately.",
     persistentEmergencyNotice:
       "If you think this is an emergency, contact your local emergency services.",
+    // TODO: CLINICAL REVIEW REQUIRED — No-match is not safety persistent advisory
+    noMatchSafetyNotice:
+      "No warning was detected, but this tool cannot rule out an emergency. If you are worried, contact your local emergency services or a doctor.",
     footerRights: "ManoMed AI. All rights reserved. Built to guide and support your health decisions.",
   },
 
@@ -95,7 +98,7 @@ export const translations = {
     navHistory: "سجل زياراتي",
     navAbout: "عن التطبيق",
     navContact: "تواصل معنا",
-    navEmergency: "طوارئ 911",
+    navEmergency: "طوارئ الإسعاف",
     signIn: "تسجيل الدخول",
     signOut: "تسجيل الخروج",
 
@@ -132,8 +135,8 @@ export const translations = {
       "ملخص زمني مرتب وواضح للأعراض وتصنيف دقيق يساعد الطبيب على فهم حالتك في ثوانٍ.",
 
     // Triage Tiers
-    tierEmergency: "🚨 حالة طارئة (اتصل بالإسعاف أو توجه للطوارئ فوراً)",
-    tierUrgent: "⚠️ حالة عاجلة (راجع الطبيب خلال 24–48 ساعة)",
+    tierEmergency: "🚨 حالة طارئة (اطلب الرعاية الفورية أو اتصل بالإسعاف)",
+    tierUrgent: "⚠️ حالة عاجلة (راجع الطبيب على الفور)",
     tierRoutine: "🗓️ موعد عادي (احجز موعداً عادياً في العيادة)",
     tierSelfCare: "🏡 رعاية منزلية (راحة ومتابعة بسيطة في البيت)",
 
@@ -141,9 +144,12 @@ export const translations = {
     liveSyncActive: "مزامنة مباشرة مع العيادة",
     confidentialNotice: "خصوصيتك محمية 100% • لا نشارك بياناتك أبداً",
     emergencyDisclaimer:
-      "إذا كنت تشعر بألم شديد في الصدر، أو صعوبة في التنفس، أو خدر مفاجئ، اتصل بالإسعاف فوراً.",
+      "إذا كنت تشعر بألم شديد في الصدر، أو صعوبة في التنفس، أو خدر مفاجئ، اتصل بخدمات الإسعاف والطوارئ المحلية فوراً.",
     persistentEmergencyNotice:
       "إذا كنت تعتقد أن هذه حالة طارئة، يرجى التواصل مع خدمات الإسعاف والطوارئ المحلية فوراً.",
+    // TODO: CLINICAL REVIEW REQUIRED — No-match is not safety persistent advisory
+    noMatchSafetyNotice:
+      "لم يتم اكتشاف أي علامة تحذيرية، لكن هذه الأداة لا يمكنها استبعاد وجود حالة طوارئ. إذا كنت قلقاً، فاتصل بخدمات الطوارئ المحلية أو بطبيبك فوراً.",
     footerRights: "مانوميد للذكاء الطبي. جميع الحقوق محفوظة. لمساعدتك على اتخاذ قرارات صحية أفضل.",
   },
 
@@ -158,7 +164,7 @@ export const translations = {
     navHistory: "Mis Consultas",
     navAbout: "Acerca de Nosotros",
     navContact: "Contacto y Ayuda",
-    navEmergency: "Emergencia 911",
+    navEmergency: "Servicios de Emergencia",
     signIn: "Iniciar Sesión",
     signOut: "Cerrar Sesión",
 
@@ -195,8 +201,8 @@ export const translations = {
       "Un resumen ordenado con la cronología de tus síntomas para que el médico lo entienda en segundos.",
 
     // Triage Tiers
-    tierEmergency: "🚨 Emergencia (Llama a emergencias / Ve a Urgencias)",
-    tierUrgent: "⚠️ Urgente (Consulta médica en 24–48 horas)",
+    tierEmergency: "🚨 Emergencia (Busca atención inmediata / Llama a emergencias)",
+    tierUrgent: "⚠️ Urgente (Consulta médica a la brevedad)",
     tierRoutine: "🗓️ Rutina (Pide cita en tu centro de salud)",
     tierSelfCare: "🏡 Cuidados en Casa (Descanso y observación tranquila)",
 
@@ -204,9 +210,12 @@ export const translations = {
     liveSyncActive: "Sincronización Médica en Vivo",
     confidentialNotice: "100% Privado y Seguro • Nunca vendemos tus datos",
     emergencyDisclaimer:
-      "Si sientes dolor fuerte en el pecho, dificultad para respirar o debilidad repentina, llama a emergencias de inmediato.",
+      "Si siente dolor fuerte en el pecho, dificultad para respirar o debilidad repentina, comuníquese con los servicios de emergencia locales de inmediato.",
     persistentEmergencyNotice:
       "Si cree que se trata de una emergencia, comuníquese con los servicios de emergencia locales.",
+    // TODO: CLINICAL REVIEW REQUIRED — No-match is not safety persistent advisory
+    noMatchSafetyNotice:
+      "No se detectaron señales de alerta, pero esta herramienta no puede descartar una emergencia médica. Si está preocupado, comuníquese con los servicios de emergencia locales o con un médico.",
     footerRights: "ManoMed AI. Todos los derechos reservados. Diseñado para orientar tus decisiones de salud.",
   },
 
@@ -221,7 +230,7 @@ export const translations = {
     navHistory: "健康记录",
     navAbout: "关于我们",
     navContact: "联系与求助",
-    navEmergency: "急救 120 / 911",
+    navEmergency: "急救求助",
     signIn: "登录",
     signOut: "退出",
 
@@ -253,16 +262,19 @@ export const translations = {
     doctorViewDesc: "整理清晰的症状时间线，帮助医生在接诊时几十秒内快速掌握核心病情。",
 
     // Triage Tiers
-    tierEmergency: "🚨 紧急情况（请立即前往急诊或拨打 120）",
-    tierUrgent: "⚠️ 尽快就诊（建议24–48小时内看医生）",
+    tierEmergency: "🚨 紧急情况（立即就医 / 呼叫当地急救电话）",
+    tierUrgent: "⚠️ 尽快就诊（建议尽快看医生）",
     tierRoutine: "🗓️ 普通门诊（按常规预约普通门诊即可）",
     tierSelfCare: "🏡 居家休养（注意休息并留意身体变化）",
 
     // Common
     liveSyncActive: "诊区实时同步中",
     confidentialNotice: "100% 隐私安全 • 绝不出售您的任何数据",
-    emergencyDisclaimer: "如果您出现剧烈胸痛、呼吸急促、意识模糊或突发身体麻木，请立刻前往最近的急诊室或拨打120。",
+    emergencyDisclaimer: "如果您出现剧烈胸痛、呼吸急促、意识模糊或突发身体麻木，请立刻联系当地急救服务或前往最近的急诊室。",
     persistentEmergencyNotice: "如果您认为这是紧急情况，请立即联系当地急救服务。",
+    // TODO: CLINICAL REVIEW REQUIRED — No-match is not safety persistent advisory
+    noMatchSafetyNotice:
+      "未检测到紧急警告，但本工具无法排除急症可能。如果您感到担忧，请立即联系当地急救服务或医生。",
     footerRights: "ManoMed AI 智医系统。版权所有。辅助健康决策，守护您的安心。",
   },
 
@@ -277,7 +289,7 @@ export const translations = {
     navHistory: "Mes Bilans",
     navAbout: "À Propos",
     navContact: "Aide & Contact",
-    navEmergency: "Urgences 15 / 911",
+    navEmergency: "Services d'Urgence",
     signIn: "Connexion",
     signOut: "Déconnexion",
 
@@ -314,8 +326,8 @@ export const translations = {
       "Un résumé clair et chronologique de vos symptômes, prêt à être lu en quelques secondes par le soignant.",
 
     // Triage Tiers
-    tierEmergency: "🚨 Urgence Immédiate (Appelez le 15 / Allez aux Urgences)",
-    tierUrgent: "⚠️ Consultation Rapide (Consultez sous 24–48h)",
+    tierEmergency: "🚨 Urgence Immédiate (Consultez Immédiatement / Appelez les Urgences)",
+    tierUrgent: "⚠️ Consultation Rapide (Consultez rapidement un médecin)",
     tierRoutine: "🗓️ Consultation Ordinaire (Prenez un rendez-vous classique)",
     tierSelfCare: "🏡 Soins à la Maison (Repos et surveillance tranquille)",
 
@@ -323,9 +335,12 @@ export const translations = {
     liveSyncActive: "Synchronisation en Direct",
     confidentialNotice: "100% Privé et Sécurisé • Données jamais vendues",
     emergencyDisclaimer:
-      "En cas de douleur vive dans la poitrine, détresse respiratoire ou faiblesse soudaine, contactez immédiatement le 15 ou les urgences.",
+      "En cas de douleur vive dans la poitrine, détresse respiratoire ou faiblesse soudaine, contactez immédiatement vos services d'urgence locaux ou rendez-vous aux urgences.",
     persistentEmergencyNotice:
       "Si vous pensez qu'il s'agit d'une urgence, contactez vos services d'urgence locaux.",
+    // TODO: CLINICAL REVIEW REQUIRED — No-match is not safety persistent advisory
+    noMatchSafetyNotice:
+      "Aucun signal d'alerte n'a été détecté, mais cet outil ne peut pas exclure une urgence médicale. Si vous êtes inquiet, contactez vos services d'urgence locaux ou un médecin.",
     footerRights: "ManoMed AI. Tous droits réservés. Créé pour vous guider en toute confiance.",
   },
 };

@@ -471,6 +471,12 @@ ${soap.plan || "N/A"}`;
             <p className="text-muted-foreground text-sm max-w-3xl">
               Live overview of patient visits, symptom checks, lab tests, and imaging for doctors and clinic staff.
             </p>
+            <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-200 text-xs flex items-center gap-2.5 mt-3">
+              <AlertTriangle className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400" />
+              <span>
+                <strong>Clinical Advisory:</strong> AI-generated, not clinically validated. Requires review by a qualified clinician.
+              </span>
+            </div>
           </div>
 
           <div className="flex items-center gap-3">
@@ -599,9 +605,9 @@ ${soap.plan || "N/A"}`;
                 <Stethoscope className="w-12 h-12 text-muted-foreground mx-auto mb-3 opacity-40" />
                 <h3 className="text-lg font-semibold">No Patients in Triage Queue</h3>
                 <p className="text-sm text-muted-foreground max-w-md mx-auto mt-1 mb-4">
-                  Incoming patient assessments from mobile and desktop intake appear here instantly.
+                  Incoming patient assessments from intake appear here. You can review triage priority, examine differential likelihoods, and export SOAP notes.
                 </p>
-                <Button variant="outline" size="sm" onClick={seedSampleCohort}>
+                <Button variant="outline" size="sm" onClick={seedSampleCohort} className="min-h-[44px]">
                   Load Sample Clinical Cohort
                 </Button>
               </Card>
@@ -674,11 +680,11 @@ ${soap.plan || "N/A"}`;
             {filteredLabs.length === 0 ? (
               <Card className="border-dashed p-12 text-center">
                 <Microscope className="w-12 h-12 text-muted-foreground mx-auto mb-3 opacity-40" />
-                <h3 className="text-lg font-semibold">No Blood Work Panels</h3>
+                <h3 className="text-lg font-semibold">No Blood Work Panels in Queue</h3>
                 <p className="text-sm text-muted-foreground max-w-md mx-auto mt-1 mb-4">
-                  Incoming laboratory results analyzed by clinicians or patients appear here.
+                  Incoming blood work evaluations appear here with flagged out-of-range parameters and reference intervals for clinical verification.
                 </p>
-                <Button variant="outline" size="sm" onClick={seedSampleCohort}>
+                <Button variant="outline" size="sm" onClick={seedSampleCohort} className="min-h-[44px]">
                   Load Sample Lab Panel
                 </Button>
               </Card>
@@ -729,7 +735,7 @@ ${soap.plan || "N/A"}`;
                         {item.data?.pathologySummary || "Pathology analysis completed."}
                       </p>
 
-                      <Button variant="secondary" size="sm" className="w-full text-xs gap-1.5 mt-2">
+                      <Button variant="secondary" size="sm" className="w-full text-xs gap-1.5 mt-2 min-h-[44px]">
                         <Eye className="w-3.5 h-3.5" /> View Full Lab Report
                       </Button>
                     </CardContent>
@@ -746,9 +752,9 @@ ${soap.plan || "N/A"}`;
                 <HeartPulse className="w-12 h-12 text-muted-foreground mx-auto mb-3 opacity-40" />
                 <h3 className="text-lg font-semibold">No Radiographs in Queue</h3>
                 <p className="text-sm text-muted-foreground max-w-md mx-auto mt-1 mb-4">
-                  Incoming X-ray studies analyzed with computer vision appear here.
+                  Incoming X-ray studies appear here with anatomical findings and high-contrast views for radiological review.
                 </p>
-                <Button variant="outline" size="sm" onClick={seedSampleCohort}>
+                <Button variant="outline" size="sm" onClick={seedSampleCohort} className="min-h-[44px]">
                   Load Sample Radiograph
                 </Button>
               </Card>
@@ -870,6 +876,10 @@ ${soap.plan || "N/A"}`;
 
                 {/* Ranked Differential Diagnoses */}
                 <div className="space-y-3">
+                  <div className="p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/25 text-amber-800 dark:text-amber-300 text-xs font-medium flex items-center gap-2">
+                    <AlertTriangle className="w-3.5 h-3.5 shrink-0 text-amber-600 dark:text-amber-400" />
+                    <span>AI-generated, not clinically validated. Requires review by a qualified clinician.</span>
+                  </div>
                   <h4 className="text-sm font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
                     <Activity className="w-4 h-4 text-primary" /> Ranked Differential Diagnoses
                   </h4>
@@ -1002,6 +1012,11 @@ ${soap.plan || "N/A"}`;
                   </table>
                 </div>
 
+                <div className="p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/25 text-amber-800 dark:text-amber-300 text-xs font-medium flex items-center gap-2">
+                  <AlertTriangle className="w-3.5 h-3.5 shrink-0 text-amber-600 dark:text-amber-400" />
+                  <span>AI-generated, not clinically validated. Requires review by a qualified clinician.</span>
+                </div>
+
                 {selectedLab.data?.physicianActionRequired && (
                   <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-xs">
                     <strong className="text-red-500 block mb-1">Attending Physician Action:</strong>
@@ -1039,6 +1054,11 @@ ${soap.plan || "N/A"}`;
               </DialogHeader>
 
               <div className="space-y-4 mt-4 text-xs">
+                <div className="p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/25 text-amber-800 dark:text-amber-300 text-xs font-medium flex items-center gap-2">
+                  <AlertTriangle className="w-3.5 h-3.5 shrink-0 text-amber-600 dark:text-amber-400" />
+                  <span>AI-generated, not clinically validated. Requires review by a qualified clinician.</span>
+                </div>
+
                 {selectedXRay.data?.keyFindings && (
                   <div className="p-4 bg-muted/30 border border-border rounded-lg space-y-2">
                     <strong className="text-foreground text-sm block">Radiological Findings:</strong>

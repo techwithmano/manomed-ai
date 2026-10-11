@@ -10,7 +10,8 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "test:redflags": "tsx src/lib/__tests__/redFlags.test.ts"
+    "test:redflags": "tsx src/lib/__tests__/redFlags.test.ts",
+    "test:pediatric": "tsx src/lib/__tests__/pediatricLabs.test.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.15.0",

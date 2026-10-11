@@ -265,8 +265,8 @@ ${result.differentialDiagnoses.map((d) => `- ${d.condition}: ${Math.round(d.like
               <span>Diagnostic Radiation Support System</span>
             </div>
             <Link href="/history">
-              <Button variant="outline" size="sm" className="text-xs h-8">
-                Records Vault
+              <Button variant="outline" size="sm" className="text-xs min-h-[44px]">
+                View History
               </Button>
             </Link>
           </div>
@@ -482,7 +482,7 @@ ${result.differentialDiagnoses.map((d) => `- ${d.condition}: ${Math.round(d.like
                   Clinical Context & Indication
                 </CardTitle>
                 <CardDescription className="text-xs">
-                  Provide anatomical area and patient indications for higher diagnostic accuracy.
+                  Provide anatomical area and patient indications for clinical context.
                 </CardDescription>
               </CardHeader>
 
@@ -572,6 +572,14 @@ ${result.differentialDiagnoses.map((d) => `- ${d.condition}: ${Math.round(d.like
         {/* Results Presentation */}
         {result && (
           <div className="space-y-6 pt-4 animate-in fade-in duration-300">
+            {/* AI Clinical Validation Warning */}
+            <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-200 text-xs flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400" />
+              <span>
+                <strong>Radiology Review Notice:</strong> AI-generated, not clinically validated. Requires review by a qualified clinician.
+              </span>
+            </div>
+
             {/* Urgency Status Banner */}
             <div
               className={`p-6 rounded-2xl border text-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${
@@ -721,8 +729,11 @@ ${result.differentialDiagnoses.map((d) => `- ${d.condition}: ${Math.round(d.like
                       <Stethoscope className="w-4 h-4 text-primary" />
                       Formal Diagnostic Radiology Impression & EHR Note
                     </CardTitle>
-                    <CardDescription className="text-xs">
-                      Structured radiological documentation for medical charts and PACS systems.
+                    <CardDescription className="text-xs space-y-1">
+                      <span>Structured radiological documentation for medical charts and PACS systems.</span>
+                      <span className="block text-amber-700 dark:text-amber-300 font-medium">
+                        AI-generated, not clinically validated. Requires review by a qualified clinician.
+                      </span>
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
@@ -767,6 +778,9 @@ ${result.differentialDiagnoses.map((d) => `- ${d.condition}: ${Math.round(d.like
                   <Scan className="w-4 h-4 text-primary" />
                   Detailed Anatomical Landmark Findings
                 </CardTitle>
+                <CardDescription className="text-xs text-amber-700 dark:text-amber-300 font-medium">
+                  AI-generated, not clinically validated. Requires review by a qualified clinician.
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="divide-y divide-border/60">
@@ -808,8 +822,8 @@ ${result.differentialDiagnoses.map((d) => `- ${d.condition}: ${Math.round(d.like
               </Button>
 
               <Link href="/history" className="w-full sm:w-auto">
-                <Button className="text-xs h-10 w-full sm:w-auto bg-primary text-primary-foreground font-semibold">
-                  View Patient History Vault
+                <Button className="text-xs min-h-[44px] w-full sm:w-auto bg-primary text-primary-foreground font-semibold">
+                  View in History
                   <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
                 </Button>
               </Link>

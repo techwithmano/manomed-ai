@@ -25,8 +25,8 @@ const pillars = [
   },
   {
     icon: <Brain className="w-6 h-6 text-primary" />,
-    title: "Calibrated Differential Reasoning",
-    desc: "Built on rigorous clinical diagnostic taxonomies and ICD-10 codification. Incorporates patient demographics, past medical history, and follow-up clinical questions.",
+    title: "Structured Differential Reasoning",
+    desc: "Built on clinical diagnostic taxonomies and ICD-10 codification. Incorporates patient demographics, past medical history, and follow-up clinical questions.",
   },
   {
     icon: <FileCheck2 className="w-6 h-6 text-primary" />,
@@ -44,12 +44,12 @@ const standards = [
   {
     number: "01",
     title: "Standardized Triage Hierarchy",
-    desc: "Every assessment maps strictly to Emergency (immediate ER), Urgent (within 24 hours), Routine (primary clinic consultation), or Self-Care (supportive home monitoring).",
+    desc: "Every assessment maps to Emergency, Urgent, Routine, or Self-Care triage tiers accompanied by clear safety-net guidance.",
   },
   {
     number: "02",
-    title: "Evidence-Based Differentiating Evidence",
-    desc: "Condition probabilities are explicitly correlated with positive supporting factors and unconfirmed counter-indicators to provide total diagnostic transparency.",
+    title: "Structured Differentiating Evidence",
+    desc: "Differential considerations are correlated with positive supporting factors and unconfirmed counter-indicators to assist physician review.",
   },
   {
     number: "03",
@@ -143,7 +143,7 @@ export default function AboutPage() {
                 <li className="flex items-start gap-2.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
                   <span>
-                    <strong className="text-foreground">Data Minimization:</strong> Health data remains in client storage with end-to-end encrypted transient evaluation.
+                    <strong className="text-foreground">Data Minimization:</strong> Health data remains in client local storage with secure TLS-encrypted transient evaluation.
                   </span>
                 </li>
               </ul>
@@ -159,7 +159,7 @@ export default function AboutPage() {
             OUR CORE VALUES
           </span>
           <h2 className="text-3xl font-bold tracking-tight text-foreground">
-            Clear Guidance & Careful Accuracy
+            Clear Guidance & Clinical Caution
           </h2>
           <p className="text-sm text-muted-foreground">
             How our system ensures your guidance is both simple to read and medically sound:
@@ -208,7 +208,7 @@ export default function AboutPage() {
               Clinical Advisory & Ethics Covenant
             </h4>
             <p className="text-xs text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              ManoMed AI is a clinical decision support and health information tool intended to assist patient education and preliminary triage. It does not constitute formal medical diagnosis or prescription treatment. If you are experiencing sudden, severe chest pain, shortness of breath, loss of consciousness, or signs of stroke, dial <strong>911</strong> or your local emergency number immediately.
+              ManoMed AI is a clinical decision support and health information tool intended to assist patient education and preliminary triage. It does not constitute formal medical diagnosis or prescription treatment. If you are experiencing sudden, severe chest pain, shortness of breath, loss of consciousness, or signs of stroke, contact your local emergency services (such as 911, 999, or 112) or proceed to the nearest emergency room immediately.
             </p>
           </div>
         </div>

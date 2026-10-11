@@ -99,7 +99,7 @@ export function getUnifiedTriageStatus(rawStatus?: string | null): UnifiedStatus
       tierOrFlag: 'URGENT',
       label: 'URGENT',
       icon: ShieldAlert,
-      ariaDescription: 'Urgent triage tier: Clinical medical consultation advised within 24-48 hours.',
+      ariaDescription: 'Urgent triage tier: Prompt clinical medical consultation advised.',
       classes: STYLES.amber,
     };
   }
@@ -120,7 +120,7 @@ export function getUnifiedTriageStatus(rawStatus?: string | null): UnifiedStatus
     tierOrFlag: 'NORMAL',
     label: norm === 'SELF_CARE' ? 'SELF-CARE' : norm === 'OPTIMAL' ? 'OPTIMAL' : 'NORMAL',
     icon: CheckCircle2,
-    ariaDescription: 'Normal triage tier: Non-urgent presentation appropriate for self-care or home monitoring.',
+    ariaDescription: 'Normal triage tier: Non-urgent presentation appropriate for self-care or home monitoring. This does not mean a serious condition has been ruled out.',
     classes: STYLES.emerald,
   };
 }

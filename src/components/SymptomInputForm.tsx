@@ -760,6 +760,18 @@ export const SymptomInputForm: React.FC<SymptomInputFormProps> = ({
                 )}
               </div>
 
+              {/* Persistent No-Match Safety Notice on Symptom Form */}
+              {/* TODO: CLINICAL REVIEW REQUIRED — No-match is not safety persistent advisory */}
+              <div
+                role="note"
+                className="p-3 rounded-xl bg-muted/70 border border-border text-foreground text-xs flex items-start gap-2.5"
+              >
+                <AlertTriangle className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                <p className="leading-relaxed font-medium">
+                  {t.noMatchSafetyNotice}
+                </p>
+              </div>
+
               {/* Persistent safety notice for non-English users (automated red-flag detection for non-English inputs is pending clinical review) */}
               {language !== "en" && (
                 <div

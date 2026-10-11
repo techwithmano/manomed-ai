@@ -6,9 +6,11 @@ import { FaHeartbeat } from "react-icons/fa";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/context/language-context";
+import { getEmergencyDisplay } from "@/lib/emergencyConfig";
 
 export default function HomePage() {
   const { t } = useLanguage();
+  const emergencyDisplay = getEmergencyDisplay();
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
@@ -356,10 +358,10 @@ export default function HomePage() {
             {t.emergencyDisclaimer}
           </p>
           <a
-            href="tel:911"
+            href={emergencyDisplay.href}
             className="text-xs font-mono font-bold text-red-600 hover:underline shrink-0"
           >
-            Call 911 Immediately
+            {emergencyDisplay.label}
           </a>
         </div>
       </section>

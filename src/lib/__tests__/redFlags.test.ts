@@ -288,4 +288,91 @@ test('Red-Flag Engine: False-Positive, Negation Guards, and Mixed-Clause Cases (
     assert.equal(result?.type, 'medical_emergency');
     assert.equal(result?.category, 'acute_coronary');
   });
+
+  await t.test('guard 7: isolated distant past "I fainted last year" must NOT trigger', () => {
+    const result = checkRedFlags('I fainted last year', 'en');
+    assert.equal(result, null, 'Isolated distant past fainting must not trigger emergency');
+  });
 });
+
+test('Remediation Sprint 1: Mandated Clinical Governance Red-Flag Tests (A through E)', async (t) => {
+  await t.test('Case A: "I had no chest pain this morning, but now I have crushing chest pain" triggers', () => {
+    const input = 'I had no chest pain this morning, but now I have crushing chest pain';
+    const result = checkRedFlags(input, 'en');
+    assert.ok(result !== null, 'Expected match for acute coronary despite earlier negation clause');
+    assert.equal(result?.type, 'medical_emergency');
+    assert.equal(result?.category, 'acute_coronary');
+  });
+
+  await t.test('Case B: "My father had a heart attack. I am having severe chest pressure." triggers', () => {
+    const input = 'My father had a heart attack. I am having severe chest pressure.';
+    const result = checkRedFlags(input, 'en');
+    assert.ok(result !== null, 'Expected match for acute coronary despite family history in prior clause');
+    assert.equal(result?.type, 'medical_emergency');
+    assert.equal(result?.category, 'acute_coronary');
+  });
+
+  await t.test('Case C: "I fainted last year, and today I suddenly feel like I am going to pass out." triggers', () => {
+    const input = 'I fainted last year, and today I suddenly feel like I am going to pass out.';
+    const result = checkRedFlags(input, 'en');
+    assert.ok(result !== null, 'Expected match for syncope despite distant past history');
+    assert.equal(result?.type, 'medical_emergency');
+    assert.equal(result?.category, 'syncope_unresponsive');
+  });
+
+  await t.test('Case D: "I am not short of breath, but I cannot get enough air and my lips look blue." triggers', () => {
+    const input = 'I am not short of breath, but I cannot get enough air and my lips look blue.';
+    const result = checkRedFlags(input, 'en');
+    assert.ok(result !== null, 'Expected match for severe respiratory despite negation of shortness of breath');
+    assert.equal(result?.type, 'medical_emergency');
+    assert.equal(result?.category, 'severe_respiratory');
+  });
+
+  await t.test('Case E: "My brother is unresponsive." triggers, with guidance suited to a third party', () => {
+    const input = 'My brother is unresponsive.';
+    const result = checkRedFlags(input, 'en');
+    assert.ok(result !== null, 'Expected match for unresponsive third party');
+    assert.equal(result?.type, 'medical_emergency');
+    assert.equal(result?.category, 'syncope_unresponsive');
+    assert.equal(result?.isThirdParty, true, 'Expected isThirdParty flag to be true');
+    assert.ok(
+      result?.userMessage.toLowerCase().includes('person') ||
+      result?.userMessage.toLowerCase().includes('dispatcher') ||
+      result?.userMessage.toLowerCase().includes('emergency services'),
+      'Expected userMessage to be suited to a third party'
+    );
+  });
+});
+
+test('Remediation Sprint 1: Other-Person Emergency Presentations', async (t) => {
+  await t.test('Third-Party Stroke: "My mother is having a stroke, her face is drooping and speech is slurred"', () => {
+    const input = 'My mother is having a stroke, her face is drooping and speech is slurred';
+    const result = checkRedFlags(input, 'en');
+    assert.ok(result !== null, 'Expected match for third-party stroke');
+    assert.equal(result?.type, 'medical_emergency');
+    assert.equal(result?.category, 'stroke_fast');
+    assert.equal(result?.isThirdParty, true);
+    assert.ok(result?.userMessage.includes('someone near you'));
+  });
+
+  await t.test('Third-Party Overdose: "My friend took a whole bottle of pills an hour ago"', () => {
+    const input = 'My friend took a whole bottle of pills an hour ago';
+    const result = checkRedFlags(input, 'en');
+    assert.ok(result !== null, 'Expected match for third-party overdose');
+    assert.equal(result?.type, 'medical_emergency');
+    assert.equal(result?.category, 'overdose_poisoning');
+    assert.equal(result?.isThirdParty, true);
+    assert.ok(result?.userMessage.includes('another person') || result?.userMessage.includes('Poison Control'));
+  });
+
+  await t.test('Third-Party Anaphylaxis: "My son\'s throat is swelling shut after eating peanut butter"', () => {
+    const input = "My son's throat is swelling shut after eating peanut butter";
+    const result = checkRedFlags(input, 'en');
+    assert.ok(result !== null, 'Expected match for third-party anaphylaxis');
+    assert.equal(result?.type, 'medical_emergency');
+    assert.equal(result?.category, 'anaphylaxis');
+    assert.equal(result?.isThirdParty, true);
+    assert.ok(result?.userMessage.includes('someone is experiencing') || result?.userMessage.includes('EpiPen'));
+  });
+});
+

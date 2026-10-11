@@ -8,11 +8,13 @@ import { Button } from "@/components/ui/button";
 import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useLanguage } from "@/context/language-context";
+import { getEmergencyDisplay } from "@/lib/emergencyConfig";
 
 export default function SiteHeader() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
   const { t } = useLanguage();
+  const emergencyDisplay = getEmergencyDisplay();
 
   const navItems = [
     { href: "/ManoMedai", label: t.navTriage },
@@ -95,13 +97,13 @@ export default function SiteHeader() {
         <div className="flex items-center space-x-3 rtl:space-x-reverse">
           {/* Understated Emergency Indicator */}
           <a
-            href="tel:911"
+            href={emergencyDisplay.href}
             className="hidden sm:flex items-center gap-1.5 text-xs font-medium text-red-600 dark:text-red-400 hover:text-red-700 transition-colors"
             title="Emergency Medical Dispatch"
-            aria-label="Emergency 911"
+            aria-label={emergencyDisplay.label}
           >
             <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-pulse" />
-            <span className="font-semibold text-[11px]">Emergency 911</span>
+            <span className="font-semibold text-[11px]">{emergencyDisplay.label}</span>
           </a>
 
           {/* Language Switcher */}
@@ -166,9 +168,9 @@ export default function SiteHeader() {
             })}
 
             <div className="pt-3 mt-2 border-t border-border flex items-center justify-between text-xs">
-              <a href="tel:911" className="text-red-600 font-semibold flex items-center gap-1.5">
+              <a href={emergencyDisplay.href} className="text-red-600 font-semibold flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-red-600" />
-                Emergency Protocol: 911
+                {emergencyDisplay.label}
               </a>
 
               <SignedIn>

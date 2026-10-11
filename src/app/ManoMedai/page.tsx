@@ -102,7 +102,7 @@ export default function ManoMedAIPage() {
         <div className="p-4 rounded-xl bg-muted/40 border border-border/60 text-xs text-muted-foreground flex items-start gap-3">
           <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
           <p className="leading-relaxed">
-            <strong className="text-foreground">Medical Disclaimer:</strong> ManoMed AI helps guide your health decisions and prepare for doctor visits, but does not replace emergency medical care. If you or a loved one have severe chest pain, trouble breathing, heavy bleeding, or sudden weakness or numbness, call <strong>911</strong> or go to the nearest emergency room immediately.
+            <strong className="text-foreground">Medical Disclaimer:</strong> ManoMed AI helps guide your health decisions and prepare for doctor visits, but does not replace emergency medical care. If you or a loved one have severe chest pain, trouble breathing, heavy bleeding, or sudden weakness or numbness, contact your local emergency services (such as 911, 999, or 112) or go to the nearest emergency room immediately.
           </p>
         </div>
       </div>

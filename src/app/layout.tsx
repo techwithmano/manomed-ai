@@ -10,6 +10,7 @@ import { ShieldAlert, Lock, Cpu, FileCheck2 } from 'lucide-react';
 import { FaHeartbeat } from 'react-icons/fa';
 import SiteHeader from '@/components/SiteHeader';
 import { LanguageProvider } from '@/context/language-context';
+import { emergencyConfig } from '@/lib/emergencyConfig';
 import type { Metadata } from 'next';
 
 const plusJakarta = Plus_Jakarta_Sans({
@@ -79,12 +80,12 @@ export default function RootLayout({
                     <div className="flex items-center gap-3 text-xs text-muted-foreground pt-1">
                       <span className="flex items-center gap-1">
                         <Lock className="w-3.5 h-3.5 text-primary" />
-                        Client-Encrypted Vault
+                        Local Private Vault
                       </span>
                       <span>•</span>
                       <span className="flex items-center gap-1">
                         <Cpu className="w-3.5 h-3.5 text-primary" />
-                        Calibrated Inference
+                        Structured Clinical Reasoning
                       </span>
                       <span>•</span>
                       <span className="flex items-center gap-1">
@@ -146,10 +147,11 @@ export default function RootLayout({
                       ManoMed AI guides your health decisions, but does not replace emergency medical care. If you are experiencing severe symptoms:
                     </p>
                     <div className="flex flex-wrap gap-2 pt-1 font-mono font-bold text-[11px]">
-                      <span className="px-2 py-0.5 rounded bg-card border border-border">US/CA: 911</span>
-                      <span className="px-2 py-0.5 rounded bg-card border border-border">UK: 999</span>
-                      <span className="px-2 py-0.5 rounded bg-card border border-border">EU: 112</span>
-                      <span className="px-2 py-0.5 rounded bg-card border border-border">Crisis: 988</span>
+                      {emergencyConfig.internationalRegions.slice(0, 4).map((r) => (
+                        <span key={r.region} className="px-2 py-0.5 rounded bg-card border border-border" title={r.desc}>
+                          {r.region.split(' ')[0]}: {r.number}
+                        </span>
+                      ))}
                     </div>
                   </div>
                 </div>

@@ -13,61 +13,37 @@ export interface LikelihoodInterpretation {
 }
 
 /**
- * Thresholds for translating numerical model likelihoods into plain-language patient explanations (pending clinical review).
- * TODO: CLINICAL REVIEW REQUIRED — Calibrate likelihood boundaries against validation dataset.
+ * Universal safety-net sentence for all triage tiers (pending clinical review).
+ * TODO: CLINICAL REVIEW REQUIRED — Must be validated by supervising physicians prior to full production release.
  */
-export const CLINICAL_LIKELIHOOD_THRESHOLDS = {
-  MORE_LIKELY_MIN: 0.65,
-  POSSIBLE_MIN: 0.35,
-};
+export const TRIAGE_SAFETY_NET_SENTENCE =
+  'Seek emergency care immediately if symptoms are severe, rapidly worsening, or you develop warning signs.';
 
 /**
- * Translates a continuous probability score (0.0 - 1.0) into cautious, plain-language text.
- * Rule: Never shows a reassuring label for a condition marked high-risk without highlighting
- * that it is critical to rule out with a physician.
- * 
- * TODO: CLINICAL REVIEW REQUIRED — Qualitative mappings are pending clinical review.
+ * Specific directive for EMERGENCY triage tier (pending clinical review).
+ * TODO: CLINICAL REVIEW REQUIRED — Emergency directive wording pending clinical review.
  */
-export function getPatientLikelihoodInterpretation(
-  likelihood: number,
-  riskLevel: 'Low' | 'Moderate' | 'High' = 'Low'
-): LikelihoodInterpretation {
-  const isHighRisk = riskLevel === 'High';
+export const EMERGENCY_TIER_DIRECTIVE =
+  'Your symptoms may indicate a medical emergency. Contact your local emergency services now. Do not delay seeking help while using this tool.';
 
-  if (likelihood >= CLINICAL_LIKELIHOOD_THRESHOLDS.MORE_LIKELY_MIN) {
-    return {
-      label: isHighRisk
-        ? 'More likely based on your answers (Critical to evaluate with a doctor)'
-        : 'More likely based on your answers',
-      badgeStyle: isHighRisk
-        ? 'bg-destructive/15 text-destructive border-destructive/30'
-        : 'bg-primary/15 text-primary border-primary/30',
-      isHighRiskWarning: isHighRisk,
-    };
+/**
+ * Caveat for SELF-CARE / NORMAL triage tier (pending clinical review).
+ * TODO: CLINICAL REVIEW REQUIRED — Self-care caveat wording pending clinical review.
+ */
+export const SELF_CARE_TIER_CAVEAT =
+  'This does not mean a serious condition has been ruled out.';
+
+/**
+ * Returns a cautious note for high-risk conditions without ranking or probability wording.
+ * Rule: Any condition with riskLevel High gets a "worth ruling out with a doctor" note regardless of likelihood.
+ * 
+ * TODO: CLINICAL REVIEW REQUIRED — Qualitative note wording is pending clinical review.
+ */
+export function getPatientConditionNote(riskLevel: 'Low' | 'Moderate' | 'High' = 'Low'): string | null {
+  if (riskLevel === 'High') {
+    return 'Worth ruling out with a doctor';
   }
-
-  if (likelihood >= CLINICAL_LIKELIHOOD_THRESHOLDS.POSSIBLE_MIN) {
-    return {
-      label: isHighRisk
-        ? 'Possible (Important to evaluate with your doctor)'
-        : 'Possible',
-      badgeStyle: isHighRisk
-        ? 'bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/30'
-        : 'bg-muted text-foreground border-border',
-      isHighRiskWarning: isHighRisk,
-    };
-  }
-
-  // Under POSSIBLE_MIN
-  return {
-    label: isHighRisk
-      ? 'Less likely, but important to rule out with your doctor'
-      : 'Less likely, but worth discussing with your doctor',
-    badgeStyle: isHighRisk
-      ? 'bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/30'
-      : 'bg-muted/70 text-muted-foreground border-border/60',
-    isHighRiskWarning: isHighRisk,
-  };
+  return null;
 }
 
 /**
@@ -108,3 +84,18 @@ export const FALLBACK_DOCTOR_QUESTIONS: string[] = [
  */
 export const CLINICAL_EDUCATION_DISCLAIMER =
   'ManoMed AI provides clinical decision support and health education, not an official medical diagnosis. Always consult a qualified medical professional for personal diagnosis and treatment.';
+
+/**
+ * Evaluates whether an entered age is pediatric (< 18), blank, or invalid.
+ * If age is under 18, missing, or invalid, adult-range interpretations must be withheld.
+ * TODO: CLINICAL REVIEW REQUIRED — Pediatric thresholds must be validated by a board-certified pediatrician.
+ */
+export function isPediatricOrUnspecifiedAge(age?: string | number | null): boolean {
+  if (age === undefined || age === null) return true;
+  const str = String(age).trim();
+  if (str === '') return true;
+  const num = Number(str);
+  if (isNaN(num)) return true;
+  return num < 18;
+}
+

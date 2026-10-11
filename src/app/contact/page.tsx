@@ -26,13 +26,9 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import Link from "next/link";
+import { emergencyConfig, getEmergencyDisplay } from "@/lib/emergencyConfig";
 
-const emergencyNumbers = [
-  { region: "United States & Canada", number: "911", desc: "Emergency Medical Services" },
-  { region: "United Kingdom", number: "999 / 111", desc: "Emergency / NHS Non-Emergency" },
-  { region: "European Union", number: "112", desc: "Pan-European Emergency Services" },
-  { region: "Mental Health Crisis (US)", number: "988", desc: "Suicide & Crisis Lifeline" },
-];
+const emergencyNumbers = emergencyConfig.internationalRegions;
 
 export default function ContactPage() {
   const [name, setName] = useState("");
@@ -101,12 +97,13 @@ export default function ContactPage() {
             variant="destructive"
             size="sm"
             onClick={() => {
-              if (typeof window !== "undefined") window.location.href = "tel:911";
+              const display = getEmergencyDisplay();
+              if (typeof window !== "undefined") window.location.href = display.href;
             }}
             className="min-h-[44px] px-5 flex items-center gap-1.5 shrink-0 shadow-xs font-bold"
           >
             <PhoneCall className="w-4 h-4" />
-            Call 911 Now
+            {getEmergencyDisplay().label}
           </Button>
         </div>
 

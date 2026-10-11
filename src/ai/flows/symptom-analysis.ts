@@ -38,8 +38,8 @@ const SymptomAnalysisOutputSchema = z.object({
   triage: z.object({
     level: z.enum(['EMERGENCY', 'URGENT', 'ROUTINE', 'SELF_CARE']).describe('Clinical triage urgency tier'),
     urgencyColor: z.enum(['red', 'amber', 'blue', 'green']).describe('UI color for badge/banner'),
-    recommendedAction: z.string().describe('Clear next step, e.g. "Go to the nearest Emergency Room or call 911" or "Schedule a clinic visit within 48 hours"'),
-    timeframe: z.string().describe('When patient should seek evaluation (e.g. "Immediate", "Within 24-48 hours", "1-2 weeks")'),
+    recommendedAction: z.string().describe('Clear next step per clinical presentation'),
+    timeframe: z.string().describe('Model-estimated timeframe for clinical evaluation (not a fixed universal rule)'),
   }),
   redFlags: z.array(z.string()).describe('Any critical warning signs detected (e.g., chest pain with radiation, breathing distress, neurological symptoms). Empty if none.'),
   emergencyGuidance: z.string().optional().describe('Emergency helpline guidance or immediate stabilization instructions if red flags exist'),
@@ -83,9 +83,9 @@ CLINICAL RESPONSIBILITIES:
 1. SAFETY FIRST - RED FLAGS & TRIAGE:
    - Screen rigorously for red flags (e.g. acute coronary syndrome signs, thunderclap headache, focal neurological deficit, anaphylaxis, severe respiratory distress, sepsis signs, acute abdomen, active suicidal ideation).
    - Assign appropriate triage level:
-     * EMERGENCY (red): Life/organ-threatening, immediate ER / 911 needed.
-     * URGENT (amber): Needs evaluation within 12-24 hours at urgent care or same-day clinic.
-     * ROUTINE (blue): Needs primary care appointment in coming days to weeks.
+     * EMERGENCY (red): Life/organ-threatening, immediate emergency medical evaluation needed.
+     * URGENT (amber): Needs prompt medical evaluation by a clinician.
+     * ROUTINE (blue): Needs primary care appointment for outpatient evaluation.
      * SELF_CARE (green): Mild, benign self-limiting symptoms manageable at home with monitoring.
 
 2. DIFFERENTIAL DIAGNOSIS:
@@ -134,7 +134,7 @@ function synthesizeClinicalFallbackDifferential(input: SymptomAnalysisInput): Sy
   if (sym.includes("chest") || sym.includes("arm") || sym.includes("shortness of breath") || sym.includes("dyspnea")) {
     triageLevel = 'EMERGENCY';
     urgencyColor = 'red';
-    recommendedAction = "Immediate emergency medical evaluation (Call 911 or visit nearest Emergency Department).";
+    recommendedAction = "Immediate emergency medical evaluation (Contact local emergency services or visit nearest Emergency Department).";
     timeframe = "Immediate / Emergency";
     redFlags.push("Potential cardiopulmonary compromise or acute coronary symptoms detected");
     specialties.unshift("Cardiology", "Emergency Medicine");
@@ -255,7 +255,7 @@ function synthesizeClinicalFallbackDifferential(input: SymptomAnalysisInput): Sy
       timeframe,
     },
     redFlags,
-    emergencyGuidance: redFlags.length > 0 ? "Call 911 or proceed to the nearest emergency medical facility immediately." : undefined,
+    emergencyGuidance: redFlags.length > 0 ? "Contact your local emergency services or proceed to the nearest emergency medical facility immediately." : undefined,
     conditions,
     recommendedSpecialties: specialties,
     recommendedTests: tests,

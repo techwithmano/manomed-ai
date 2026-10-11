@@ -145,8 +145,8 @@ export const CLINICAL_LAB_DEFINITIONS: LabParameterDefinition[] = [
     aliases: ['troponin', 'troponin i', 'hs-troponin', 'trop'],
     unit: 'ng/mL',
     origin: 'from existing presets',
-    referenceRange: { min: 0.0, max: 0.04, display: '< 0.04 ng/mL' },
-    plausibleRange: { min: 0.0, max: 500.0, guidance: 'Plausible cardiac troponin I is between 0.0 and 500.0 ng/mL.' },
+    referenceRange: { min: 0.0, max: 0.04, display: 'assay-specific; limit must be confirmed with your lab' },
+    plausibleRange: { min: 0.0, max: 500.0, guidance: 'Plausible cardiac troponin I is between 0.0 and 500.0 ng/mL. Assay-specific limit must be confirmed with testing laboratory.' },
   },
   {
     canonicalName: 'HbA1c',

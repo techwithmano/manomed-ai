@@ -46,12 +46,16 @@ import {
 import { ClinicalAnalysisResult, CurrentAssessment } from "@/lib/assessment-store";
 import { emergencyConfig } from "@/lib/emergencyConfig";
 import {
-  getPatientLikelihoodInterpretation,
+  getPatientConditionNote,
+  TRIAGE_SAFETY_NET_SENTENCE,
+  EMERGENCY_TIER_DIRECTIVE,
+  SELF_CARE_TIER_CAVEAT,
   FALLBACK_EMERGENCY_CARE_TRIGGERS,
   FALLBACK_SAFE_SELF_CARE,
   FALLBACK_DOCTOR_QUESTIONS,
   CLINICAL_EDUCATION_DISCLAIMER,
 } from "@/lib/clinicalConfig";
+import { useLanguage } from "@/context/language-context";
 import Link from "next/link";
 
 interface ConditionDisplayProps {
@@ -65,6 +69,7 @@ export const ConditionDisplay: React.FC<ConditionDisplayProps> = ({
   assessment,
   onStartNew,
 }) => {
+  const { t } = useLanguage();
   const [copiedSOAP, setCopiedSOAP] = useState(false);
   const [copiedQuestions, setCopiedQuestions] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
@@ -206,10 +211,14 @@ ${questionsList.map((q, i) => `${i + 1}. ${q}`).join("\n")}`;
               <AlertTriangle className="w-5 h-5 shrink-0 animate-pulse" />
               <span>Immediate Emergency Protocol</span>
             </div>
-            <p className="text-xs sm:text-sm font-medium leading-relaxed">
-              {result.emergencyGuidance ||
-                "If you are experiencing severe, sudden, or life-threatening symptoms, contact your local emergency services or go to the nearest emergency room immediately."}
+            <p className="text-xs sm:text-sm font-semibold leading-relaxed">
+              {EMERGENCY_TIER_DIRECTIVE}
             </p>
+            {result.emergencyGuidance && (
+              <p className="text-xs opacity-90 leading-relaxed">
+                {result.emergencyGuidance}
+              </p>
+            )}
             {emergencyConfig.medicalEmergencyNumber ? (
               <div className="pt-2">
                 <a
@@ -222,7 +231,7 @@ ${questionsList.map((q, i) => `${i + 1}. ${q}`).join("\n")}`;
               </div>
             ) : (
               <p className="text-xs font-semibold underline pt-1">
-                Call your local emergency number (such as 911, 999, or 112) or proceed to the nearest emergency department immediately.
+                Contact your local emergency services or proceed to the nearest emergency department immediately.
               </p>
             )}
           </div>
@@ -239,14 +248,15 @@ ${questionsList.map((q, i) => `${i + 1}. ${q}`).join("\n")}`;
                   {result.triage.level}
                 </Badge>
                 <span className="text-xs text-muted-foreground">
-                  Care Window: <strong className="text-foreground">{result.triage.timeframe}</strong>
+                  Model Timeframe: <strong className="text-foreground">{result.triage.timeframe}</strong>
                 </span>
               </div>
               <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
                 {triageTheme.title}
               </h1>
               <p className="text-xs sm:text-sm max-w-2xl leading-relaxed text-muted-foreground">
-                {result.triage.recommendedAction}
+                {result.triage.recommendedAction} {TRIAGE_SAFETY_NET_SENTENCE}
+                {result.triage.level === 'SELF_CARE' && ` ${SELF_CARE_TIER_CAVEAT}`}
               </p>
             </div>
           </div>
@@ -285,7 +295,7 @@ ${questionsList.map((q, i) => `${i + 1}. ${q}`).join("\n")}`;
             {[
               { label: "Self-Care", color: "bg-emerald-500", desc: "Home Monitoring" },
               { label: "Routine", color: "bg-blue-500", desc: "Primary Care Clinic" },
-              { label: "Urgent", color: "bg-amber-500", desc: "Urgent Care (<24h)" },
+              { label: "Urgent", color: "bg-amber-500", desc: "Prompt Clinic Evaluation" },
               { label: "Emergency", color: "bg-destructive", desc: "Emergency Dept" },
             ].map((tier, idx) => {
               const isCurrent = idx === triageTheme.gaugeIndex;
@@ -317,7 +327,13 @@ ${questionsList.map((q, i) => `${i + 1}. ${q}`).join("\n")}`;
         </div>
       </section>
 
-      {/* 2. NON-DISMISSIBLE ONE-SENTENCE CLINICAL DISCLAIMER */}
+      {/* 2. PERSISTENT SAFETY NOTICE: NO-MATCH IS NOT SAFETY */}
+      <div className="p-3.5 bg-muted/60 border border-border/80 rounded-2xl text-xs text-muted-foreground flex items-center gap-2.5">
+        <ShieldAlert className="w-4 h-4 text-primary shrink-0" />
+        <span className="leading-relaxed font-medium">{t.noMatchSafetyNotice}</span>
+      </div>
+
+      {/* 3. NON-DISMISSIBLE ONE-SENTENCE CLINICAL DISCLAIMER */}
       <aside aria-label="Clinical disclaimer" className="p-4 rounded-2xl bg-muted/50 border border-border/80 text-xs text-muted-foreground flex items-start gap-3">
         <ShieldAlert className="w-4 h-4 text-primary shrink-0 mt-0.5" />
         <p className="leading-relaxed">
@@ -453,40 +469,40 @@ ${questionsList.map((q, i) => `${i + 1}. ${q}`).join("\n")}`;
             </CardContent>
           </Card>
 
-          {/* Section: "What this usually means" (Top Possibilities in Plain Words) */}
-          {/* Rule: No ICD-10 codes, no raw percentages, qualitative translations */}
+          {/* Section: "Possibilities your doctor may consider" */}
+          {/* Rule: No ranking words, no likelihood labels, high-risk gets "Worth ruling out with a doctor" note */}
           <div className="space-y-4">
             <div className="space-y-1">
               <h2 className="text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
                 <FileText className="w-5 h-5 text-primary" />
-                What this usually means
+                Possibilities your doctor may consider
               </h2>
               <p className="text-xs text-muted-foreground">
-                These are the most relevant conditions suggested by your answers. Review them with your doctor for confirmation.
+                These possibilities are suggestions for your doctor to evaluate alongside your full clinical exam. They are not ranked or definitive diagnoses.
               </p>
             </div>
 
             <div className="grid gap-4">
               {result.conditions.slice(0, 3).map((item, idx) => {
-                const interp = getPatientLikelihoodInterpretation(item.likelihood, item.riskLevel);
+                const highRiskNote = getPatientConditionNote(item.riskLevel);
                 return (
                   <Card
                     key={idx}
-                    className={`clinical-card ${
-                      idx === 0 ? "border-primary/50 shadow-sm" : "border-border"
-                    }`}
+                    className="clinical-card border-border"
                   >
                     <CardHeader className="pb-3 border-b border-border/50">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                         <CardTitle className="text-lg sm:text-xl font-bold text-foreground">
                           {item.condition}
                         </CardTitle>
-                        <Badge
-                          variant="outline"
-                          className={`text-xs px-3 py-1 font-semibold self-start sm:self-auto border ${interp.badgeStyle}`}
-                        >
-                          {interp.label}
-                        </Badge>
+                        {highRiskNote && (
+                          <Badge
+                            variant="outline"
+                            className="text-xs px-3 py-1 font-semibold self-start sm:self-auto border bg-destructive/15 text-destructive border-destructive/30"
+                          >
+                            {highRiskNote}
+                          </Badge>
+                        )}
                       </div>
                     </CardHeader>
                     <CardContent className="pt-4 space-y-3">
@@ -693,7 +709,7 @@ ${questionsList.map((q, i) => `${i + 1}. ${q}`).join("\n")}`;
                         <XAxis type="number" domain={[0, 100]} unit="%" tick={{ fontSize: 11 }} />
                         <YAxis dataKey="name" type="category" width={140} tick={{ fontSize: 11 }} />
                         <Tooltip
-                          formatter={(val: any) => [`${val}%`, "Estimated Likelihood"]}
+                          formatter={(val: any) => [`${val}%`, "Model-estimated likelihood (not calibrated or validated)"]}
                           labelFormatter={(label: string, payload: any) =>
                             payload?.[0]?.payload?.fullName || label
                           }
@@ -749,15 +765,15 @@ ${questionsList.map((q, i) => `${i + 1}. ${q}`).join("\n")}`;
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-2 self-start sm:self-auto">
+                        <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
                           <Badge
                             variant={item.riskLevel === "High" ? "destructive" : "secondary"}
                             className="text-xs"
                           >
                             {item.riskLevel} Clinical Risk
                           </Badge>
-                          <Badge className="bg-primary text-primary-foreground font-mono font-bold text-xs px-3 py-1">
-                            {Math.round(item.likelihood * 100)}% Match
+                          <Badge className="bg-primary text-primary-foreground font-mono text-[11px] font-medium px-2.5 py-1">
+                            Model-estimated likelihood (not calibrated or validated): {Math.round(item.likelihood * 100)}%
                           </Badge>
                         </div>
                       </div>

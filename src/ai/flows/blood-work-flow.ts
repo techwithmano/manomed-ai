@@ -7,6 +7,8 @@
 import { ai } from '@/ai/ai-instance';
 import { z } from 'genkit';
 import { callGroqChat } from '@/ai/groq-client';
+import { checkLabItemsPlausibility } from '@/lib/labPlausibilityConfig';
+import { isPediatricOrUnspecifiedAge } from '@/lib/clinicalConfig';
 
 const LabItemSchema = z.object({
   parameter: z.string().describe('Name of lab test (e.g. Hemoglobin, White Blood Cells, Creatinine)'),
@@ -33,6 +35,10 @@ const AnalyzedParameterSchema = z.object({
   unit: z.string(),
   referenceRange: z.string(),
   flag: z.enum(['NORMAL', 'LOW', 'HIGH', 'CRITICAL_LOW', 'CRITICAL_HIGH']),
+  rawSourceFlag: z.string().optional().describe('Original source status preserved next to normalized flag'),
+  plausibilityStatus: z.enum(['PLAUSIBLE', 'WARNING', 'IMPLAUSIBLE', 'UNCHECKED']).optional().describe('Input plausibility check status'),
+  criticalAlertRule: z.string().optional().describe('Critical result rule triggered if any'),
+  needsHumanReview: z.boolean().optional().describe('Flags requirement for human physician review'),
   interpretation: z.string().describe('Clear medical meaning of this specific value'),
   clinicalImpact: z.string().describe('How this affects the patient'),
 });
@@ -42,7 +48,10 @@ const BloodWorkOutputSchema = z.object({
   id: z.string(),
   timestamp: z.string(),
   overallStatus: z.enum(['NORMAL', 'ELEVATED_RISK', 'CRITICAL_ALERT']),
+  rawSourceStatus: z.string().optional().describe('Original source overall status before normalization'),
   triageUrgency: z.enum(['EMERGENCY', 'URGENT', 'ROUTINE', 'OPTIMAL']),
+  isPediatric: z.boolean().optional().describe('Indicates pediatric or unspecified age where adult ranges were suppressed'),
+  needsHumanReview: z.boolean().optional().describe('Indicates human review required'),
   criticalAlerts: z.array(z.string()).describe('Immediate life-threatening or dangerous laboratory flags'),
   analyzedParameters: z.array(AnalyzedParameterSchema),
   plainLanguageSummary: z.string().describe('Clear, compassionate explanation tailored for an everyday patient or senior citizen without medical jargon'),
@@ -95,7 +104,64 @@ Strictly return output adhering to the JSON schema.
 });
 
 // Robust clinical rule-based engine for offline, test, or rate-limited environments
-function synthesizeClinicalFallbackBloodWork(input: BloodWorkInput): BloodWorkOutput {
+export async function synthesizeClinicalFallbackBloodWork(input: BloodWorkInput): Promise<BloodWorkOutput> {
+  const isPediatric = isPediatricOrUnspecifiedAge(input.age);
+  const plausibilityWarnings = checkLabItemsPlausibility(input.labValues || []);
+  const plausibilityMap = new Map<string, string>();
+  plausibilityWarnings.forEach((w) => {
+    plausibilityMap.set(w.parameter.toLowerCase().trim(), w.guidance);
+  });
+
+  if (isPediatric) {
+    const analyzedParameters: AnalyzedParameter[] = (input.labValues || []).map((item) => {
+      const name = item.parameter.trim();
+      const unit = item.unit || '';
+      const hasPlauWarn = plausibilityMap.has(name.toLowerCase());
+
+      return {
+        name,
+        value: item.value,
+        unit,
+        referenceRange: 'Pediatric - Age-Specific',
+        flag: 'NORMAL' as const,
+        rawSourceFlag: 'PED_WITHHELD',
+        plausibilityStatus: hasPlauWarn ? 'WARNING' as const : 'PLAUSIBLE' as const,
+        criticalAlertRule: undefined,
+        needsHumanReview: true,
+        interpretation: 'Results require review by a clinician who can interpret them for age. Standard adult reference intervals do not apply to pediatric patients (< 18 years or unspecified age).',
+        clinicalImpact: 'Pediatric reference intervals vary markedly across age brackets. Values are retained without adult classification pending age-specific evaluation.',
+      };
+    });
+
+    return {
+      id: `lab_${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      overallStatus: 'NORMAL',
+      rawSourceStatus: 'PED_WITHHELD',
+      triageUrgency: 'ROUTINE',
+      isPediatric: true,
+      needsHumanReview: true,
+      criticalAlerts: [],
+      analyzedParameters,
+      plainLanguageSummary: 'The entered laboratory values are displayed below. Because the patient is under 18 years old or an age was not specified, standard adult normal and abnormal ranges cannot be applied. A doctor or pediatrician must review these specific values against pediatric laboratory reference charts.',
+      clinicalPhysicianSynthesis: 'PEDIATRIC / UNSPECIFIED AGE CLINICAL REVIEW REQUIRED: Standard adult reference intervals and automated LOW/HIGH/CRITICAL classifications have been suppressed. Biological analyte concentrations vary substantially across developmental age cohorts. Review by a qualified clinician using pediatric reference intervals is required.',
+      differentialDiagnoses: [
+        {
+          condition: 'Pediatric Clinical Review Required',
+          likelihood: 1.0,
+          rationale: 'Results require review by a clinician who can interpret them for age.',
+        },
+      ],
+      recommendedFollowUpTests: ['Pediatrician or Pediatric Subspecialty Consultation', 'Age-Specific Laboratory Evaluation'],
+      lifestyleAndDietaryGuidance: ['Consult pediatrician regarding age-appropriate nutrition and hydration'],
+      questionsForDoctor: [
+        'How do these results compare to age-adjusted pediatric reference ranges?',
+        'Do any of these values require re-testing with a pediatric assay?',
+        'What specific developmental or nutritional factors should we monitor?',
+      ],
+    };
+  }
+
   const criticalAlerts: string[] = [];
 
   const analyzedParameters: AnalyzedParameter[] = (input.labValues || []).map((item) => {
@@ -106,6 +172,7 @@ function synthesizeClinicalFallbackBloodWork(input: BloodWorkInput): BloodWorkOu
     let flag: 'NORMAL' | 'LOW' | 'HIGH' | 'CRITICAL_LOW' | 'CRITICAL_HIGH' = 'NORMAL';
     let interpretation = 'Value is within expected standard clinical physiological limits.';
     let impact = 'Maintains stable cellular and organ homeostasis.';
+    let criticalAlertRule: string | undefined = undefined;
 
     const lowerName = name.toLowerCase();
 
@@ -322,12 +389,18 @@ function synthesizeClinicalFallbackBloodWork(input: BloodWorkInput): BloodWorkOu
     }
     // 7. Troponin (Cardiac)
     else if (lowerName.includes('troponin') || lowerName.includes('trop')) {
-      ref = ref || '< 0.04 ng/mL';
+      // Label troponin as assay-specific; limit must be confirmed with your lab and do not present 0.04 as universal
+      ref = ref || 'assay-specific; limit must be confirmed with your lab';
       if (!isNaN(num) && num > 0.04) {
         flag = 'CRITICAL_HIGH';
-        criticalAlerts.push(`Positive Cardiac Troponin: ${num} ng/mL (active myocardial injury / ACS emergency)`);
-        interpretation = 'Biochemical hallmark of myocardial cell necrosis.';
-        impact = 'Immediate emergency cardiac pathway activation with 12-lead ECG, antiplatelet, and cath lab consult.';
+        criticalAlertRule = 'Elevated Cardiac Troponin (ACS / Myocardial Necrosis Protocol)';
+        criticalAlerts.push(`Elevated Cardiac Troponin: ${num} ${unit || 'ng/mL'} (assay-specific limit must be confirmed with your lab; rule out myocardial injury)`);
+        interpretation = 'Biochemical indicator of myocardial cell necrosis. Note: Troponin thresholds are assay-specific; reference limit and delta must be confirmed with your testing laboratory.';
+        impact = 'Immediate emergency cardiac pathway evaluation with 12-lead ECG, cardiology consultation, and serial measurements.';
+      } else {
+        flag = 'NORMAL';
+        interpretation = 'Cardiac troponin is assay-specific; reference limit and delta must be confirmed with your testing laboratory.';
+        impact = 'Evaluate in clinical context alongside ECG and serial measurements.';
       }
     }
     // 8. Default generic numerical check
@@ -346,12 +419,20 @@ function synthesizeClinicalFallbackBloodWork(input: BloodWorkInput): BloodWorkOu
       }
     }
 
+    const plauWarn = plausibilityMap.get(lowerName);
+    const plausibilityStatus: 'PLAUSIBLE' | 'WARNING' = plauWarn ? 'WARNING' : 'PLAUSIBLE';
+    const isUnitNeeded = ref.toLowerCase().includes('unit needed');
+
     return {
       name,
       value: item.value,
       unit,
       referenceRange: ref || 'Clinical Standard',
       flag,
+      rawSourceFlag: flag,
+      plausibilityStatus,
+      criticalAlertRule,
+      needsHumanReview: Boolean(criticalAlertRule || flag !== 'NORMAL' || plauWarn || isUnitNeeded),
       interpretation,
       clinicalImpact: impact,
     };
@@ -420,7 +501,10 @@ function synthesizeClinicalFallbackBloodWork(input: BloodWorkInput): BloodWorkOu
     id: `lab_${Date.now()}`,
     timestamp: new Date().toISOString(),
     overallStatus,
+    rawSourceStatus: overallStatus,
     triageUrgency,
+    isPediatric: false,
+    needsHumanReview: Boolean(hasCritical || hasAbnormal || plausibilityWarnings.length > 0),
     criticalAlerts,
     analyzedParameters,
     plainLanguageSummary:
@@ -512,6 +596,9 @@ ${labListText}`;
 
     const groqOutput = await callGroqChat<any>(groqSystemPrompt, groqUserPrompt);
     if (groqOutput) {
+      if (isPediatricOrUnspecifiedAge(input.age)) {
+        return await synthesizeClinicalFallbackBloodWork(input);
+      }
       const normalizedStatus = ((): 'NORMAL' | 'ELEVATED_RISK' | 'CRITICAL_ALERT' => {
         const s = String(groqOutput.overallStatus || '').toUpperCase();
         if (s.includes('CRIT') || s.includes('SEV') || (Array.isArray(groqOutput.criticalAlerts) && groqOutput.criticalAlerts.length > 0)) {
@@ -613,6 +700,9 @@ ${labListText}`;
   try {
     const { output } = await bloodWorkPrompt(input);
     if (output) {
+      if (isPediatricOrUnspecifiedAge(input.age)) {
+        return await synthesizeClinicalFallbackBloodWork(input);
+      }
       return {
         ...output,
         id: output.id || `lab_${Date.now()}`,
@@ -624,7 +714,7 @@ ${labListText}`;
   }
 
   // 3. Rule engine fallback
-  return synthesizeClinicalFallbackBloodWork(input);
+  return await synthesizeClinicalFallbackBloodWork(input);
 });
 
 export async function interpretBloodWork(input: BloodWorkInput): Promise<BloodWorkOutput> {
@@ -632,6 +722,6 @@ export async function interpretBloodWork(input: BloodWorkInput): Promise<BloodWo
     return await bloodWorkFlow(input);
   } catch (err) {
     console.warn('Blood work GenAI flow threw, engaging clinical rule engine fallback:', err);
-    return synthesizeClinicalFallbackBloodWork(input);
+    return await synthesizeClinicalFallbackBloodWork(input);
   }
 }
