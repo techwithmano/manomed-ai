@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -16,18 +16,11 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import {
   Mic,
   MicOff,
   AlertTriangle,
   HeartPulse,
+  HeartHandshake,
   Activity,
   Plus,
   X,
@@ -47,30 +40,15 @@ import {
 } from "lucide-react";
 import { CurrentAssessment } from "@/lib/assessment-store";
 import { BodyMapSelector, ANATOMICAL_ZONES, AnatomicalZone } from "./BodyMapSelector";
+import { checkRedFlags, RedFlagMatch } from "@/lib/redFlags";
+import { emergencyConfig } from "@/lib/emergencyConfig";
+import { useLanguage } from "@/context/language-context";
 
-interface SymptomInputFormProps {
-  initialData?: CurrentAssessment;
+export interface SymptomInputFormProps {
+  initialData?: CurrentAssessment | null;
   onSubmit: (data: CurrentAssessment) => void;
   isLoading?: boolean;
 }
-
-const EMERGENCY_KEYWORDS = [
-  "chest pressure",
-  "crushing chest",
-  "left arm pain",
-  "slurred speech",
-  "facial droop",
-  "can't breathe",
-  "suffocating",
-  "severe hemorrhage",
-  "coughing blood",
-  "suicide",
-  "suicidal",
-  "anaphylaxis",
-  "throat swelling",
-  "thunderclap headache",
-  "worst headache of life",
-];
 
 // All flat symptoms for live search
 const ALL_SYMPTOMS_LIST = Array.from(
@@ -135,10 +113,40 @@ export const SymptomInputForm: React.FC<SymptomInputFormProps> = ({
   const [isRecording, setIsRecording] = useState(false);
   const [speechSupported, setSpeechSupported] = useState(false);
   const recognitionRef = useRef<any>(null);
+  // Red flag safety banner state (100% client-side evaluation — never stored or transmitted)
+  const { language, t } = useLanguage();
+  const [activeRedFlag, setActiveRedFlag] = useState<RedFlagMatch | null>(null);
+  const [acknowledgedRedFlag, setAcknowledgedRedFlag] = useState<boolean>(false);
+  const redFlagAlertRef = useRef<HTMLDivElement>(null);
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Emergency safety modal
-  const [showEmergencyModal, setShowEmergencyModal] = useState(false);
-  const [emergencyKeywordFound, setEmergencyKeywordFound] = useState("");
+  // Client-side red-flag evaluation (Debounced 300ms)
+  // PRIVACY: Input text is evaluated strictly in the client's browser and is never logged or transmitted.
+  const triggerRedFlagEvaluation = useCallback(
+    (textToEvaluate: string) => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+      debounceTimerRef.current = setTimeout(() => {
+        const match = checkRedFlags(textToEvaluate, language);
+        if (match) {
+          setActiveRedFlag(match);
+          setAcknowledgedRedFlag(false);
+        } else {
+          setActiveRedFlag(null);
+        }
+      }, 300);
+    },
+    [language]
+  );
+
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, []);
 
   // Speech Recognition setup
   useEffect(() => {
@@ -160,7 +168,10 @@ export const SymptomInputForm: React.FC<SymptomInputFormProps> = ({
           if (currentTranscript.trim()) {
             setPrimaryDescription((prev) => {
               const separator = prev.trim() ? " " : "";
-              return prev + separator + currentTranscript.trim();
+              const updated = prev + separator + currentTranscript.trim();
+              const combined = [updated, ...symptomTags].join(" ");
+              triggerRedFlagEvaluation(combined);
+              return updated;
             });
           }
         };
@@ -170,7 +181,7 @@ export const SymptomInputForm: React.FC<SymptomInputFormProps> = ({
         recognitionRef.current = recognition;
       }
     }
-  }, []);
+  }, [symptomTags, triggerRedFlagEvaluation]);
 
   const toggleRecording = () => {
     if (!speechSupported || !recognitionRef.current) return;
@@ -187,32 +198,19 @@ export const SymptomInputForm: React.FC<SymptomInputFormProps> = ({
     }
   };
 
-  // Real-time emergency check
-  const checkForRedFlags = (text: string) => {
-    const lower = text.toLowerCase();
-    for (const kw of EMERGENCY_KEYWORDS) {
-      if (lower.includes(kw)) {
-        setEmergencyKeywordFound(kw);
-        setShowEmergencyModal(true);
-        return;
-      }
-    }
-  };
-
   const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const val = e.target.value;
     setPrimaryDescription(val);
-    checkForRedFlags(val);
+    const combined = [val, ...symptomTags].join(" ");
+    triggerRedFlagEvaluation(combined);
   };
 
   const toggleSymptomTag = (tag: string) => {
     setSymptomTags((prev) => {
-      if (prev.includes(tag)) {
-        return prev.filter((t) => t !== tag);
-      } else {
-        checkForRedFlags(tag);
-        return [...prev, tag];
-      }
+      const nextTags = prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag];
+      const combined = [primaryDescription, ...nextTags].join(" ");
+      triggerRedFlagEvaluation(combined);
+      return nextTags;
     });
   };
 
@@ -337,6 +335,19 @@ export const SymptomInputForm: React.FC<SymptomInputFormProps> = ({
       return;
     }
 
+    // Safety check on submit: evaluate synchronously so fast submission cannot bypass red flags.
+    // The alert never blocks submission permanently or hides user input.
+    const combinedSymptoms = [primaryDescription, ...symptomTags].join(" ");
+    const submitRedFlag = checkRedFlags(combinedSymptoms, language);
+
+    if (submitRedFlag && !acknowledgedRedFlag) {
+      setActiveRedFlag(submitRedFlag);
+      if (redFlagAlertRef.current) {
+        redFlagAlertRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+      return;
+    }
+
     setError(null);
 
     const fullSymptoms = [
@@ -411,7 +422,7 @@ export const SymptomInputForm: React.FC<SymptomInputFormProps> = ({
                 <span className="font-mono text-xs font-bold text-primary tracking-wider uppercase">
                   CASE INTAKE
                 </span>
-                <Badge variant="outline" className="text-[10px] font-mono border-border">
+                <Badge variant="outline" className="text-xs font-mono border-border">
                   ESI PROTOCOL v3.2
                 </Badge>
               </div>
@@ -426,8 +437,9 @@ export const SymptomInputForm: React.FC<SymptomInputFormProps> = ({
               <Clock className="w-3.5 h-3.5 text-muted-foreground" />
               EST: 3-4 MIN
             </span>
-            <span className="px-2 py-0.5 rounded bg-muted text-[11px] font-medium font-sans">
-              256-bit Ephemeral
+            {/* TODO: VERIFY SECURITY CLAIMS — Ensure session security matches actual storage model */}
+            <span className="px-2 py-0.5 rounded bg-muted text-xs font-medium font-sans">
+              Local Session
             </span>
           </div>
         </div>
@@ -445,7 +457,7 @@ export const SymptomInputForm: React.FC<SymptomInputFormProps> = ({
                     1. Patient Dossier
                   </h3>
                 </div>
-                <span className="text-[11px] text-muted-foreground">Required</span>
+                <span className="text-xs text-muted-foreground">Required</span>
               </div>
 
               <div className="space-y-3.5">
@@ -538,7 +550,7 @@ export const SymptomInputForm: React.FC<SymptomInputFormProps> = ({
 
                   <div className="grid grid-cols-2 gap-3 text-xs">
                     <div className="space-y-1">
-                      <Label htmlFor="vitals-bp-sys" className="text-[11px] font-semibold text-muted-foreground">
+                      <Label htmlFor="vitals-bp-sys" className="text-xs font-semibold text-muted-foreground">
                         BP (mmHg Sys / Dia)
                       </Label>
                       <div className="flex items-center gap-1.5">
@@ -560,7 +572,7 @@ export const SymptomInputForm: React.FC<SymptomInputFormProps> = ({
                     </div>
 
                     <div className="space-y-1">
-                      <Label htmlFor="vitals-hr" className="text-[11px] font-semibold text-muted-foreground">
+                      <Label htmlFor="vitals-hr" className="text-xs font-semibold text-muted-foreground">
                         Heart Rate (bpm)
                       </Label>
                       <Input
@@ -573,7 +585,7 @@ export const SymptomInputForm: React.FC<SymptomInputFormProps> = ({
                     </div>
 
                     <div className="space-y-1">
-                      <Label htmlFor="vitals-temp" className="text-[11px] font-semibold text-muted-foreground">
+                      <Label htmlFor="vitals-temp" className="text-xs font-semibold text-muted-foreground">
                         Body Temp (°C)
                       </Label>
                       <Input
@@ -586,7 +598,7 @@ export const SymptomInputForm: React.FC<SymptomInputFormProps> = ({
                     </div>
 
                     <div className="space-y-1">
-                      <Label htmlFor="vitals-spo2" className="text-[11px] font-semibold text-muted-foreground">
+                      <Label htmlFor="vitals-spo2" className="text-xs font-semibold text-muted-foreground">
                         Oxygen SpO2 (%)
                       </Label>
                       <Input
@@ -611,7 +623,7 @@ export const SymptomInputForm: React.FC<SymptomInputFormProps> = ({
                     3. Medications & Allergies
                   </h3>
                 </div>
-                <span className="text-[11px] text-muted-foreground">Contraindication Radar</span>
+                <span className="text-xs text-muted-foreground">Contraindication Radar</span>
               </div>
 
               {/* Medications */}
@@ -701,7 +713,7 @@ export const SymptomInputForm: React.FC<SymptomInputFormProps> = ({
               {/* Real-Time Drug Interaction Alerts */}
               {drugSafetyAlerts.length > 0 && (
                 <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-200 space-y-1.5 text-xs">
-                  <div className="font-bold flex items-center gap-1.5 uppercase tracking-wider text-[11px]">
+                  <div className="font-bold flex items-center gap-1.5 uppercase tracking-wider text-xs">
                     <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
                     Clinical Safety Contraindication Alert
                   </div>
@@ -748,6 +760,19 @@ export const SymptomInputForm: React.FC<SymptomInputFormProps> = ({
                 )}
               </div>
 
+              {/* Persistent safety notice for non-English users (automated red-flag detection for non-English inputs is pending clinical review) */}
+              {language !== "en" && (
+                <div
+                  role="note"
+                  className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-200 text-xs flex items-start gap-2.5"
+                >
+                  <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                  <p className="leading-relaxed font-medium">
+                    {t.persistentEmergencyNotice}
+                  </p>
+                </div>
+              )}
+
               <div className="relative">
                 <Textarea
                   value={primaryDescription}
@@ -763,6 +788,114 @@ export const SymptomInputForm: React.FC<SymptomInputFormProps> = ({
                   </div>
                 )}
               </div>
+
+              {/* Accessible Client-Side Red-Flag Alert Banner (Single Live Region) */}
+              {activeRedFlag && (
+                <div
+                  ref={redFlagAlertRef}
+                  role="alert"
+                  aria-live="assertive"
+                  className={`p-4 rounded-xl border transition-all space-y-3 ${
+                    activeRedFlag.type === "crisis_support"
+                      ? "bg-purple-500/10 border-purple-500/30 text-purple-950 dark:text-purple-100"
+                      : "bg-destructive/10 border-destructive/30 text-foreground"
+                  }`}
+                >
+                  {activeRedFlag.type === "crisis_support" ? (
+                    <>
+                      {/* TODO: CLINICAL REVIEW REQUIRED — Crisis support messaging */}
+                      <div className="flex items-start gap-3 text-purple-950 dark:text-purple-100">
+                        <div className="w-8 h-8 rounded-lg bg-purple-500/20 text-purple-700 dark:text-purple-300 flex items-center justify-center shrink-0 mt-0.5">
+                          <HeartHandshake className="w-4 h-4" />
+                        </div>
+                        <div className="space-y-1 flex-1 text-xs">
+                          <h4 className="font-bold text-sm text-purple-950 dark:text-purple-100">
+                            Confidential Crisis & Support Available
+                          </h4>
+                          <p className="leading-relaxed">
+                            {activeRedFlag.userMessage}
+                          </p>
+                          <p className="text-purple-800 dark:text-purple-300">
+                            If you or someone you know is going through a difficult time, confidential support is available 24/7.
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-2 pt-1">
+                        {emergencyConfig.crisisSupportNumber && (
+                          <a
+                            href={`tel:${emergencyConfig.crisisSupportNumber}`}
+                            className="min-h-[44px] px-4 py-2 rounded-xl bg-purple-700 hover:bg-purple-800 text-white font-bold flex items-center gap-2 text-xs shadow-sm transition-colors focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2"
+                          >
+                            <PhoneCall className="w-4 h-4" />
+                            Call or Text Crisis Helpline ({emergencyConfig.crisisSupportNumber})
+                          </a>
+                        )}
+                        {emergencyConfig.crisisSupportUrl && (
+                          <a
+                            href={emergencyConfig.crisisSupportUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="min-h-[44px] px-4 py-2 rounded-xl bg-purple-100 dark:bg-purple-900/50 hover:bg-purple-200 dark:hover:bg-purple-900 text-purple-950 dark:text-purple-100 font-semibold flex items-center gap-1.5 text-xs border border-purple-300 dark:border-purple-700 transition-colors focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2"
+                          >
+                            Find Free Crisis Helpline Worldwide ↗
+                          </a>
+                        )}
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          onClick={() => setAcknowledgedRedFlag(true)}
+                          className="min-h-[44px] text-xs text-purple-950 dark:text-purple-100 hover:bg-purple-500/10 focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2"
+                        >
+                          {acknowledgedRedFlag ? "✓ Acknowledged" : "Continue with symptom check"}
+                        </Button>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      {/* TODO: CLINICAL REVIEW REQUIRED — Emergency medical warning */}
+                      <div className="flex items-start gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-destructive/20 text-destructive flex items-center justify-center shrink-0 mt-0.5">
+                          <AlertTriangle className="w-4 h-4 animate-pulse" />
+                        </div>
+                        <div className="space-y-1 flex-1 text-xs text-foreground">
+                          <h4 className="font-bold text-sm text-destructive">
+                            Potential Medical Emergency Warning
+                          </h4>
+                          <p className="leading-relaxed">
+                            {activeRedFlag.userMessage}
+                          </p>
+                          <p className="text-muted-foreground">
+                            {emergencyConfig.medicalEmergencyNumber
+                              ? `Immediate in-person emergency evaluation is strongly advised.`
+                              : `If you are experiencing severe or life-threatening symptoms, please call your local emergency number (such as 911, 999, or 112) or proceed to the nearest emergency room immediately.`}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-2 pt-1">
+                        {emergencyConfig.medicalEmergencyNumber && (
+                          <a
+                            href={`tel:${emergencyConfig.medicalEmergencyNumber}`}
+                            className="min-h-[44px] px-4 py-2 rounded-xl bg-destructive hover:bg-destructive/90 text-destructive-foreground font-bold flex items-center gap-2 text-xs shadow-sm transition-colors focus-visible:ring-2 focus-visible:ring-destructive focus-visible:ring-offset-2"
+                          >
+                            <PhoneCall className="w-4 h-4" />
+                            Call Emergency Services ({emergencyConfig.medicalEmergencyNumber})
+                          </a>
+                        )}
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setAcknowledgedRedFlag(true)}
+                          className="min-h-[44px] text-xs border-destructive/30 hover:bg-destructive/10 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                        >
+                          {acknowledgedRedFlag ? "✓ Acknowledged" : "Continue with symptom check"}
+                        </Button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
 
               {/* NRS Severity & Temporal Velocity Controls */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 pt-1">
@@ -785,11 +918,11 @@ export const SymptomInputForm: React.FC<SymptomInputFormProps> = ({
                     className="cursor-pointer py-1"
                     aria-label="Pain severity slider"
                   />
-                  <div className="text-[11px] leading-tight">
+                  <div className="text-xs leading-tight">
                     <span className={`font-bold block ${painInfo.color}`}>
                       {painInfo.label}
                     </span>
-                    <span className="text-muted-foreground text-[10px]">
+                    <span className="text-muted-foreground text-xs">
                       {painInfo.desc}
                     </span>
                   </div>
@@ -863,7 +996,7 @@ export const SymptomInputForm: React.FC<SymptomInputFormProps> = ({
               {/* Live Search Autocomplete Results */}
               {searchQuery && (
                 <div className="p-3.5 rounded-xl bg-card border border-border shadow-md space-y-2">
-                  <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider font-mono">
+                  <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider font-mono">
                     Matching Clinical Terms ({filteredSymptoms.length}):
                   </span>
                   <div className="flex flex-wrap gap-1.5 max-h-40 overflow-y-auto">
@@ -913,7 +1046,7 @@ export const SymptomInputForm: React.FC<SymptomInputFormProps> = ({
                     <button
                       type="button"
                       onClick={() => setSymptomTags([])}
-                      className="text-destructive hover:underline text-[11px]"
+                      className="text-destructive hover:underline text-xs"
                     >
                       Clear All Tags
                     </button>
@@ -997,54 +1130,6 @@ export const SymptomInputForm: React.FC<SymptomInputFormProps> = ({
           </div>
         </div>
       </form>
-
-      {/* Emergency Red Flag Interceptor Modal */}
-      <Dialog open={showEmergencyModal} onOpenChange={setShowEmergencyModal}>
-        <DialogContent className="max-w-md border-red-500 bg-card p-6">
-          <DialogHeader>
-            <div className="w-12 h-12 rounded-xl bg-red-100 dark:bg-red-950 text-red-600 flex items-center justify-center mx-auto mb-2">
-              <AlertTriangle className="w-6 h-6 animate-pulse" />
-            </div>
-            <DialogTitle className="text-center text-xl font-bold text-red-600">
-              Immediate Emergency Alert
-            </DialogTitle>
-            <DialogDescription className="text-center text-xs text-foreground/90 pt-2 space-y-2">
-              <p>
-                You reported clinical indicators matching <strong>"{emergencyKeywordFound}"</strong>. These can indicate a critical acute emergency (such as myocardial infarction, pulmonary embolism, cerebrovascular accident, or anaphylaxis).
-              </p>
-              <div className="p-3 bg-red-50 dark:bg-red-950/40 rounded-xl text-left text-xs text-red-800 dark:text-red-200 border border-red-200 dark:border-red-900 space-y-1.5">
-                <strong>Emergency Response Protocol:</strong>
-                <ul className="list-disc pl-4 space-y-0.5">
-                  <li>Call emergency responders (<strong>911, 999, 112</strong>) immediately.</li>
-                  <li>Do not attempt to drive yourself to the hospital.</li>
-                  <li>If alone, unlock your entrance door and alert a neighbor or contact.</li>
-                </ul>
-              </div>
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="flex-col sm:flex-row gap-2 pt-2">
-            <Button
-              type="button"
-              variant="destructive"
-              className="w-full flex items-center justify-center gap-2 font-bold min-h-[44px]"
-              onClick={() => {
-                if (typeof window !== "undefined") window.location.href = "tel:911";
-              }}
-            >
-              <PhoneCall className="w-4 h-4" />
-              Call Emergency Services (911)
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full text-xs min-h-[44px]"
-              onClick={() => setShowEmergencyModal(false)}
-            >
-              I Understand, Continue Assessment
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </>
   );
 };

@@ -79,6 +79,8 @@ export const translations = {
     confidentialNotice: "100% Private & Secure • We Never Sell Your Data",
     emergencyDisclaimer:
       "If you have severe chest pain, trouble breathing, sudden weakness or numbness, call 911 or your local emergency number immediately.",
+    persistentEmergencyNotice:
+      "If you think this is an emergency, contact your local emergency services.",
     footerRights: "ManoMed AI. All rights reserved. Built to guide and support your health decisions.",
   },
 
@@ -140,6 +142,8 @@ export const translations = {
     confidentialNotice: "خصوصيتك محمية 100% • لا نشارك بياناتك أبداً",
     emergencyDisclaimer:
       "إذا كنت تشعر بألم شديد في الصدر، أو صعوبة في التنفس، أو خدر مفاجئ، اتصل بالإسعاف فوراً.",
+    persistentEmergencyNotice:
+      "إذا كنت تعتقد أن هذه حالة طارئة، يرجى التواصل مع خدمات الإسعاف والطوارئ المحلية فوراً.",
     footerRights: "مانوميد للذكاء الطبي. جميع الحقوق محفوظة. لمساعدتك على اتخاذ قرارات صحية أفضل.",
   },
 
@@ -201,6 +205,8 @@ export const translations = {
     confidentialNotice: "100% Privado y Seguro • Nunca vendemos tus datos",
     emergencyDisclaimer:
       "Si sientes dolor fuerte en el pecho, dificultad para respirar o debilidad repentina, llama a emergencias de inmediato.",
+    persistentEmergencyNotice:
+      "Si cree que se trata de una emergencia, comuníquese con los servicios de emergencia locales.",
     footerRights: "ManoMed AI. Todos los derechos reservados. Diseñado para orientar tus decisiones de salud.",
   },
 
@@ -256,6 +262,7 @@ export const translations = {
     liveSyncActive: "诊区实时同步中",
     confidentialNotice: "100% 隐私安全 • 绝不出售您的任何数据",
     emergencyDisclaimer: "如果您出现剧烈胸痛、呼吸急促、意识模糊或突发身体麻木，请立刻前往最近的急诊室或拨打120。",
+    persistentEmergencyNotice: "如果您认为这是紧急情况，请立即联系当地急救服务。",
     footerRights: "ManoMed AI 智医系统。版权所有。辅助健康决策，守护您的安心。",
   },
 
@@ -317,6 +324,8 @@ export const translations = {
     confidentialNotice: "100% Privé et Sécurisé • Données jamais vendues",
     emergencyDisclaimer:
       "En cas de douleur vive dans la poitrine, détresse respiratoire ou faiblesse soudaine, contactez immédiatement le 15 ou les urgences.",
+    persistentEmergencyNotice:
+      "Si vous pensez qu'il s'agit d'une urgence, contactez vos services d'urgence locaux.",
     footerRights: "ManoMed AI. Tous droits réservés. Créé pour vous guider en toute confiance.",
   },
 };
