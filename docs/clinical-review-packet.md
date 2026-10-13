@@ -198,7 +198,33 @@ This section details all items flagged during the initial Clinical Governance Re
 
 ---
 
-## Section 9: Sign-Off & Clinical Authorization Form
+## Section 10: Fallback Synthesizer Conditions & Diagnostic Workup Catalog
+
+**File:** `src/ai/flows/symptom-analysis.ts`  
+**Execution Context:** Client-side fallback synthesizer invoked when remote LLM inference (Groq / Gemini) is unavailable, unconfigured, throttled, or returns malformed schema output. Produces deterministic, safe emergency/urgent/routine differential structures without making external network calls.
+
+### 10.1 Synthesized Differential Catalog & Test Recommendations
+
+| Rule ID | Branch Trigger | Status | Condition Name | Likelihood | Risk Level | Suggested Diagnostic Tests | Recommended Specialties | Clinical Review Notes |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **`FB-001`** | Cardiopulmonary / Chest (`isChestOrCardiac`) | `status: unreviewed` | Acute Coronary Syndrome Rule-Out | 65% (0.65) | High | 12-Lead Electrocardiogram (ECG), Serum Troponin I/T Levels, Chest Radiograph | Cardiology, Emergency Medicine, Primary Care / Internal Medicine | High-risk rule-out differential for suspected acute chest pain. Requires clinical approval of test panel. |
+| **`FB-002`** | Cardiopulmonary / Chest (`isChestOrCardiac`) | `status: unreviewed` | Gastroesophageal Reflux or Musculoskeletal Chest Wall Pain | 25% (0.25) | Low | Upper GI Endoscopy (if refractory), Basic Metabolic Panel | Gastroenterology, Primary Care / Internal Medicine | Benign secondary differential for non-cardiac chest discomfort. |
+| **`FB-003`** | Cephalea / Headache (`isHeadache`) | `status: unreviewed` | Tension-Type Headache or Primary Cephalea | 60% (0.60) | Low | Comprehensive Metabolic Panel (CMP), Complete Blood Count (CBC), Basic Neurological Examination | Neurology, Primary Care / Internal Medicine | Primary benign headache differential. Tests include routine baseline blood work and exam. |
+| **`FB-004`** | Cephalea / Headache (`isHeadache`) | `status: unreviewed` | Secondary Cephalea / Cervicogenic Headache | 30% (0.30) | Moderate | Non-contrast Brain CT/MRI (if red flags or changes occur), Cervical Spine Evaluation | Neurology, Physical Medicine & Rehabilitation | Secondary cephalea consideration with neuroimaging conditional on red flags. |
+| **`FB-005`** | Gastrointestinal / Abdomen (`isAbdominal`) | `status: unreviewed` | Acute Gastroenteritis / Non-Specific Abdominal Pain | 55% (0.55) | Moderate | Complete Blood Count (CBC), Serum Electrolytes & Renal Function, Abdominal Ultrasound | Gastroenterology, Primary Care / Internal Medicine | Acute abdominal discomfort presentation. Baseline panels and non-invasive ultrasound. |
+| **`FB-006`** | Gastrointestinal / Abdomen (`isAbdominal`) | `status: unreviewed` | Functional Dyspepsia / Irritable Bowel Syndrome | 35% (0.35) | Low | Stool Occult Blood / Fecal Calprotectin, Celiac Serology Panel | Gastroenterology, Primary Care | Subacute / functional GI presentation. Inflammatory and malabsorption rule-out tests. |
+| **`FB-007`** | Default / Non-Specific (`default`) | `status: unreviewed` | Acute Viral Syndrome / Non-Specific Presentation | 70% (0.70) | Low | Comprehensive Metabolic Panel (CMP), Complete Blood Count (CBC) | Primary Care / Internal Medicine | Systemic non-specific malaise/viral syndrome. Baseline metabolic and hematologic workup. |
+| **`FB-008`** | Default / Non-Specific (`default`) | `status: unreviewed` | Systemic Symptom Complex Under Clinical Investigation | 20% (0.20) | Moderate | Erythrocyte Sedimentation Rate (ESR) / C-Reactive Protein (CRP), Primary Clinical Physical Examination | Primary Care / Internal Medicine, Infectious Disease (if persistent) | Undifferentiated constitutional presentation. Inflammatory markers and primary care exam. |
+
+### 10.2 Proposed Governance Evolution for Non-Specific Inputs (Proposal Only)
+- **Current Behavior:** Non-specific or vague inputs default to `FB-007` (*Acute Viral Syndrome / Non-Specific Presentation 70%*) and `FB-008` (*Systemic Symptom Complex Under Clinical Investigation 20%*), with routine primary care follow-up.
+- **Proposed Safer Behavior:** When symptom input lacks qualifying organ-system keywords, anatomical specificity, or clinical duration, rather than fabricating a 70% Acute Viral Syndrome differential, ManoMed AI should output an explicit uncertainty state:
+  > *"We can't assess this reliably. Please speak with a clinician for an in-person assessment."*
+- **Governance Recommendation:** Submit to Clinical Review Board for sign-off prior to implementation.
+
+---
+
+## Section 11: Sign-Off & Clinical Authorization Form
 
 *To be completed by Supervising Medical Director / Chief Medical Officer:*
 
@@ -211,6 +237,7 @@ This section details all items flagged during the initial Clinical Governance Re
 | **Status Mapping & Disjoint Layers (`STAT-*`)** | | | [ ] Approved  [ ] Revisions Needed | |
 | **Multilingual Localization (`LOC-*`)** | | | [ ] Approved  [ ] Revisions Needed | |
 | **Imaging & Provider Station Governance (`IMG-*`, `STN-*`)** | | | [ ] Approved  [ ] Revisions Needed | |
+| **Fallback Differential Synthesizer (`FB-001` - `FB-008`)** | | | [ ] Approved  [ ] Revisions Needed | |
 
 **Physician Comments & Mandatory Changes:**  
 `__________________________________________________________________________________________________________________`  
