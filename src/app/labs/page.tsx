@@ -135,6 +135,7 @@ export default function BloodWorkPage() {
   // Input validation state for impossible/unusual values
   const [plausibilityWarnings, setPlausibilityWarnings] = useState<PlausibilityWarning[] | null>(null);
   const [confirmedPlausibility, setConfirmedPlausibility] = useState(false);
+  const [ageError, setAgeError] = useState<string | null>(null);
 
   const handleExportPdf = async () => {
     if (!result) return;
@@ -213,6 +214,16 @@ export default function BloodWorkPage() {
 
   // Run Analysis with Plausibility Gate
   const handleRunAnalysis = async () => {
+    // Directive 6: Accept only 0 to 120. Anything else treated as unspecified with inline message + interpretation suppressed.
+    const trimmedAge = (age || '').trim();
+    const numAge = Number(trimmedAge);
+    const isUnspecified = !trimmedAge || isNaN(numAge) || numAge < 0 || numAge > 120;
+    if (isUnspecified) {
+      setAgeError('Please enter a valid age between 0 and 120. Adult reference intervals and interpretations are suppressed when age is invalid or unspecified.');
+    } else {
+      setAgeError(null);
+    }
+
     const validItems = labItems.filter((i) => i.parameter.trim() && i.value.trim());
     if (validItems.length === 0) {
       alert('Please enter at least one laboratory test parameter and value.');
@@ -360,16 +371,36 @@ ${result.analyzedParameters.map((p) => `- ${p.name}: ${p.value} ${p.unit} [${p.f
                 className="text-xs h-10"
               />
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="age" className="text-xs font-semibold">Age (Years)</Label>
+            <div className="space-y-1.5 sm:col-span-1">
+              <Label htmlFor="age" className="text-xs font-semibold flex items-center gap-1">
+                <span>Age (Years)</span>
+                <span className="text-red-500 font-bold" aria-hidden="true">*</span>
+                <span className="text-[10px] text-muted-foreground font-normal">(Required)</span>
+              </Label>
               <Input
                 id="age"
                 type="number"
+                min="0"
+                max="120"
+                required
+                aria-required="true"
+                aria-describedby="age-explanation age-error"
                 placeholder="e.g. 62"
                 value={age}
-                onChange={(e) => setAge(e.target.value)}
-                className="text-xs h-10"
+                onChange={(e) => {
+                  setAge(e.target.value);
+                  if (ageError) setAgeError(null);
+                }}
+                className={`text-xs h-10 ${ageError ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
               />
+              <p id="age-explanation" className="text-[11px] text-muted-foreground leading-tight">
+                Required for clinical interpretation. Reference ranges vary by age. Adult reference intervals are suppressed for patients under 18 or with unspecified age.
+              </p>
+              {ageError && (
+                <p id="age-error" role="alert" className="text-[11px] text-red-500 font-medium">
+                  {ageError}
+                </p>
+              )}
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="gender" className="text-xs font-semibold">Biological Sex</Label>

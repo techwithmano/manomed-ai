@@ -86,9 +86,22 @@ export const CLINICAL_EDUCATION_DISCLAIMER =
   'ManoMed AI provides clinical decision support and health education, not an official medical diagnosis. Always consult a qualified medical professional for personal diagnosis and treatment.';
 
 /**
- * Evaluates whether an entered age is pediatric (< 18), blank, or invalid.
- * If age is under 18, missing, or invalid, adult-range interpretations must be withheld.
- * TODO: CLINICAL REVIEW REQUIRED — Pediatric thresholds must be validated by a board-certified pediatrician.
+ * Evaluates whether an entered age is valid (a number from 0 to 120).
+ */
+export function isValidLabAge(age?: string | number | null): boolean {
+  if (age === undefined || age === null) return false;
+  const str = String(age).trim();
+  if (str === '') return false;
+  const num = Number(str);
+  if (isNaN(num)) return false;
+  return num >= 0 && num <= 120;
+}
+
+/**
+ * Evaluates whether an entered age is pediatric (< 18), unspecified, or invalid (outside 0-120).
+ * Accept only a number from 0 to 120. Anything else (negative, over 120, text, empty) is treated
+ * as unspecified: adult-range interpretations and classifications must be strictly suppressed.
+ * TODO: CLINICAL REVIEW REQUIRED — Age boundaries (0-120) and pediatric thresholds (<18) must be clinically validated.
  */
 export function isPediatricOrUnspecifiedAge(age?: string | number | null): boolean {
   if (age === undefined || age === null) return true;
@@ -96,6 +109,8 @@ export function isPediatricOrUnspecifiedAge(age?: string | number | null): boole
   if (str === '') return true;
   const num = Number(str);
   if (isNaN(num)) return true;
+  if (num < 0 || num > 120) return true;
   return num < 18;
 }
+
 

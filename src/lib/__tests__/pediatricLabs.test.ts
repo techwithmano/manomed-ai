@@ -33,6 +33,38 @@ test('Pediatric Labs: Age gating and interpretation suppression', async (t) => {
     assert.equal(isPediatricOrUnspecifiedAge(NaN), true, 'NaN age should be treated as unspecified/pediatric-safe');
   });
 
+  await t.test('Directive 6: Age validation boundary test suite (-1, 0, 17, 18, 120, 121, "abc", "")', () => {
+    // -1 (negative)
+    assert.equal(isPediatricOrUnspecifiedAge(-1), true, 'Age -1 (number) must be treated as unspecified/suppressed');
+    assert.equal(isPediatricOrUnspecifiedAge('-1'), true, 'Age "-1" (string) must be treated as unspecified/suppressed');
+
+    // 0 (newborn / pediatric)
+    assert.equal(isPediatricOrUnspecifiedAge(0), true, 'Age 0 (number) must be treated as pediatric/suppressed');
+    assert.equal(isPediatricOrUnspecifiedAge('0'), true, 'Age "0" (string) must be treated as pediatric/suppressed');
+
+    // 17 (pediatric)
+    assert.equal(isPediatricOrUnspecifiedAge(17), true, 'Age 17 (number) must be treated as pediatric/suppressed');
+    assert.equal(isPediatricOrUnspecifiedAge('17'), true, 'Age "17" (string) must be treated as pediatric/suppressed');
+
+    // 18 (adult lower bound)
+    assert.equal(isPediatricOrUnspecifiedAge(18), false, 'Age 18 (number) must be adult (not suppressed)');
+    assert.equal(isPediatricOrUnspecifiedAge('18'), false, 'Age "18" (string) must be adult (not suppressed)');
+
+    // 120 (adult upper bound)
+    assert.equal(isPediatricOrUnspecifiedAge(120), false, 'Age 120 (number) must be adult (not suppressed)');
+    assert.equal(isPediatricOrUnspecifiedAge('120'), false, 'Age "120" (string) must be adult (not suppressed)');
+
+    // 121 (over 120, invalid/unspecified)
+    assert.equal(isPediatricOrUnspecifiedAge(121), true, 'Age 121 (number) must be treated as unspecified/suppressed');
+    assert.equal(isPediatricOrUnspecifiedAge('121'), true, 'Age "121" (string) must be treated as unspecified/suppressed');
+
+    // "abc" (text)
+    assert.equal(isPediatricOrUnspecifiedAge('abc'), true, 'Age "abc" (text) must be treated as unspecified/suppressed');
+
+    // "" (empty)
+    assert.equal(isPediatricOrUnspecifiedAge(''), true, 'Age "" (empty string) must be treated as unspecified/suppressed');
+  });
+
   await t.test('Age 17: suppresses adult LOW/HIGH/CRITICAL interpretations and flags clinician review', async () => {
     const input: BloodWorkInput = {
       age: '17',

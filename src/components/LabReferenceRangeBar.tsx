@@ -245,7 +245,7 @@ export function LabReferenceRangeBar({
           {/* Low Zone (25%) */}
           <div
             className={`w-[25%] transition-colors ${
-              isLow ? 'bg-amber-500/40 dark:bg-amber-500/50' : 'bg-amber-500/15 dark:bg-amber-500/20'
+              isLow ? 'bg-amber-700 dark:bg-amber-400' : 'bg-amber-600/20 dark:bg-amber-400/20'
             }`}
             title="Below reference interval"
           />
@@ -253,7 +253,7 @@ export function LabReferenceRangeBar({
           {/* Normal Zone (50%) */}
           <div
             className={`w-[50%] border-x border-border/70 transition-colors ${
-              isNormal ? 'bg-emerald-500/45 dark:bg-emerald-500/55' : 'bg-emerald-500/20 dark:bg-emerald-500/25'
+              isNormal ? 'bg-emerald-600 dark:bg-emerald-400' : 'bg-emerald-600/20 dark:bg-emerald-400/20'
             }`}
             title="Normal reference interval"
           />
@@ -261,7 +261,7 @@ export function LabReferenceRangeBar({
           {/* High Zone (25%) */}
           <div
             className={`w-[25%] transition-colors ${
-              isHigh ? 'bg-amber-500/40 dark:bg-amber-500/50' : 'bg-amber-500/15 dark:bg-amber-500/20'
+              isHigh ? 'bg-amber-700 dark:bg-amber-400' : 'bg-amber-600/20 dark:bg-amber-400/20'
             }`}
             title="Above reference interval"
           />
