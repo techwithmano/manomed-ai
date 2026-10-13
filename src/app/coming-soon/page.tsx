@@ -71,7 +71,7 @@ export default function UnderMaintenance() {
 
         <div className="text-[11px] text-muted-foreground flex items-center justify-center gap-1.5 pt-2 border-t border-border/60">
           <ShieldCheck className="w-3.5 h-3.5 text-primary" />
-          <span>Patient audit vault and local data remain secure</span>
+          <span>Patient saved records remain on this device</span>
         </div>
       </div>
     </main>

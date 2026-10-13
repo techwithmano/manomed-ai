@@ -37,7 +37,7 @@ export default function ManoMedAIPage() {
   return (
     <div className="min-h-[calc(100vh-5rem)] bg-background text-foreground py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto space-y-8">
-        {/* Navigation Breadcrumb & Vault Link */}
+        {/* Navigation Breadcrumb & History Link */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border/60">
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Link href="/" className="hover:text-foreground transition-colors">
@@ -62,7 +62,7 @@ export default function ManoMedAIPage() {
             )}
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20">
               <ShieldCheck className="w-3.5 h-3.5" />
-              <span>Private & Secure Session</span>
+              <span>Saved on this device</span>
             </div>
           </div>
         </div>
@@ -102,7 +102,7 @@ export default function ManoMedAIPage() {
         <div className="p-4 rounded-xl bg-muted/40 border border-border/60 text-xs text-muted-foreground flex items-start gap-3">
           <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
           <p className="leading-relaxed">
-            <strong className="text-foreground">Medical Disclaimer:</strong> ManoMed AI helps guide your health decisions and prepare for doctor visits, but does not replace emergency medical care. If you or a loved one have severe chest pain, trouble breathing, heavy bleeding, or sudden weakness or numbness, contact your local emergency services (such as 911, 999, or 112) or go to the nearest emergency room immediately.
+            <strong className="text-foreground">Medical Disclaimer:</strong> ManoMed AI helps guide your health decisions and prepare for doctor visits, but does not replace emergency medical care. If you or a loved one have severe chest pain, trouble breathing, heavy bleeding, or sudden weakness or numbness, contact your local emergency services or go to the nearest emergency room immediately.
           </p>
         </div>
       </div>

@@ -35,8 +35,8 @@ const pillars = [
   },
   {
     icon: <Lock className="w-6 h-6 text-primary" />,
-    title: "Strict Patient Privacy & Ethics",
-    desc: "Client-side ephemeral vault storage by default. Clinical sessions are processed with strict data minimization principles with zero advertising tracking or commercial monetization.",
+    title: "Patient Privacy & Third-Party AI Disclosure",
+    desc: "Health evaluations are saved on this device by default. Symptom text, lab values, and uploaded images are sent over HTTPS to third-party AI providers (Google Gemini and Groq) for analysis. If you use the optional email feature, your report is delivered through SendGrid or Resend.",
   },
 ];
 
@@ -143,7 +143,7 @@ export default function AboutPage() {
                 <li className="flex items-start gap-2.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
                   <span>
-                    <strong className="text-foreground">Data Minimization:</strong> Health data remains in client local storage with secure TLS-encrypted transient evaluation.
+                    <strong className="text-foreground">Data Storage & Transport:</strong> Health data is stored locally in your browser and transmitted over HTTPS.
                   </span>
                 </li>
               </ul>
@@ -208,7 +208,7 @@ export default function AboutPage() {
               Clinical Advisory & Ethics Covenant
             </h4>
             <p className="text-xs text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              ManoMed AI is a clinical decision support and health information tool intended to assist patient education and preliminary triage. It does not constitute formal medical diagnosis or prescription treatment. If you are experiencing sudden, severe chest pain, shortness of breath, loss of consciousness, or signs of stroke, contact your local emergency services (such as 911, 999, or 112) or proceed to the nearest emergency room immediately.
+              ManoMed AI is a clinical decision support and health information tool intended to assist patient education and preliminary triage. It does not constitute formal medical diagnosis or prescription treatment. If you are experiencing sudden, severe chest pain, shortness of breath, loss of consciousness, or signs of stroke, contact your local emergency services or proceed to the nearest emergency room immediately.
             </p>
           </div>
         </div>

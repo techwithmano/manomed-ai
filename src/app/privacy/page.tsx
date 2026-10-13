@@ -45,16 +45,16 @@ export default function PrivacyPolicyPage() {
             <div className="space-y-1">
               <span className="font-semibold text-foreground flex items-center gap-1.5">
                 <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
-                Zero Commercial Data Sales
+                Third-Party AI Providers
               </span>
               <p className="text-muted-foreground leading-relaxed">
-                Health inputs and patient identifiers are never sold, rented, or distributed to advertisers or data brokers.
+                Symptom text, lab values, and images are sent over HTTPS to Google Gemini and Groq for analysis. [Commercial resale terms: needs owner confirmation].
               </p>
             </div>
             <div className="space-y-1">
               <span className="font-semibold text-foreground flex items-center gap-1.5">
                 <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
-                Client-Side Vault Storage
+                Saved on This Device
               </span>
               <p className="text-muted-foreground leading-relaxed">
                 Evaluation history is held locally within your device browser storage, giving you instant 1-click purge control.
@@ -63,10 +63,10 @@ export default function PrivacyPolicyPage() {
             <div className="space-y-1">
               <span className="font-semibold text-foreground flex items-center gap-1.5">
                 <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
-                Transient Encrypted Inference
+                Sent Over HTTPS
               </span>
               <p className="text-muted-foreground leading-relaxed">
-                All transmissions for AI clinical reasoning utilize TLS 1.3 encryption with strict session minimization.
+                All transmissions for AI clinical reasoning and email report delivery are sent securely over HTTPS.
               </p>
             </div>
           </div>
@@ -107,12 +107,26 @@ export default function PrivacyPolicyPage() {
 
           <section className="space-y-3 border-t border-border/60 pt-6">
             <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
-              3. Private On-Device Storage
+              3. Third-Party AI & Infrastructure Providers
             </h2>
             <p className="text-muted-foreground text-xs leading-relaxed">
-              ManoMed AI operates with a privacy-first local storage architecture. Completed evaluations are stored locally on your device in your browser's private local storage (localStorage). You can view, search, export to PDF, or permanently erase individual records or the entire vault at any time via the{" "}
+              To perform symptom triage, blood test interpretation, and medical imaging evaluation, ManoMed AI transmits user inputs (symptom narratives, laboratory parameters, and radiograph images) over HTTPS to third-party cloud AI reasoning providers:
+            </p>
+            <ul className="list-disc pl-5 space-y-1.5 text-xs text-muted-foreground">
+              <li><strong className="text-foreground">Google Gemini (Google LLC):</strong> Used for multimodal clinical analysis, laboratory reasoning, and imaging analysis.</li>
+              <li><strong className="text-foreground">Groq (Groq, Inc.):</strong> Used for fast inference and clinical differential reasoning.</li>
+              <li><strong className="text-foreground">Email Dispatchers (Twilio SendGrid / Resend):</strong> When you choose to use the report email feature, the generated PDF report is sent through the configured email delivery provider.</li>
+            </ul>
+          </section>
+
+          <section className="space-y-3 border-t border-border/60 pt-6">
+            <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+              4. On-Device Storage
+            </h2>
+            <p className="text-muted-foreground text-xs leading-relaxed">
+              ManoMed AI operates with a local storage architecture. Completed evaluations are stored on your device in your browser's local storage (localStorage). You can view, search, export to PDF, or permanently erase individual records or all saved records at any time via{" "}
               <Link href="/history" className="text-primary underline">
-                Audit Vault
+                Saved Records
               </Link>
               . We do not store persistent patient health dossiers on public centralized databases.
             </p>
@@ -120,7 +134,7 @@ export default function PrivacyPolicyPage() {
 
           <section className="space-y-3 border-t border-border/60 pt-6">
             <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
-              4. Your Privacy Rights
+              5. Your Privacy Rights
             </h2>
             <p className="text-muted-foreground text-xs leading-relaxed">
               In accordance with international privacy legislation, including the EU General Data Protection Regulation (GDPR) and the California Consumer Privacy Act (CCPA), you retain the following rights:
@@ -132,7 +146,7 @@ export default function PrivacyPolicyPage() {
               </div>
               <div className="p-3.5 rounded-xl bg-card border border-border">
                 <strong className="text-foreground block mb-0.5">Right to Erasure (To Be Forgotten)</strong>
-                <span className="text-muted-foreground">Instantly wipe all local audit trails using the 1-click Clear Vault command.</span>
+                <span className="text-muted-foreground">Instantly wipe local records using the 1-click Clear Records command.</span>
               </div>
               <div className="p-3.5 rounded-xl bg-card border border-border">
                 <strong className="text-foreground block mb-0.5">Right to Rectification</strong>
@@ -140,14 +154,14 @@ export default function PrivacyPolicyPage() {
               </div>
               <div className="p-3.5 rounded-xl bg-card border border-border">
                 <strong className="text-foreground block mb-0.5">Right to Non-Discrimination</strong>
-                <span className="text-muted-foreground">Access all clinical triage capabilities freely without account registration or tracking cookies.</span>
+                <span className="text-muted-foreground">Access all clinical triage capabilities freely without account registration. [Commercial resale terms: needs owner confirmation].</span>
               </div>
             </div>
           </section>
 
           <section className="space-y-3 border-t border-border/60 pt-6">
             <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
-              5. Contact Us
+              6. Contact Us
             </h2>
             <p className="text-muted-foreground text-xs leading-relaxed">
               For regulatory inquiries, compliance certifications, or institutional audit requests, contact our Data Governance Officer at:

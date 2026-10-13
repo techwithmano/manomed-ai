@@ -14,6 +14,7 @@ import {
   saveXRayToHistory,
 } from "@/lib/assessment-store";
 import { exportClinicalReportPDF, exportLabReportPDF, exportXRayReportPDF } from "@/lib/pdf-export";
+import { isCloudSyncEnabled } from "@/lib/firebase";
 import {
   Activity,
   AlertTriangle,
@@ -419,21 +420,36 @@ ${soap.plan || "N/A"}`;
               </div>
               <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Doctor & Clinic Dashboard</h1>
               
-              {/* Live Clinic Sync with Real Timestamp */}
+              {/* Live Clinic Sync vs Local Device Mode Status */}
               <div className="flex items-center gap-2">
-                <div
-                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border border-emerald-500/40 bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 select-none"
-                  aria-label={`Live Clinic Sync active. Last updated ${relativeTimeStr}.`}
-                >
-                  <span className="relative flex h-2 w-2" aria-hidden="true">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-                  </span>
-                  <span>Live Sync</span>
-                  <span className="text-muted-foreground font-mono text-[11px] ml-0.5">
-                    • Updated {relativeTimeStr}
-                  </span>
-                </div>
+                {isCloudSyncEnabled ? (
+                  <div
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border border-emerald-500/40 bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 select-none"
+                    aria-label={`Live Clinic Sync active. Last updated ${relativeTimeStr}.`}
+                  >
+                    <span className="relative flex h-2 w-2" aria-hidden="true">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                    </span>
+                    <span>Live Sync</span>
+                    <span className="text-muted-foreground font-mono text-[11px] ml-0.5">
+                      • Updated {relativeTimeStr}
+                    </span>
+                  </div>
+                ) : (
+                  <div
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border border-border bg-muted/60 text-muted-foreground select-none"
+                    aria-label="Cloud queue is turned off. Records stay on this device."
+                  >
+                    <span className="relative flex h-2 w-2" aria-hidden="true">
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-muted-foreground/60" />
+                    </span>
+                    <span>Local Device Mode</span>
+                    <span className="font-mono text-[11px] ml-0.5">
+                      • Cloud queue off
+                    </span>
+                  </div>
+                )}
 
                 {/* Screen Reader polite live announcement on real data changes (not every second) */}
                 <div role="status" aria-live="polite" className="sr-only">
@@ -603,9 +619,15 @@ ${soap.plan || "N/A"}`;
             {filteredAssessments.length === 0 ? (
               <Card className="border-dashed p-12 text-center">
                 <Stethoscope className="w-12 h-12 text-muted-foreground mx-auto mb-3 opacity-40" />
-                <h3 className="text-lg font-semibold">No Patients in Triage Queue</h3>
+                <h3 className="text-lg font-semibold">
+                  {isCloudSyncEnabled
+                    ? "No Patients in Triage Queue"
+                    : "Cloud queue is turned off. Records stay on this device."}
+                </h3>
                 <p className="text-sm text-muted-foreground max-w-md mx-auto mt-1 mb-4">
-                  Incoming patient assessments from intake appear here. You can review triage priority, examine differential likelihoods, and export SOAP notes.
+                  {isCloudSyncEnabled
+                    ? "Incoming patient assessments from intake appear here. You can review triage priority, examine differential likelihoods, and export SOAP notes."
+                    : "Assessments evaluated on this device appear here locally. Multi-device cloud queue synchronization is disabled."}
                 </p>
                 <Button variant="outline" size="sm" onClick={seedSampleCohort} className="min-h-[44px]">
                   Load Sample Clinical Cohort
@@ -680,9 +702,15 @@ ${soap.plan || "N/A"}`;
             {filteredLabs.length === 0 ? (
               <Card className="border-dashed p-12 text-center">
                 <Microscope className="w-12 h-12 text-muted-foreground mx-auto mb-3 opacity-40" />
-                <h3 className="text-lg font-semibold">No Blood Work Panels in Queue</h3>
+                <h3 className="text-lg font-semibold">
+                  {isCloudSyncEnabled
+                    ? "No Blood Work Panels in Queue"
+                    : "Cloud queue is turned off. Records stay on this device."}
+                </h3>
                 <p className="text-sm text-muted-foreground max-w-md mx-auto mt-1 mb-4">
-                  Incoming blood work evaluations appear here with flagged out-of-range parameters and reference intervals for clinical verification.
+                  {isCloudSyncEnabled
+                    ? "Incoming blood work evaluations appear here with flagged out-of-range parameters and reference intervals for clinical verification."
+                    : "Laboratory panels evaluated on this device appear here locally. Multi-device cloud queue synchronization is disabled."}
                 </p>
                 <Button variant="outline" size="sm" onClick={seedSampleCohort} className="min-h-[44px]">
                   Load Sample Lab Panel
@@ -750,9 +778,15 @@ ${soap.plan || "N/A"}`;
             {filteredXRays.length === 0 ? (
               <Card className="border-dashed p-12 text-center">
                 <HeartPulse className="w-12 h-12 text-muted-foreground mx-auto mb-3 opacity-40" />
-                <h3 className="text-lg font-semibold">No Radiographs in Queue</h3>
+                <h3 className="text-lg font-semibold">
+                  {isCloudSyncEnabled
+                    ? "No Radiographs in Queue"
+                    : "Cloud queue is turned off. Records stay on this device."}
+                </h3>
                 <p className="text-sm text-muted-foreground max-w-md mx-auto mt-1 mb-4">
-                  Incoming X-ray studies appear here with anatomical findings and high-contrast views for radiological review.
+                  {isCloudSyncEnabled
+                    ? "Incoming X-ray studies appear here with anatomical findings and high-contrast views for radiological review."
+                    : "Imaging studies evaluated on this device appear here locally. Multi-device cloud queue synchronization is disabled."}
                 </p>
                 <Button variant="outline" size="sm" onClick={seedSampleCohort} className="min-h-[44px]">
                   Load Sample Radiograph

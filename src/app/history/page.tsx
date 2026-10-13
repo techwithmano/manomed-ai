@@ -16,7 +16,7 @@ import {
   deleteXRayFromHistory,
   clearAllLocalDeviceData,
 } from '@/lib/assessment-store';
-import { isFirebaseConfigured } from '@/lib/firebase';
+import { isCloudSyncEnabled } from '@/lib/firebase';
 import {
   Episode,
   SuggestedEpisode,
@@ -382,7 +382,7 @@ export default function HistoryPage() {
       <div className="flex items-center justify-center min-h-[calc(100vh-5rem)] bg-background">
         <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium">
           <Activity className="w-5 h-5 animate-spin text-primary" />
-          Loading clinical assessment vault...
+          Loading saved assessments...
         </div>
       </div>
     );
@@ -1252,7 +1252,7 @@ export default function HistoryPage() {
             </DialogDescription>
           </DialogHeader>
 
-          {isFirebaseConfigured && (
+          {isCloudSyncEnabled && (
             <div className="p-3.5 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-950 dark:text-amber-200 text-xs space-y-1.5">
               <div className="font-bold flex items-center gap-1.5 text-amber-600 dark:text-amber-400">
                 <AlertCircle className="w-4 h-4 shrink-0" />

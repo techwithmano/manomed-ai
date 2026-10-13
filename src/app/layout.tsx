@@ -80,7 +80,7 @@ export default function RootLayout({
                     <div className="flex items-center gap-3 text-xs text-muted-foreground pt-1">
                       <span className="flex items-center gap-1">
                         <Lock className="w-3.5 h-3.5 text-primary" />
-                        Local Private Vault
+                        Saved on this device
                       </span>
                       <span>•</span>
                       <span className="flex items-center gap-1">

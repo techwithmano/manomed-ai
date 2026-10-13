@@ -11,7 +11,9 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "test:redflags": "tsx src/lib/__tests__/redFlags.test.ts",
-    "test:pediatric": "tsx src/lib/__tests__/pediatricLabs.test.ts"
+    "test:pediatric": "tsx src/lib/__tests__/pediatricLabs.test.ts",
+    "test:contrast": "tsx scripts/measure-contrast.ts",
+    "check:ai-output": "tsx scripts/check-ai-output.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.15.0",

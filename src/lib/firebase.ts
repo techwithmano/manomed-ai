@@ -15,10 +15,15 @@ export const isFirebaseConfigured = Boolean(
   process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID
 );
 
+export const isCloudSyncEnabled = Boolean(
+  process.env.NEXT_PUBLIC_ENABLE_CLOUD_SYNC === "true" &&
+  isFirebaseConfigured
+);
+
 let appInstance = null;
 let dbInstance: Firestore | null = null;
 
-if (isFirebaseConfigured) {
+if (isCloudSyncEnabled) {
   try {
     appInstance = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
     dbInstance = getFirestore(appInstance);

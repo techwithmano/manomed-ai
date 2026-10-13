@@ -76,7 +76,7 @@ export const translations = {
 
     // Common
     liveSyncActive: "Live Clinic Sync",
-    confidentialNotice: "100% Private & Secure • We Never Sell Your Data",
+    confidentialNotice: "Saved on this device • Sent over HTTPS",
     emergencyDisclaimer:
       "If you have severe chest pain, trouble breathing, sudden weakness or numbness, contact your local emergency services or go to the nearest emergency room immediately.",
     persistentEmergencyNotice:
@@ -142,7 +142,7 @@ export const translations = {
 
     // Common
     liveSyncActive: "مزامنة مباشرة مع العيادة",
-    confidentialNotice: "خصوصيتك محمية 100% • لا نشارك بياناتك أبداً",
+    confidentialNotice: "محفوظ على هذا الجهاز • يتم الإرسال عبر HTTPS",
     emergencyDisclaimer:
       "إذا كنت تشعر بألم شديد في الصدر، أو صعوبة في التنفس، أو خدر مفاجئ، اتصل بخدمات الإسعاف والطوارئ المحلية فوراً.",
     persistentEmergencyNotice:
@@ -208,7 +208,7 @@ export const translations = {
 
     // Common
     liveSyncActive: "Sincronización Médica en Vivo",
-    confidentialNotice: "100% Privado y Seguro • Nunca vendemos tus datos",
+    confidentialNotice: "Guardado en este dispositivo • Enviado mediante HTTPS",
     emergencyDisclaimer:
       "Si siente dolor fuerte en el pecho, dificultad para respirar o debilidad repentina, comuníquese con los servicios de emergencia locales de inmediato.",
     persistentEmergencyNotice:
@@ -269,7 +269,7 @@ export const translations = {
 
     // Common
     liveSyncActive: "诊区实时同步中",
-    confidentialNotice: "100% 隐私安全 • 绝不出售您的任何数据",
+    confidentialNotice: "保存在此设备上 • 通过 HTTPS 加密传输",
     emergencyDisclaimer: "如果您出现剧烈胸痛、呼吸急促、意识模糊或突发身体麻木，请立刻联系当地急救服务或前往最近的急诊室。",
     persistentEmergencyNotice: "如果您认为这是紧急情况，请立即联系当地急救服务。",
     // TODO: CLINICAL REVIEW REQUIRED — No-match is not safety persistent advisory
@@ -333,7 +333,7 @@ export const translations = {
 
     // Common
     liveSyncActive: "Synchronisation en Direct",
-    confidentialNotice: "100% Privé et Sécurisé • Données jamais vendues",
+    confidentialNotice: "Enregistré sur cet appareil • Envoyé via HTTPS",
     emergencyDisclaimer:
       "En cas de douleur vive dans la poitrine, détresse respiratoire ou faiblesse soudaine, contactez immédiatement vos services d'urgence locaux ou rendez-vous aux urgences.",
     persistentEmergencyNotice:

@@ -871,7 +871,7 @@ export const SymptomInputForm: React.FC<SymptomInputFormProps> = ({
                           <AlertTriangle className="w-4 h-4 animate-pulse" />
                         </div>
                         <div className="space-y-1 flex-1 text-xs text-foreground">
-                          <h4 className="font-bold text-sm text-destructive">
+                          <h4 className="font-bold text-sm text-red-700 dark:text-red-400">
                             Potential Medical Emergency Warning
                           </h4>
                           <p className="leading-relaxed">
@@ -880,7 +880,7 @@ export const SymptomInputForm: React.FC<SymptomInputFormProps> = ({
                           <p className="text-muted-foreground">
                             {emergencyConfig.medicalEmergencyNumber
                               ? `Immediate in-person emergency evaluation is strongly advised.`
-                              : `If you are experiencing severe or life-threatening symptoms, please call your local emergency number (such as 911, 999, or 112) or proceed to the nearest emergency room immediately.`}
+                              : `If you are experiencing severe or life-threatening symptoms, please call your local emergency services or proceed to the nearest emergency room immediately.`}
                           </p>
                         </div>
                       </div>
@@ -889,7 +889,7 @@ export const SymptomInputForm: React.FC<SymptomInputFormProps> = ({
                         {emergencyConfig.medicalEmergencyNumber && (
                           <a
                             href={`tel:${emergencyConfig.medicalEmergencyNumber}`}
-                            className="min-h-[44px] px-4 py-2 rounded-xl bg-destructive hover:bg-destructive/90 text-destructive-foreground font-bold flex items-center gap-2 text-xs shadow-sm transition-colors focus-visible:ring-2 focus-visible:ring-destructive focus-visible:ring-offset-2"
+                            className="min-h-[44px] px-4 py-2 rounded-xl bg-red-700 hover:bg-red-800 text-white font-bold flex items-center gap-2 text-xs shadow-sm transition-colors focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
                           >
                             <PhoneCall className="w-4 h-4" />
                             Call Emergency Services ({emergencyConfig.medicalEmergencyNumber})

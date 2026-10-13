@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { db } from "@/lib/firebase";
+import { db, isCloudSyncEnabled } from "@/lib/firebase";
 import { collection, doc, setDoc, deleteDoc, onSnapshot, query, orderBy, limit } from "firebase/firestore";
 
 export type QuestionType = "boolean" | "scale" | "choice" | "text";
@@ -197,8 +197,8 @@ export function saveAssessmentToHistory(assessment: CurrentAssessment): void {
     const updated = [summary, ...history.filter(h => h.id !== summary.id)].slice(0, 25);
     localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(updated));
 
-    // Cloud Firestore Sync (Multi-user sharing for 100 doctors / 100 nurses)
-    if (db) {
+    // Cloud Firestore Sync (Only when NEXT_PUBLIC_ENABLE_CLOUD_SYNC=true and Firebase configured)
+    if (isCloudSyncEnabled && db) {
       const cleanData = JSON.parse(JSON.stringify(summary));
       setDoc(doc(db, "assessments", summary.id), cleanData).catch(err => {
         console.warn("Firestore sync assessment:", err);
@@ -225,7 +225,7 @@ export function updateAssessmentWorkflowStatus(id: string, status: WorkflowStatu
     });
     localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(updated));
 
-    if (db) {
+    if (isCloudSyncEnabled && db) {
       setDoc(
         doc(db, "assessments", id),
         { workflowStatus: status, reviewedAt: new Date().toISOString() },
@@ -246,7 +246,7 @@ export function deleteAssessmentFromHistory(id: string): void {
     const updated = history.filter(item => item.id !== id);
     localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(updated));
 
-    if (db) {
+    if (isCloudSyncEnabled && db) {
       deleteDoc(doc(db, "assessments", id)).catch(err => {
         console.warn("Firestore delete assessment:", err);
       });
@@ -306,7 +306,7 @@ export function saveLabToHistory(data: any, patientName = "Anonymous", patientAg
     const updated = [summary, ...history.filter(h => h.id !== summary.id)].slice(0, 25);
     localStorage.setItem(STORAGE_KEY_LABS, JSON.stringify(updated));
 
-    if (db) {
+    if (isCloudSyncEnabled && db) {
       const cleanData = JSON.parse(JSON.stringify(summary));
       setDoc(doc(db, "lab_records", summary.id), cleanData).catch(err => {
         console.warn("Firestore sync lab:", err);
@@ -333,7 +333,7 @@ export function updateLabWorkflowStatus(id: string, status: WorkflowStatus): voi
     });
     localStorage.setItem(STORAGE_KEY_LABS, JSON.stringify(updated));
 
-    if (db) {
+    if (isCloudSyncEnabled && db) {
       setDoc(
         doc(db, "lab_records", id),
         { workflowStatus: status, reviewedAt: new Date().toISOString() },
@@ -354,7 +354,7 @@ export function deleteLabFromHistory(id: string): void {
     const updated = history.filter(item => item.id !== id);
     localStorage.setItem(STORAGE_KEY_LABS, JSON.stringify(updated));
 
-    if (db) {
+    if (isCloudSyncEnabled && db) {
       deleteDoc(doc(db, "lab_records", id)).catch(err => {
         console.warn("Firestore delete lab:", err);
       });
@@ -407,7 +407,7 @@ export function saveXRayToHistory(data: any, patientName = "Anonymous", patientA
     const updated = [summary, ...history.filter(h => h.id !== summary.id)].slice(0, 25);
     localStorage.setItem(STORAGE_KEY_XRAY, JSON.stringify(updated));
 
-    if (db) {
+    if (isCloudSyncEnabled && db) {
       const cleanData = JSON.parse(JSON.stringify(summary));
       setDoc(doc(db, "imaging_records", summary.id), cleanData).catch(err => {
         console.warn("Firestore sync xray:", err);
@@ -434,7 +434,7 @@ export function updateXRayWorkflowStatus(id: string, status: WorkflowStatus): vo
     });
     localStorage.setItem(STORAGE_KEY_XRAY, JSON.stringify(updated));
 
-    if (db) {
+    if (isCloudSyncEnabled && db) {
       setDoc(
         doc(db, "imaging_records", id),
         { workflowStatus: status, reviewedAt: new Date().toISOString() },
@@ -455,7 +455,7 @@ export function deleteXRayFromHistory(id: string): void {
     const updated = history.filter(item => item.id !== id);
     localStorage.setItem(STORAGE_KEY_XRAY, JSON.stringify(updated));
 
-    if (db) {
+    if (isCloudSyncEnabled && db) {
       deleteDoc(doc(db, "imaging_records", id)).catch(err => {
         console.warn("Firestore delete xray:", err);
       });
@@ -473,7 +473,7 @@ export function deleteXRayFromHistory(id: string): void {
 export function subscribeToAssessments(callback: (items: SavedAssessmentSummary[]) => void): () => void {
   if (typeof window === "undefined") return () => {};
   
-  if (db) {
+  if (isCloudSyncEnabled && db) {
     try {
       const q = query(collection(db, "assessments"), orderBy("date", "desc"), limit(100));
       return onSnapshot(q, (snapshot) => {
@@ -495,7 +495,7 @@ export function subscribeToAssessments(callback: (items: SavedAssessmentSummary[
 export function subscribeToLabs(callback: (items: SavedLabSummary[]) => void): () => void {
   if (typeof window === "undefined") return () => {};
   
-  if (db) {
+  if (isCloudSyncEnabled && db) {
     try {
       const q = query(collection(db, "lab_records"), orderBy("date", "desc"), limit(100));
       return onSnapshot(q, (snapshot) => {
@@ -517,7 +517,7 @@ export function subscribeToLabs(callback: (items: SavedLabSummary[]) => void): (
 export function subscribeToXRays(callback: (items: SavedXRaySummary[]) => void): () => void {
   if (typeof window === "undefined") return () => {};
   
-  if (db) {
+  if (isCloudSyncEnabled && db) {
     try {
       const q = query(collection(db, "imaging_records"), orderBy("date", "desc"), limit(100));
       return onSnapshot(q, (snapshot) => {
