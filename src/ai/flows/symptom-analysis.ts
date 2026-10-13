@@ -8,7 +8,7 @@ import { ai } from '@/ai/ai-instance';
 import { z } from 'genkit';
 import { callGroqChat } from '@/ai/groq-client';
 
-const SymptomAnalysisInputSchema = z.object({
+export const SymptomAnalysisInputSchema = z.object({
   name: z.string().optional(),
   age: z.string().optional(),
   gender: z.string().optional(),
@@ -21,7 +21,7 @@ const SymptomAnalysisInputSchema = z.object({
 });
 export type SymptomAnalysisInput = z.infer<typeof SymptomAnalysisInputSchema>;
 
-const ConditionDifferentialSchema = z.object({
+export const ConditionDifferentialSchema = z.object({
   condition: z.string().describe('Name of the potential medical condition'),
   icd10Hint: z.string().optional().describe('Indicative ICD-10 code (e.g. J06.9)'),
   likelihood: z.number().min(0).max(1).describe('Probability score between 0 and 1'),
@@ -32,7 +32,7 @@ const ConditionDifferentialSchema = z.object({
 });
 export type ConditionDifferential = z.infer<typeof ConditionDifferentialSchema>;
 
-const SymptomAnalysisOutputSchema = z.object({
+export const SymptomAnalysisOutputSchema = z.object({
   id: z.string().describe('Unique assessment ID'),
   timestamp: z.string().describe('ISO timestamp of analysis'),
   triage: z.object({
@@ -113,7 +113,7 @@ Ensure the output matches the required JSON schema strictly.
 `,
 });
 
-function synthesizeClinicalFallbackDifferential(input: SymptomAnalysisInput): SymptomAnalysisOutput {
+export async function synthesizeClinicalFallbackDifferential(input: SymptomAnalysisInput): Promise<SymptomAnalysisOutput> {
   const sym = (input.symptoms || "").toLowerCase();
   const history = input.medicalHistory || "None reported";
   const meds = input.medications || "None reported";
@@ -123,8 +123,9 @@ function synthesizeClinicalFallbackDifferential(input: SymptomAnalysisInput): Sy
 
   let triageLevel: 'EMERGENCY' | 'URGENT' | 'ROUTINE' | 'SELF_CARE' = 'ROUTINE';
   let urgencyColor: 'red' | 'amber' | 'blue' | 'green' = 'blue';
-  let recommendedAction = "Schedule a consultation with a primary care physician within 3 to 5 days.";
-  let timeframe = "Within 3-5 days";
+  // TODO: CLINICAL REVIEW REQUIRED — Governance-review style wording replacing numeric timeframe
+  let recommendedAction = "Arrange an appointment with a healthcare professional for assessment. Seek earlier advice if symptoms worsen.";
+  let timeframe = "Routine clinic appointment";
   const redFlags: string[] = [];
   const conditions: ConditionDifferential[] = [];
   const specialties: string[] = ["Primary Care / Internal Medicine"];
@@ -170,8 +171,9 @@ function synthesizeClinicalFallbackDifferential(input: SymptomAnalysisInput): Sy
     } else {
       triageLevel = 'ROUTINE';
       urgencyColor = 'blue';
-      recommendedAction = "Consult an outpatient general physician or neurologist for chronic symptom optimization.";
-      timeframe = "Within 1-2 weeks";
+      // TODO: CLINICAL REVIEW REQUIRED — Governance-review style wording replacing numeric timeframe
+      recommendedAction = "Arrange an appointment with a healthcare professional for assessment. Seek earlier advice if symptoms worsen.";
+      timeframe = "Routine evaluation";
       specialties.unshift("Neurology");
       tests.push("Basic Neurological Examination", "Orthostatic Vitals");
     }
@@ -197,8 +199,9 @@ function synthesizeClinicalFallbackDifferential(input: SymptomAnalysisInput): Sy
   } else if (sym.includes("abdom") || sym.includes("stomach") || sym.includes("cramp")) {
     triageLevel = 'URGENT';
     urgencyColor = 'amber';
-    recommendedAction = "Schedule urgent clinic evaluation or visit urgent care center within 24 hours.";
-    timeframe = "Within 24 hours";
+    // TODO: CLINICAL REVIEW REQUIRED — Governance-review style wording replacing numeric timeframe
+    recommendedAction = "Arrange an appointment with a healthcare professional for prompt assessment. Seek earlier advice if symptoms worsen.";
+    timeframe = "Prompt clinical evaluation";
     specialties.unshift("Gastroenterology", "General Surgery");
     tests.push("Abdominal Ultrasound / CT Abdomen", "Lipase & Amylase", "Urinalysis");
 
@@ -223,13 +226,14 @@ function synthesizeClinicalFallbackDifferential(input: SymptomAnalysisInput): Sy
   } else {
     triageLevel = 'SELF_CARE';
     urgencyColor = 'green';
-    recommendedAction = "Supportive home recovery with monitoring; consult physician if symptoms persist beyond 5-7 days.";
-    timeframe = "Self-monitoring / 5-7 days";
+    // TODO: CLINICAL REVIEW REQUIRED — Governance-review style wording replacing numeric timeframe
+    recommendedAction = "Arrange an appointment with a healthcare professional for assessment. Seek earlier advice if symptoms worsen.";
+    timeframe = "Self-monitoring / Routine follow-up";
     conditions.push({
       condition: "Acute Viral Syndrome / Non-Specific Presentation",
       icd10Hint: "B34.9",
       likelihood: 0.70,
-      description: "Transient systemic response with localized constitutional symptoms.",
+      description: "Self-limiting systemic response with localized constitutional symptoms.",
       supportingEvidence: ["Mild symptom constellation", "Stable baseline status"],
       contradictingEvidence: ["No focal red flags identified"],
       riskLevel: "Low",
@@ -275,7 +279,7 @@ function synthesizeClinicalFallbackDifferential(input: SymptomAnalysisInput): Sy
       "Sudden severe chest pressure, jaw pain, or shortness of breath.",
       "Acute confusion, facial drooping, limb weakness, or speech difficulty.",
       "High persistent fever unresponsive to antipyretics or accompanied by stiff neck.",
-      "Inability to tolerate oral fluids for over 24 hours or severe intractable vomiting.",
+      "Inability to tolerate oral fluids, persistent vomiting, or signs of severe dehydration.",
     ],
     soapNote: {
       subjective: `Patient (${age}y, ${gender}) reports: "${input.symptoms}". Past Medical History: ${history}. Current Medications: ${meds}. Known Allergies: ${allergies}. Follow-up responses: ${input.questionnaireAnswers || "Standard intake completed"}.`,
@@ -305,7 +309,7 @@ Analyze the clinical intake and return a JSON object with this exact structure:
     "level": "EMERGENCY" | "URGENT" | "ROUTINE" | "SELF_CARE",
     "urgencyColor": "red" | "amber" | "blue" | "green",
     "recommendedAction": "Clear advice for patient",
-    "timeframe": "Immediately / within 24h / etc"
+    "timeframe": "Immediately / Prompt evaluation / etc"
   },
   "redFlags": ["Flag 1", ...],
   "emergencyGuidance": "Life support instructions if red flags exist",
@@ -369,11 +373,11 @@ Intake Answers: ${input.questionnaireAnswers || 'None'}`;
           level === 'EMERGENCY'
             ? 'Seek immediate emergency medical attention or call emergency services.'
             : level === 'URGENT'
-            ? 'Schedule an urgent in-person medical evaluation within 24 hours.'
-            : 'Schedule a routine consultation with your primary healthcare provider.'
+            ? 'Arrange an urgent appointment with a healthcare professional for clinical assessment. Seek earlier advice if symptoms worsen.' // TODO: CLINICAL REVIEW REQUIRED
+            : 'Arrange an appointment with a healthcare professional for assessment. Seek earlier advice if symptoms worsen.' // TODO: CLINICAL REVIEW REQUIRED
         )),
         timeframe: String(groqOutput.triage?.timeframe || (
-          level === 'EMERGENCY' ? 'Immediate' : level === 'URGENT' ? 'Within 24 hours' : 'Within 1-2 weeks'
+          level === 'EMERGENCY' ? 'Immediate emergency evaluation' : level === 'URGENT' ? 'Prompt clinical evaluation' : 'Routine clinic appointment' // TODO: CLINICAL REVIEW REQUIRED
         )),
       };
 
@@ -443,7 +447,7 @@ Intake Answers: ${input.questionnaireAnswers || 'None'}`;
   }
 
   // 3. Clinical Rule Fallback Engine
-  return synthesizeClinicalFallbackDifferential(input);
+  return await synthesizeClinicalFallbackDifferential(input);
 });
 
 export async function symptomAnalysis(input: SymptomAnalysisInput): Promise<SymptomAnalysisOutput> {

@@ -1,10 +1,19 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { CurrentAssessment } from "@/lib/assessment-store";
+import {
+  TRIAGE_SAFETY_NET_SENTENCE,
+  CLINICAL_EDUCATION_DISCLAIMER,
+} from "@/lib/clinicalConfig";
 
-export async function exportClinicalReportPDF(assessment: CurrentAssessment): Promise<boolean> {
+export async function exportClinicalReportPDF(
+  assessment: CurrentAssessment,
+  audience: "patient" | "clinical" = "patient"
+): Promise<boolean> {
   const result = assessment.result;
   if (!result) return false;
+
+  const isPatientView = audience === "patient";
 
   try {
     const doc = new jsPDF("portrait", "pt", "a4");
@@ -17,45 +26,77 @@ export async function exportClinicalReportPDF(assessment: CurrentAssessment): Pr
     doc.rect(0, 0, width, 70, "F");
 
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(22);
+    doc.setFontSize(20);
     doc.setTextColor(255, 255, 255);
-    doc.text("ManoMed AI - Clinical Triage Report", margin, 42);
+    doc.text(
+      isPatientView ? "ManoMed AI - Patient Health Summary" : "ManoMed AI - Clinical Triage Report",
+      margin,
+      42
+    );
 
-    doc.setFontSize(10);
+    doc.setFontSize(9.5);
     doc.setFont("helvetica", "normal");
     doc.text(
-      `Generated: ${new Date(result.timestamp).toLocaleDateString()} | ID: ${result.id}`,
+      `Generated: ${new Date(result.timestamp).toLocaleDateString()} | ID: ${result.id}${
+        isPatientView ? "" : " | Perspective: Clinician Reference"
+      }`,
       margin,
       58
     );
 
     cursorY = 90;
 
-    // Patient Demographics Summary Table
+    // Demographics Summary Table
     autoTable(doc, {
       startY: cursorY,
       margin: { left: margin, right: margin },
-      head: [["Patient Name", "Age", "Biological Sex", "Triage Classification"]],
+      head: [
+        [
+          "Patient Name",
+          "Age",
+          "Biological Sex",
+          isPatientView ? "Care Recommendation" : "Triage Classification",
+        ],
+      ],
       body: [
         [
           assessment.patient.name || "Anonymous",
           assessment.patient.age || "N/A",
           assessment.patient.gender || "N/A",
-          `${result.triage.level} (${result.triage.timeframe})`,
+          isPatientView
+            ? result.triage.recommendedAction
+            : `${result.triage.level} (${result.triage.timeframe})`,
         ],
       ],
       theme: "striped",
       headStyles: { fillColor: [59, 130, 246] },
       styles: { fontSize: 9 },
     });
-    cursorY = (doc as any).lastAutoTable.finalY + 15;
+    cursorY = (doc as any).lastAutoTable.finalY + 12;
+
+    // Safety Net Callout for Patients
+    if (isPatientView) {
+      doc.setFillColor(240, 249, 255);
+      doc.roundedRect(margin, cursorY, width - margin * 2, 28, 4, 4, "FD");
+      doc.setTextColor(30, 64, 175);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8.5);
+      doc.text("Safety Notice:", margin + 8, cursorY + 12);
+      doc.setFont("helvetica", "normal");
+      doc.text(TRIAGE_SAFETY_NET_SENTENCE, margin + 70, cursorY + 12);
+      cursorY += 36;
+    }
 
     // Reported Symptoms & Clinical Intake
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(12);
+    doc.setFontSize(11);
     doc.setTextColor(30, 58, 138);
-    doc.text("Reported Symptoms & Clinical Intake", margin, cursorY);
-    cursorY += 15;
+    doc.text(
+      isPatientView ? "Reported Symptoms & Information Provided" : "Reported Symptoms & Clinical Intake",
+      margin,
+      cursorY
+    );
+    cursorY += 12;
 
     autoTable(doc, {
       startY: cursorY,
@@ -86,90 +127,143 @@ export async function exportClinicalReportPDF(assessment: CurrentAssessment): Pr
       cursorY += 45;
     }
 
-    // Ranked Differential Diagnoses Table
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(12);
-    doc.setTextColor(30, 58, 138);
-    doc.text("Ranked Differential Diagnosis", margin, cursorY);
-    cursorY += 15;
+    // Conditions Table
+    if (isPatientView) {
+      // Patient view: "Possibilities your doctor may consider"
+      // NO likelihood percentages, NO ICD-10 codes, "Worth ruling out with a doctor" for high-risk
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.setTextColor(30, 58, 138);
+      doc.text("Possibilities Your Doctor May Consider", margin, cursorY);
+      cursorY += 12;
 
-    const conditionRows = result.conditions.map((c) => [
-      `${c.condition} ${c.icd10Hint ? `(${c.icd10Hint})` : ""}`,
-      `${Math.round(c.likelihood * 100)}%`,
-      c.riskLevel,
-      c.supportingEvidence.join(", "),
-    ]);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      doc.setTextColor(100, 116, 139);
+      doc.text(
+        "These possibilities are suggestions for your doctor to evaluate alongside your full clinical exam. They are not ranked or definitive diagnoses.",
+        margin,
+        cursorY
+      );
+      cursorY += 12;
 
-    autoTable(doc, {
-      startY: cursorY,
-      margin: { left: margin, right: margin },
-      head: [["Condition", "Likelihood", "Risk Level", "Supporting Indicators"]],
-      body: conditionRows,
-      theme: "grid",
-      headStyles: { fillColor: [30, 58, 138] },
-      styles: { fontSize: 8.5, cellPadding: 6 },
-      columnStyles: {
-        0: { cellWidth: 150, fontStyle: "bold" },
-        1: { cellWidth: 70, halign: "center" },
-        2: { cellWidth: 70, halign: "center" },
-      },
-    });
-    cursorY = (doc as any).lastAutoTable.finalY + 15;
+      const patientConditionRows = result.conditions.slice(0, 3).map((c: any) => [
+        c.condition,
+        c.riskLevel === "High" ? "Worth ruling out with a doctor" : "Discussion point",
+        c.supportingEvidence.join(", "),
+      ]);
 
-    // SOAP Note Section
-    if (cursorY > 600) {
-      doc.addPage();
-      cursorY = 40;
+      autoTable(doc, {
+        startY: cursorY,
+        margin: { left: margin, right: margin },
+        head: [["Possibility", "Notes for Discussion", "Supporting Indicators"]],
+        body: patientConditionRows,
+        theme: "grid",
+        headStyles: { fillColor: [30, 58, 138] },
+        styles: { fontSize: 8.5, cellPadding: 6 },
+        columnStyles: {
+          0: { cellWidth: 150, fontStyle: "bold" },
+          1: { cellWidth: 140, halign: "center" },
+        },
+      });
+      cursorY = (doc as any).lastAutoTable.finalY + 15;
+    } else {
+      // Clinician view: Ranked Differential Diagnosis with ICD-10 and Model Likelihood
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.setTextColor(30, 58, 138);
+      doc.text("Ranked Differential Diagnosis (Clinician Reference)", margin, cursorY);
+      cursorY += 12;
+
+      const clinicalConditionRows = result.conditions.map((c: any) => [
+        `${c.condition} ${c.icd10Hint ? `(${c.icd10Hint})` : ""}`,
+        `${Math.round(c.likelihood * 100)}%*`,
+        c.riskLevel,
+        c.supportingEvidence.join(", "),
+      ]);
+
+      autoTable(doc, {
+        startY: cursorY,
+        margin: { left: margin, right: margin },
+        head: [["Condition (ICD-10)", "Est. Likelihood*", "Risk Level", "Supporting Indicators"]],
+        body: clinicalConditionRows,
+        theme: "grid",
+        headStyles: { fillColor: [30, 58, 138] },
+        styles: { fontSize: 8.5, cellPadding: 6 },
+        columnStyles: {
+          0: { cellWidth: 150, fontStyle: "bold" },
+          1: { cellWidth: 80, halign: "center" },
+          2: { cellWidth: 70, halign: "center" },
+        },
+      });
+      cursorY = (doc as any).lastAutoTable.finalY + 6;
+
+      doc.setFont("helvetica", "italic");
+      doc.setFontSize(7.5);
+      doc.setTextColor(100, 116, 139);
+      doc.text(
+        "*Model-estimated likelihood (not clinically calibrated or validated; for research & decision support only)",
+        margin,
+        cursorY
+      );
+      cursorY += 15;
     }
 
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(12);
-    doc.setTextColor(30, 58, 138);
-    doc.text("Clinical SOAP Documentation (EHR Formatted)", margin, cursorY);
-    cursorY += 15;
+    // Clinician view only: SOAP Note & Diagnostic Workup
+    if (!isPatientView) {
+      if (cursorY > 600) {
+        doc.addPage();
+        cursorY = 40;
+      }
 
-    autoTable(doc, {
-      startY: cursorY,
-      margin: { left: margin, right: margin },
-      body: [
-        ["Subjective (S)", result.soapNote.subjective],
-        ["Objective (O)", result.soapNote.objective],
-        ["Assessment (A)", result.soapNote.assessment],
-        ["Plan (P)", result.soapNote.plan],
-      ],
-      theme: "grid",
-      columnStyles: { 0: { fontStyle: "bold", cellWidth: 100 } },
-      styles: { fontSize: 8, cellPadding: 5 },
-    });
-    cursorY = (doc as any).lastAutoTable.finalY + 15;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.setTextColor(30, 58, 138);
+      doc.text("Clinical SOAP Documentation (EHR Formatted)", margin, cursorY);
+      cursorY += 12;
 
-    // Recommended Diagnostic Workup & Specialties
-    if (cursorY > 680) {
-      doc.addPage();
-      cursorY = 40;
+      autoTable(doc, {
+        startY: cursorY,
+        margin: { left: margin, right: margin },
+        body: [
+          ["Subjective (S)", result.soapNote.subjective],
+          ["Objective (O)", result.soapNote.objective],
+          ["Assessment (A)", result.soapNote.assessment],
+          ["Plan (P)", result.soapNote.plan],
+        ],
+        theme: "grid",
+        columnStyles: { 0: { fontStyle: "bold", cellWidth: 100 } },
+        styles: { fontSize: 8, cellPadding: 5 },
+      });
+      cursorY = (doc as any).lastAutoTable.finalY + 15;
+
+      if (cursorY > 680) {
+        doc.addPage();
+        cursorY = 40;
+      }
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.setTextColor(30, 58, 138);
+      doc.text("Clinical Consultation & Workup Plan", margin, cursorY);
+      cursorY += 12;
+
+      autoTable(doc, {
+        startY: cursorY,
+        margin: { left: margin, right: margin },
+        body: [
+          ["Specialties to Consult", result.recommendedSpecialties.join(", ")],
+          ["Suggested Diagnostic Tests", result.recommendedTests.join(", ")],
+          ["Action Timeframe", result.triage.recommendedAction],
+        ],
+        theme: "grid",
+        columnStyles: { 0: { fontStyle: "bold", cellWidth: 140 } },
+        styles: { fontSize: 8.5, cellPadding: 5 },
+      });
+      cursorY = (doc as any).lastAutoTable.finalY + 15;
     }
 
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(12);
-    doc.setTextColor(30, 58, 138);
-    doc.text("Clinical Consultation & Workup Plan", margin, cursorY);
-    cursorY += 15;
-
-    autoTable(doc, {
-      startY: cursorY,
-      margin: { left: margin, right: margin },
-      body: [
-        ["Specialties to Consult", result.recommendedSpecialties.join(", ")],
-        ["Suggested Diagnostic Tests", result.recommendedTests.join(", ")],
-        ["Action Timeframe", result.triage.recommendedAction],
-      ],
-      theme: "grid",
-      columnStyles: { 0: { fontStyle: "bold", cellWidth: 140 } },
-      styles: { fontSize: 8.5, cellPadding: 5 },
-    });
-    cursorY = (doc as any).lastAutoTable.finalY + 15;
-
-    // Doctor Questions
+    // Doctor Questions (included in both patient and clinician PDFs)
     if (cursorY > 680) {
       doc.addPage();
       cursorY = 40;
@@ -178,16 +272,43 @@ export async function exportClinicalReportPDF(assessment: CurrentAssessment): Pr
     doc.setFont("helvetica", "bold");
     doc.setFontSize(11);
     doc.setTextColor(30, 58, 138);
-    doc.text("Key Inquiries to Discuss With Physician:", margin, cursorY);
+    doc.text(
+      isPatientView ? "Questions to Discuss With Your Doctor:" : "Key Inquiries to Discuss With Physician:",
+      margin,
+      cursorY
+    );
     cursorY += 12;
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8.5);
     doc.setTextColor(51, 65, 85);
-    result.questionsForDoctor.forEach((q) => {
+    result.questionsForDoctor.forEach((q: string) => {
       doc.text(`• ${q}`, margin + 10, cursorY);
       cursorY += 12;
     });
+
+    // Patient view: When to seek emergency care reminder
+    if (isPatientView && result.whenToSeekEmergencyCare?.length) {
+      cursorY += 8;
+      if (cursorY > 700) {
+        doc.addPage();
+        cursorY = 40;
+      }
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10);
+      doc.setTextColor(185, 28, 28);
+      doc.text("When to Seek Emergency Care Immediately:", margin, cursorY);
+      cursorY += 11;
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      doc.setTextColor(51, 65, 85);
+      result.whenToSeekEmergencyCare.forEach((trig: string) => {
+        doc.text(`• ${trig}`, margin + 10, cursorY);
+        cursorY += 10;
+      });
+    }
 
     // Disclaimer footer on all pages
     const totalPages = doc.getNumberOfPages();
@@ -196,7 +317,9 @@ export async function exportClinicalReportPDF(assessment: CurrentAssessment): Pr
       doc.setFontSize(7.5);
       doc.setTextColor(148, 163, 184);
       doc.text(
-        `Page ${i} of ${totalPages} | ManoMed AI Clinical Decision Support | Educational Decision Tool (Not a formal diagnosis)`,
+        isPatientView
+          ? `Page ${i} of ${totalPages} | ManoMed AI - Patient Health Summary | Informational Decision Support (Not a Medical Diagnosis)`
+          : `Page ${i} of ${totalPages} | ManoMed AI Clinical Decision Support | Educational Decision Tool (Not a formal diagnosis)`,
         width / 2,
         820,
         { align: "center" }
@@ -205,7 +328,8 @@ export async function exportClinicalReportPDF(assessment: CurrentAssessment): Pr
 
     // Save local file
     const safeName = (assessment.patient.name || "Patient").replace(/\s+/g, "_");
-    doc.save(`ManoMed-AI-${safeName}-${new Date().toISOString().split("T")[0]}.pdf`);
+    const filenamePrefix = isPatientView ? "ManoMed-AI-Patient-Summary" : "ManoMed-AI-Clinical-Report";
+    doc.save(`${filenamePrefix}-${safeName}-${new Date().toISOString().split("T")[0]}.pdf`);
 
     // Optional background email send
     try {
