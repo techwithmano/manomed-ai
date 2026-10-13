@@ -21,7 +21,7 @@
     --secondary-foreground: 222 47% 15%;
 
     --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 44%; /* #64748B - clean readable text */
+    --muted-foreground: 215.3 19.3% 34.5%; /* #475569 Slate-600 - WCAG AA compliant on muted & white */
 
     --accent: 214 95% 93%;              /* Subtle soft blue wash */
     --accent-foreground: 221.2 83.2% 45%;
@@ -57,7 +57,7 @@
     --popover-foreground: 0 0% 98%;
 
     /* Dark Mode Primary: Vibrant Medical Blue */
-    --primary: 217.2 91.2% 59.8%;       /* #3B82F6 high-visibility surgical blue */
+    --primary: 221.2 83.2% 53.3%;       /* #2563EB clinical blue - WCAG AA compliant (>4.5:1) with white foreground */
     --primary-foreground: 0 0% 100%;
 
     --secondary: 240 4% 14%;            /* #232328 */

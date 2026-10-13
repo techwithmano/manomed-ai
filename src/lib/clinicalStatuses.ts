@@ -50,28 +50,28 @@ const STYLES = {
     text: 'text-red-900 dark:text-red-200',
     border: 'border-red-300 dark:border-red-800',
     bg: 'bg-red-100 dark:bg-red-950/80',
-    icon: 'text-red-700 dark:text-red-400',
+    icon: 'text-red-900 dark:text-red-200',
   },
   amber: {
     badge: 'bg-amber-100 text-amber-950 border-amber-300 dark:bg-amber-950/80 dark:text-amber-200 dark:border-amber-800',
     text: 'text-amber-950 dark:text-amber-200',
     border: 'border-amber-300 dark:border-amber-800',
     bg: 'bg-amber-100 dark:bg-amber-950/80',
-    icon: 'text-amber-800 dark:text-amber-400',
+    icon: 'text-amber-950 dark:text-amber-200',
   },
   blue: {
     badge: 'bg-blue-100 text-blue-900 border-blue-300 dark:bg-blue-950/80 dark:text-blue-200 dark:border-blue-800',
     text: 'text-blue-900 dark:text-blue-200',
     border: 'border-blue-300 dark:border-blue-800',
     bg: 'bg-blue-100 dark:bg-blue-950/80',
-    icon: 'text-blue-700 dark:text-blue-400',
+    icon: 'text-blue-900 dark:text-blue-200',
   },
   emerald: {
     badge: 'bg-emerald-100 text-emerald-950 border-emerald-300 dark:bg-emerald-950/80 dark:text-emerald-200 dark:border-emerald-800',
     text: 'text-emerald-950 dark:text-emerald-200',
     border: 'border-emerald-300 dark:border-emerald-800',
     bg: 'bg-emerald-100 dark:bg-emerald-950/80',
-    icon: 'text-emerald-800 dark:text-emerald-400',
+    icon: 'text-emerald-950 dark:text-emerald-200',
   },
 };
 

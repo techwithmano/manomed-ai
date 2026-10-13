@@ -187,7 +187,7 @@ ${questionsList.map((q, i) => `${i + 1}. ${q}`).join("\n")}`;
   const generatePDF = async () => {
     setIsExporting(true);
     try {
-      await exportClinicalReportPDF(assessment);
+      await exportClinicalReportPDF(assessment, viewMode);
     } catch (err) {
       console.error("PDF generation failed:", err);
     } finally {
@@ -279,7 +279,13 @@ ${questionsList.map((q, i) => `${i + 1}. ${q}`).join("\n")}`;
               className="flex items-center justify-center gap-2 bg-primary text-primary-foreground font-semibold min-h-[44px] px-5 shadow-sm rounded-xl"
             >
               <Download className="w-4 h-4" />
-              {isExporting ? "Compiling PDF..." : "Export Clinical PDF"}
+              {isExporting
+                ? viewMode === "clinical"
+                  ? "Compiling Clinician PDF..."
+                  : "Compiling Patient PDF..."
+                : viewMode === "clinical"
+                ? "Export Clinician PDF"
+                : "Export Patient PDF"}
             </Button>
           </div>
         </div>
@@ -1040,7 +1046,7 @@ ${questionsList.map((q, i) => `${i + 1}. ${q}`).join("\n")}`;
           )}
           <Link href="/history">
             <Button variant="ghost" className="min-h-[44px] text-xs font-medium text-muted-foreground hover:text-foreground">
-              Audit Records Vault
+              Saved Records
             </Button>
           </Link>
         </div>
