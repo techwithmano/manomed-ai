@@ -90,11 +90,11 @@ const PATTERNS_BY_LOCALE: Record<string, LocaleRuleSet> = {
     medical: [
       {
         category: 'acute_coronary',
-        // TODO: CLINICAL REVIEW REQUIRED — Isolated or radiating acute chest pain/pressure
-        pattern: /(crushing\s+(chest|substernal|sternal)|elephant\s+(is\s+)?(sitting\s+on|on)\s+(a\s+|the\s+|my\s+)?chest|\b(severe|intense|unbearable|crushing)\s+(chest|substernal|sternal)\s+(pain|pressure|tightness|heaviness)\b|\b(chest|substernal|sternal)\s+(pain|pressure|tightness|heaviness)\s+(is\s+)?(severe|crushing|intense|unbearable)\b|chest\s+(pain|pressure|tightness|heaviness|ache)\s+.*(left\s*arm|jaw|neck|back)|(pain|pressure|tightness)\s+(is\s+)?(radiat\w*|spread\w*|shoot\w*|go\w*(\s+down)?)\s+.*(left\s*arm|jaw|neck)|pain\s+(is\s+)?(going|shooting|radiating)\s+down\s+(my\s+)?left\s*arm|\b(having|suspect)\s+a\s+heart\s+attack\b)/i,
+        // TODO: CLINICAL REVIEW REQUIRED — Isolated, exertional, or radiating acute chest pain/pressure
+        pattern: /(crushing\s+(chest|substernal|sternal)|elephant\s+(is\s+)?(sitting\s+on|on)\s+(a\s+|the\s+|my\s+)?chest|ton\s+of\s+bricks\s+.*chest|\b(chest|substernal|sternal)\s+(pain|pressure|tightness|heaviness|hurts|ache)\b|\b(pain|pressure|tightness|heaviness|squeezing|burning)\b.*?\b(chest|substernal|sternal)\b|\b(severe|intense|unbearable|crushing)\b.*?\b(chest|substernal|sternal)\s+(pain|pressure|tightness|heaviness)\b|\b(chest|substernal|sternal)\s+(pain|pressure|tightness|heaviness)\b.*?\b(severe|crushing|intense|unbearable)\b|\bchest\b.*?\b(hurts\s+really\s+bad|squeezing)\b|chest\s+(pain|pressure|tightness|heaviness|ache|hurts)\s+.*(left\s*arm|jaw|neck|back)|\b(pain|pressure|tightness|burning)\b.*?\bchest\b.*?\b(left\s*arm|jaw|neck|back)\b|(pain|pressure|tightness)\s+(is\s+)?(radiat\w*|spread\w*|shoot\w*|go\w*(\s+down)?)\s+.*(left\s*arm|jaw|neck|back)|pain\s+(is\s+)?(going|shooting|radiating)\s+down\s+(my\s+)?left\s*arm|\b(having|suspect)\s+a\s+heart\s+attack\b)/i,
         userMessage: 'Severe or crushing chest pain, pressure, or symptoms radiating to the arm, neck, or jaw can indicate an acute cardiac emergency.',
         thirdPartyMessage: 'If someone near you is having severe or crushing chest pressure, difficulty breathing, or symptoms radiating to the arm or jaw, call local emergency services immediately.',
-        isNegated: (c) => /\b(no|not|never|denies|denying|without|negative\s+for)\s+([a-z]+\s+)?(chest\s+pain|chest\s+pressure|cardiac\s+symptoms?)\b/i.test(c),
+        isNegated: (c) => /\b(no|not|never|denies|denying|without|negative\s+for)\s+([a-z]+\s+)?(chest\s+pain|chest\s+pressure|chest\s+tightness|cardiac\s+symptoms?)\b/i.test(c),
       },
       {
         category: 'aortic_dissection',
@@ -122,28 +122,28 @@ const PATTERNS_BY_LOCALE: Record<string, LocaleRuleSet> = {
       {
         category: 'acute_abdomen',
         // TODO: CLINICAL REVIEW REQUIRED — Board-like abdomen or severe abdominal pain with fever/chills
-        pattern: /\b(rigid|board[- ]like)\s+abdomen\b|\bsevere\s+(abdominal|stomach|belly)\s+pain\s+.*(fever|chills)\b|\b(fever|chills)\s+.*severe\s+(abdominal|stomach|belly)\s+pain\b/i,
+        pattern: /\b(rigid|board[- ]like)\s+abdomen\b|\bsevere\s+(abdominal|stomach|belly)\s+pain\b.*?(fever|chills)\b|\b(fever|chills)\b.*?severe\s+(abdominal|stomach|belly)\s+pain\b/i,
         userMessage: 'A rigid, board-like abdomen or severe abdominal pain with fever and chills can indicate peritonitis or an acute surgical abdomen.',
         thirdPartyMessage: 'A rigid abdomen or severe abdominal pain with fever requires immediate emergency medical evaluation. Call emergency services now.',
       },
       {
         category: 'overdose_poisoning',
         // TODO: CLINICAL REVIEW REQUIRED — Overdose, poisoning, harmful ingestion
-        pattern: /\b(overdos(e|ed|ing)|poison(ed|ing)?)\b|\b(took|swallowed)\s+(a\s+)?(whole\s+bottle|all\s+(the|my))\s+(of\s+)?pills?\b|\b(drank|swallowed|ingested)\s+(bleach|cleaner|chemical|poison)\b/i,
+        pattern: /\b(overdos(e|ed|ing)|poison(ed|ing)?)\b|\b(took|swallowed|ingested)\s+(a\s+)?(whole\s+(bottle|bunch|box)|all\s+(the|my)|too\s+many)\s+(of\s+)?(pills?|medication|tablets?|painkillers?|sleeping\s+pills?)\b|\b(drank|swallowed|ingested)\s+(some\s+|a\s+)?(bleach|cleaner|cleaning\s+solution|chemical|poison|rat\s+poison)\b/i,
         userMessage: 'Suspected overdose, poisoning, or chemical ingestion requires immediate emergency medical care or Poison Control contact.',
         thirdPartyMessage: 'Suspected overdose or poisoning in another person requires immediate emergency medical help. Call local emergency services or Poison Control now. Keep containers or pill bottles nearby for emergency personnel.',
       },
       {
         category: 'stroke_fast',
         // TODO: CLINICAL REVIEW REQUIRED — Facial droop, slurred speech, unilateral weakness
-        pattern: /\b(face\s+(is\s+)?droop(ing)?|facial\s+droop(ing)?)\b|\b(slurr(ed|ing)\s+speech|speech\s+is\s+slurr(ed|ing)|loss\s+of\s+speech)\b|\b(one[- ]sided|(left|right)[- ]side(d)?)\s+(weakness|paralysis|numbness)\b|\bcan'?t\s+move\s+(my\s+|their\s+|her\s+|his\s+)?(left|right)\s+(arm|leg|side)\b|\b(having|signs?\s+of)\s+a\s+stroke\b/i,
+        pattern: /\b(face\b.*?\bdroop(ing|ed)?|facial\s+droop(ing)?)\b|\b(crooked\s+smile|smiling\s+crooked|smile\s+is\s+crooked)\b|\b(slurr(ed|ing)\b.*?(speech|words|talk)|speech\b.*?\bslurr(ed|ing)|loss\s+of\s+speech|words\s+coming\s+out\s+(all\s+)?slurred)\b|\b(one[- ]sided|(left|right)[- ]side(d)?)\s+(weakness|paralysis|numbness)\b|\b(one\s+side|left\s+side|right\s+side|half)\s+of\s+(my\s+|the\s+|her\s+|his\s+)?(body|face)\b.*?\b(weak|paralyzed|numb|droop\w*)\b|\bcan'?t\s+move\s+(my\s+|their\s+|her\s+|his\s+)?(left|right|an?|either)?\s*(arm|leg|side)\b|\b(having|signs?\s+of)\s+a\s+stroke\b/i,
         userMessage: 'Sudden one-sided weakness, facial drooping, or speech difficulty can indicate a stroke, which requires immediate medical treatment.',
         thirdPartyMessage: 'If someone near you is showing signs of a stroke (facial droop, arm weakness, or slurred speech), call emergency services immediately. Note the time symptoms began and do not give them anything to eat or drink.',
       },
       {
         category: 'severe_respiratory',
         // TODO: CLINICAL REVIEW REQUIRED — Respiratory distress, cyanosis, gasping
-        pattern: /\b(can'?t|cannot|unable\s+to|struggling\s+to)\s+breathe?\b|\b(can'?t|cannot|unable\s+to)\s+(get|catch)\s+(enough\s+)?air\b|\b(blue\s+(lips|fingers|skin|face)|(lips|fingers|skin|face)\s+(are\s+|turning\s+|look(s|ing)?\s+|turned\s+|seem(s|ing)?\s+|appear(s|ing)?\s+)?blue)\b|\b(gasping\s+for\s+(air|breath)|struggling\s+for\s+air|suffocating)\b|\bsevere\s+shortness\s+of\s+breath\b/i,
+        pattern: /\b(can'?t|cannot|unable\s+to|struggling\s+to|hard\s+to)\s+breathe?\b|\b(can'?t|cannot|unable\s+to)\s+(get|catch)\s+(enough\s+)?(air|breath|oxygen)\b|\b(can'?t|cannot)\s+catch\s+(my\s+)?breath\b|\b(blue\s+(lips|fingers|skin|face)|(lips|fingers|skin|face)\b.*?\bblue\b)\b|\b(gasping\s+for\s+(air|breath)|struggling\s+for\s+air|suffocating)\b|\bsevere\s+shortness\s+of\s+breath\b/i,
         userMessage: 'Severe difficulty breathing, inability to get enough air, or blue lips can indicate acute oxygen deprivation or respiratory failure.',
         thirdPartyMessage: 'If someone is struggling to breathe, gasping for air, or has blue lips, call local emergency services immediately. Help them sit upright in a comfortable position.',
         isNegated: (c) => /\b(no|not|never|denies|denying|without)\s+([a-z]+\s+)?(shortness\s+of\s+breath|difficulty\s+breathing|trouble\s+breathing)\b/i.test(c),
@@ -230,9 +230,10 @@ export function checkRedFlags(text: string, locale = 'en'): RedFlagMatch | null 
   }
 
   // 2. Evaluate Acute Medical Emergencies by clause with symptom-level guards
-  // Split on punctuation (. ! ? ; : \n), contrast transitions (but, however, yet, etc.), or coordinating conjunctions with temporal shifts (, today, , and today, , and now)
+  // Split on punctuation (. ! ? ; : \n), contrast transitions (but, however, yet, although, etc.),
+  // or coordinating transitions with explicit temporal shifts (, and today, , and now, etc.)
   const rawClauses = trimmed.split(
-    /(?:[.!?;:\n]+|\b(?:but|however|yet|although|though|whereas|while)\b|,\s*(?:and\s+)?(?:today|currently|suddenly|at\s+present)\b|,\s*and\s+now\b|,\s*and\b)+/i
+    /(?:[.!?;:\n]+|\b(?:but|however|yet|although|though|whereas)\b|,\s*and\s+(?:today|currently|suddenly|at\s+present|now)\b|,\s*today\b)+/i
   );
 
   for (const clause of rawClauses) {

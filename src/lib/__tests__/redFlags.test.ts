@@ -376,3 +376,252 @@ test('Remediation Sprint 1: Other-Person Emergency Presentations', async (t) => 
   });
 });
 
+test('Remediation Sprint 2: Mandated Hardening Test Cases (7 Phrases)', async (t) => {
+  await t.test('Case 1: "severe abdominal pain, and fever and chills" triggers acute_abdomen', () => {
+    const input = 'severe abdominal pain, and fever and chills';
+    const result = checkRedFlags(input, 'en');
+    assert.ok(result !== null, 'Expected acute_abdomen match');
+    assert.equal(result?.category, 'acute_abdomen');
+  });
+
+  await t.test('Case 2: "chest pain while walking, severe" triggers acute_coronary', () => {
+    const input = 'chest pain while walking, severe';
+    const result = checkRedFlags(input, 'en');
+    assert.ok(result !== null, 'Expected acute_coronary match');
+    assert.equal(result?.category, 'acute_coronary');
+  });
+
+  await t.test('Case 3: "crushing chest pain and I can\'t breathe" triggers acute_coronary', () => {
+    const input = "crushing chest pain and I can't breathe";
+    const result = checkRedFlags(input, 'en');
+    assert.ok(result !== null, 'Expected acute_coronary match');
+    assert.equal(result?.category, 'acute_coronary');
+  });
+
+  await t.test('Case 4: "no fever but I can\'t breathe" triggers severe_respiratory', () => {
+    const input = "no fever but I can't breathe";
+    const result = checkRedFlags(input, 'en');
+    assert.ok(result !== null, 'Expected severe_respiratory match');
+    assert.equal(result?.category, 'severe_respiratory');
+  });
+
+  await t.test('Case 5: "my friend told me to come in. I have chest pain" triggers acute_coronary (patient)', () => {
+    const input = 'my friend told me to come in. I have chest pain';
+    const result = checkRedFlags(input, 'en');
+    assert.ok(result !== null, 'Expected acute_coronary match');
+    assert.equal(result?.category, 'acute_coronary');
+    assert.equal(result?.isThirdParty, false);
+  });
+
+  await t.test('Case 6: "I\'m not worried about my dad\'s stroke but my face is drooping" triggers stroke_fast (patient)', () => {
+    const input = "I'm not worried about my dad's stroke but my face is drooping";
+    const result = checkRedFlags(input, 'en');
+    assert.ok(result !== null, 'Expected stroke_fast match');
+    assert.equal(result?.category, 'stroke_fast');
+    assert.equal(result?.isThirdParty, false);
+  });
+
+  await t.test('Case 7: "I used to have seizures, I\'m having one now" triggers seizure_convulsions', () => {
+    const input = "I used to have seizures, I'm having one now";
+    const result = checkRedFlags(input, 'en');
+    assert.ok(result !== null, 'Expected seizure_convulsions match');
+    assert.equal(result?.category, 'seizure_convulsions');
+  });
+});
+
+test('Remediation Sprint 2: 20 Informal Paraphrases (5 per category)', async (t) => {
+  // Category A: Chest (5 paraphrases)
+  await t.test('Chest 1: "my chest hurts really bad like someone is squeezing it"', () => {
+    const res = checkRedFlags('my chest hurts really bad like someone is squeezing it', 'en');
+    assert.ok(res !== null);
+    assert.equal(res?.category, 'acute_coronary');
+  });
+  await t.test('Chest 2: "having really bad chest pressure that goes up into my jaw"', () => {
+    const res = checkRedFlags('having really bad chest pressure that goes up into my jaw', 'en');
+    assert.ok(res !== null);
+    assert.equal(res?.category, 'acute_coronary');
+  });
+  await t.test('Chest 3: "feels like a ton of bricks sitting on my chest"', () => {
+    const res = checkRedFlags('feels like a ton of bricks sitting on my chest', 'en');
+    assert.ok(res !== null);
+    assert.equal(res?.category, 'acute_coronary');
+  });
+  await t.test('Chest 4: "bad chest tightness and pain in my left arm"', () => {
+    const res = checkRedFlags('bad chest tightness and pain in my left arm', 'en');
+    assert.ok(res !== null);
+    assert.equal(res?.category, 'acute_coronary');
+  });
+  await t.test('Chest 5: "burning pain in center of chest going into my back"', () => {
+    const res = checkRedFlags('burning pain in center of chest going into my back', 'en');
+    assert.ok(res !== null);
+    assert.equal(res?.category, 'acute_coronary');
+  });
+
+  // Category B: Stroke (5 paraphrases)
+  await t.test('Stroke 1: "half of my face feels numb and is drooping down"', () => {
+    const res = checkRedFlags('half of my face feels numb and is drooping down', 'en');
+    assert.ok(res !== null);
+    assert.equal(res?.category, 'stroke_fast');
+  });
+  await t.test('Stroke 2: "suddenly can\'t talk right and words coming out all slurred"', () => {
+    const res = checkRedFlags("suddenly can't talk right and words coming out all slurred", 'en');
+    assert.ok(res !== null);
+    assert.equal(res?.category, 'stroke_fast');
+  });
+  await t.test('Stroke 3: "my husband can\'t move his right arm or leg all of a sudden"', () => {
+    const res = checkRedFlags("my husband can't move his right arm or leg all of a sudden", 'en');
+    assert.ok(res !== null);
+    assert.equal(res?.category, 'stroke_fast');
+  });
+  await t.test('Stroke 4: "woke up and one side of my body is completely weak"', () => {
+    const res = checkRedFlags('woke up and one side of my body is completely weak', 'en');
+    assert.ok(res !== null);
+    assert.equal(res?.category, 'stroke_fast');
+  });
+  await t.test('Stroke 5: "she is smiling crooked and speech is completely slurred"', () => {
+    const res = checkRedFlags('she is smiling crooked and speech is completely slurred', 'en');
+    assert.ok(res !== null);
+    assert.equal(res?.category, 'stroke_fast');
+  });
+
+  // Category C: Breathing (5 paraphrases)
+  await t.test('Breathing 1: "gasping for air and feel like I\'m suffocating"', () => {
+    const res = checkRedFlags("gasping for air and feel like I'm suffocating", 'en');
+    assert.ok(res !== null);
+    assert.equal(res?.category, 'severe_respiratory');
+  });
+  await t.test('Breathing 2: "can\'t catch my breath at all, struggling for air"', () => {
+    const res = checkRedFlags("can't catch my breath at all, struggling for air", 'en');
+    assert.ok(res !== null);
+    assert.equal(res?.category, 'severe_respiratory');
+  });
+  await t.test('Breathing 3: "baby is turning blue around the lips and struggling to breathe"', () => {
+    const res = checkRedFlags('baby is turning blue around the lips and struggling to breathe', 'en');
+    assert.ok(res !== null);
+    assert.equal(res?.category, 'severe_respiratory');
+  });
+  await t.test('Breathing 4: "hard to breathe and cannot get enough oxygen into my lungs"', () => {
+    const res = checkRedFlags('hard to breathe and cannot get enough oxygen into my lungs', 'en');
+    assert.ok(res !== null);
+    assert.equal(res?.category, 'severe_respiratory');
+  });
+  await t.test('Breathing 5: "chest is tight and I can\'t breathe right now"', () => {
+    const res = checkRedFlags("chest is tight and I can't breathe right now", 'en');
+    assert.ok(res !== null);
+    assert.equal(res?.category, 'severe_respiratory');
+  });
+
+  // Category D: Overdose (5 paraphrases)
+  await t.test('Overdose 1: "took too many sleeping pills by mistake and can\'t stay awake"', () => {
+    const res = checkRedFlags("took too many sleeping pills by mistake and can't stay awake", 'en');
+    assert.ok(res !== null);
+    assert.equal(res?.category, 'overdose_poisoning');
+  });
+  await t.test('Overdose 2: "my roommate swallowed a whole bunch of painkillers"', () => {
+    const res = checkRedFlags('my roommate swallowed a whole bunch of painkillers', 'en');
+    assert.ok(res !== null);
+    assert.equal(res?.category, 'overdose_poisoning');
+  });
+  await t.test('Overdose 3: "toddler drank some cleaning solution from under the sink"', () => {
+    const res = checkRedFlags('toddler drank some cleaning solution from under the sink', 'en');
+    assert.ok(res !== null);
+    assert.equal(res?.category, 'overdose_poisoning');
+  });
+  await t.test('Overdose 4: "accidental overdose on my heart medication"', () => {
+    const res = checkRedFlags('accidental overdose on my heart medication', 'en');
+    assert.ok(res !== null);
+    assert.equal(res?.category, 'overdose_poisoning');
+  });
+  await t.test('Overdose 5: "ingested rat poison by accident"', () => {
+    const res = checkRedFlags('ingested rat poison by accident', 'en');
+    assert.ok(res !== null);
+    assert.equal(res?.category, 'overdose_poisoning');
+  });
+});
+
+test('Sprint 2.1: Restored Original Phrasings Test Suite', async (t) => {
+  await t.test('original phrasing: "crushing chest pain radiating to arm" triggers acute_coronary', () => {
+    const res = checkRedFlags('crushing chest pain radiating to arm', 'en');
+    assert.ok(res !== null, 'Expected match for acute coronary');
+    assert.equal(res?.category, 'acute_coronary');
+  });
+
+  await t.test('original phrasing: "chest pain radiating to left arm" triggers acute_coronary', () => {
+    const res = checkRedFlags('chest pain radiating to left arm', 'en');
+    assert.ok(res !== null, 'Expected match for acute coronary');
+    assert.equal(res?.category, 'acute_coronary');
+  });
+
+  await t.test('guard-4 original phrasing isolated: "I fainted at the sight of blood years ago" returns null', () => {
+    const res = checkRedFlags('I fainted at the sight of blood years ago', 'en');
+    assert.equal(res, null, 'Isolated vasovagal history must not trigger syncope emergency');
+  });
+});
+
+test('Sprint 2.1: Benign Phrases and False-Positive / Over-Warning Measurement', async (t) => {
+  // Known clinical over-warnings (acceptable for chest/breathing safety, documented and measured)
+  await t.test('measures over-warning on "heartburn after spicy food, burning in my chest" -> triggers acute_coronary', () => {
+    const res = checkRedFlags('heartburn after spicy food, burning in my chest', 'en');
+    assert.ok(res !== null, 'Triggers chest over-warning safety pattern');
+    assert.equal(res?.category, 'acute_coronary');
+  });
+
+  await t.test('measures over-warning on "chest tightness when I\'m anxious but it passes" -> triggers acute_coronary', () => {
+    const res = checkRedFlags("chest tightness when I'm anxious but it passes", 'en');
+    assert.ok(res !== null, 'Triggers chest tightness over-warning safety pattern');
+    assert.equal(res?.category, 'acute_coronary');
+  });
+
+  await t.test('measures over-warning on "I can\'t breathe through my nose with this cold" -> triggers severe_respiratory', () => {
+    const res = checkRedFlags("I can't breathe through my nose with this cold", 'en');
+    assert.ok(res !== null, 'Triggers breathing difficulty over-warning safety pattern');
+    assert.equal(res?.category, 'severe_respiratory');
+  });
+
+  // Benign phrases correctly returning null (no emergency triggered)
+  await t.test('benign: "my toddler drank some water" returns null', () => {
+    assert.equal(checkRedFlags('my toddler drank some water', 'en'), null);
+  });
+
+  await t.test('benign: "I took two vitamins instead of one" returns null', () => {
+    assert.equal(checkRedFlags('I took two vitamins instead of one', 'en'), null);
+  });
+
+  await t.test('benign: "my face felt numb at the dentist yesterday" returns null', () => {
+    assert.equal(checkRedFlags('my face felt numb at the dentist yesterday', 'en'), null);
+  });
+
+  await t.test('benign: "I felt faint after standing up quickly years ago" returns null', () => {
+    assert.equal(checkRedFlags('I felt faint after standing up quickly years ago', 'en'), null);
+  });
+
+  await t.test('benign: "bad cramps and a fever last week, now fine" returns null', () => {
+    assert.equal(checkRedFlags('bad cramps and a fever last week, now fine', 'en'), null);
+  });
+
+  await t.test('benign: "bit my tongue while eating dinner, small scratch" returns null', () => {
+    assert.equal(checkRedFlags('bit my tongue while eating dinner, small scratch', 'en'), null);
+  });
+
+  await t.test('benign: "got soap in my eye in the shower, burns a bit" returns null', () => {
+    assert.equal(checkRedFlags('got soap in my eye in the shower, burns a bit', 'en'), null);
+  });
+
+  await t.test('benign: "stubbed my toe on the bed frame, throbbing pain" returns null', () => {
+    assert.equal(checkRedFlags('stubbed my toe on the bed frame, throbbing pain', 'en'), null);
+  });
+
+  await t.test('benign: "sneezing a lot after dusting the bookshelf" returns null', () => {
+    assert.equal(checkRedFlags('sneezing a lot after dusting the bookshelf', 'en'), null);
+  });
+
+  await t.test('benign: "mild nausea after eating greasy food for lunch" returns null', () => {
+    assert.equal(checkRedFlags('mild nausea after eating greasy food for lunch', 'en'), null);
+  });
+
+  await t.test('benign: "tired after a long day of working in the yard" returns null', () => {
+    assert.equal(checkRedFlags('tired after a long day of working in the yard', 'en'), null);
+  });
+});
+
+
